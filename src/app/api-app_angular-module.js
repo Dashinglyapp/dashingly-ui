@@ -13,14 +13,15 @@ angular.module( 'realize.api-promises', [
       selfLink: 'url'
     });
     RestangularProvider.setResponseExtractor(function(response, operation, what,something,something2) {
-      // console.log('extractor response',response);
-      // console.log('extractor operation',operation);
-      // console.log('extractor what',what);
-      // console.log('extractor something',something);
-      // console.log('extractor something2',something2);
-      return operation === 'getList' ?
-        response :
-        response[what];
+      console.log('extractor response',response);
+      console.log('extractor operation',operation);
+      console.log('extractor what',what);
+      console.log('extractor something',something);
+      console.log('extractor something2',something2);
+      // return operation === 'getList' ?
+      //   response :
+      //   response[what];
+      return response;
     });
 
   }

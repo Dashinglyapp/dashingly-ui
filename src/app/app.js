@@ -48,7 +48,7 @@ var happ = angular.module( 'realize', [
   function ($root, $state, apiPromises,utils,$stateParams,_,$timeout) {
     // This section is fugly!
     // Lazy loading templates and states is not something UI router handles well.
-    utils.enableDebugging();
+    // utils.enableDebugging();
 
     // set root properties - I think these can go in a parent controller.
     // console.log('apiPromises.login',apiPromises.login.get());
@@ -84,13 +84,12 @@ var happ = angular.module( 'realize', [
 
 .controller("MainCtrl", ['$scope','Restangular','$q','$window',function($scope,Restangular,$q,$window){
   var def = $q.defer();
-  var token = $window.localStorage.auth_token;
-  $scope.moreinfo=false;
-  $scope.login=false;
-  $scope.register=false;
+  $scope.moreinfo = false;
+  $scope.login = false;
+  $scope.register = false;
   $scope.auth_token = $window.localStorage.auth_token;
   Restangular.all('auth_check')
-  .getList({},{token: $scope.auth_token})
+  .post({token: $scope.auth_token},{token: $scope.auth_token},{token: $scope.auth_token})
   .then(function(){
     console.log('auth_check success arguments',arguments);
   })
@@ -116,44 +115,59 @@ var happ = angular.module( 'realize', [
 // make switch in html.
 // convert this to a widget later
 .controller('LoginCtrl', ['$scope','Restangular','$q','$window', function($scope,Restangular,$q,$window){
-  $scope.user = {
+  $scope.formData = {
     "email": "test@realize.pe",
-    "password": "test"
+    "password": "testtest"
   };
-
-  $scope.message = '';
+  $scope.postMessage = '';
+  $scope.getMessage = '';
   $scope.loginOrRegister = function (either){
     Restangular.all(either).getList().then(function(data){
       console.log(either + ' GET success arguments',arguments);
-      Restangular.all(either).post($scope.user,{},{'X-CSRFToken':data.csrf_token})
+      $scope.getMessage = 'GET success';
+      Restangular.all(either)
+      .post($scope.formData,{},{'Content-Type':'application/json','X-CSRFToken':data.csrf_token})
       .then(function(data){
         console.log(either + ' POST success arguments',arguments);
+        $scope.user = data.user;
+        $window.localStorage.token = data.user.token;
         console.log('$window.localStorage.token',$window.localStorage.token);
-        $window.localStorage.token = data.token;
-        $scope.message = 'Welcome';
       })
-      .catch(function(){
-        delete $window.sessionStorage.token; // Erase the token if the user fails to log in
+      .catch(function(err){
+        delete $window.localStorage.token; // Erase the token if the user fails to log in
         // Handle login errors
-        console.log(either + ' POST error arguments',arguments);
-        $scope.message = 'Error: Invalid user or password';
+        // angular.forEach(err.data.fields,function(obj,iter){
+        //   console.log(either + ' POST error iter,obj', iter,obj);
+          // if(obj.errors.length){
+            // angular.forEach(obj,function(str){
+            //   $scope.postMessage += str + '</br>';
+            // });
+          // }
+        // });
+        $scope.postMessage = 'POST error';
+
       });
     })
     .catch(function(){
       console.log(either + ' GET error arguments',arguments);
-      console.log('login get fail',arguments);
+      $scope.getMessage = 'GET error';
     });
   };
+
   $scope.logout = function () {
     Restangular.all('logout').getList()
     .then(function(){
-      $scope.$parent.moreinfo=true;
-      $scope.$parent.login=$scope.register=false;
-      $scope.$parent.message="logged out";
-      delete $window.localStorage.token;
     })
     .catch(function(){
       console.log('logout fail',arguments);
+    })
+    .finally(function () {
+      delete $window.localStorage.token;
+      $scope.$parent.moreinfo = true;
+      $scope.$parent.login = false;
+      $scope.$parent.register = false;
+      $scope.$parent.message = "logged out";
+      // body...
     });
   };
 }])

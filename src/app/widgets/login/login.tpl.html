@@ -1,11 +1,21 @@
 <div class="widget-body">
   <form>
-    <p>{{message}}</p>
-    <label for='email'>Email</label><input type='email'></input>
-    <label for='password'>Password</label><input type='password'></input>
-    <label for='remember-me'></label><input name="remember-me" type='checkbox'></input>
+    <p>{{getMessage}}</p>
+    <p>{{postMessage}}</p>
 
-    <button type="submit" ng-click="login?loginOrRegister('login'):loginOrRegister('register')">Login</button>
-    <h2><a logout ng-click="logout()">Logout</a></h2>
+
+    <p class="form-group"><label for='email'>Email</label><input type='email' ng-model="formData.email"></input></p>
+    <p class="form-group"><label for='password'>Password</label><input type='password' ng-model="formData.password"></input></p>
+    <p class="form-group"><label for='remember-me'></label><input name="remember-me" type='checkbox'></input></p>
+
+    <button
+      class="btn btn-success btn-lg btn-block"
+      type="submit"
+      ng-click="login?loginOrRegister('login'):loginOrRegister('register')"
+      >
+      {{$parent.login?'Login':'Register'}}
+    </button>
+
+    <h4><a logout ng-click="logout()">Logout</a></h4>
   </form>
 </div>
