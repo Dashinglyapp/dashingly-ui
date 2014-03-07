@@ -9,257 +9,155 @@ var happ = angular.module( 'realize', [
   'realize-app-utils'
 ])
 
-.config( ['$stateProvider','$urlRouterProvider',
-  function ($stateProvider , $urlRouterProvider) {
+.config( ['$stateProvider','$urlRouterProvider','$locationProvider',
+  function ($stateProvider , $urlRouterProvider, $locationProvider) {
     // store the state provider for lazy loading states
     STATE_PROVIDER = $stateProvider;
     // console.log('$rootScope',$rootScope);
-
+    // enable pushstate so urls are / instead of /#/ as root
+    $locationProvider.html5Mode(true);
     /**
      * States
      */
-    // convert the routing request to a state request to use the state events
-    var freshSession = true;
-    var loggedIn = false;
-    $urlRouterProvider.otherwise(function($injector,$location){
-      console.log('OTHERWISE - $location','hash:',$location.hash(),'path:',$location.path());
-      var redirectTo = $location.path().slice(1);
-      var $state = $injector.get('$state');
-      var apiPromise = $injector.get('api-promises');
-      // what do we need to log in...
-      //
-      // this should happen on login POST... login get should render form
-      // if user is not logged in, send to login dashboard.
-      // if logged in, send to default dashboard
-
-      // render a default dashboard border.
-      //
-      // If logged in, then render their default dashboard
-      apiPromise.login.get().then(function () {
-        if(freshSession === true){
-          freshSession = false;
-          redirectTo = 'loginDash';
-        }
-        // this should go to stateNotFound
-        $state.go(redirectTo,{freshSession:true});
-      });
-    });
+    $urlRouterProvider.otherwise('/');
 
     $stateProvider.state({
       name:'root',
       url:'/',
-      // templateProvider:function(){
-      //   console.log('debug template()');
-      //   return '<div ui-view></div>';
-      // },
-      views:{
-        'menuleft':{
-          controller:'LeftMenuCtrl',
-          templateUrl:'left-menu.tpl.html'
-        },
-        'menuright':{
-          controller:'RightMenuCtrl',
-          templateUrl:'right-menu.tpl.html'
-        },
-        'topnav':{
-          controller:'TopNavCtrl',
-          templateUrl:'top-nav.tpl.html'
-        },
-        'main':{
-          template:'<ui-view/>'
-        },
-        'modal':{
-          templateUrl:'modal.tpl.html'
-        }
-      }
+      templateURL:'dashboard.tpl.html',
+      controller:'MainCtrl'//,
+      // resolve:{
+      //   auth:['userReady',function(userReady){
+      //     return userReady;
+      //   }]
+      // }
     });
-    $stateProvider.state({
-      name:'root.login',
-      url:'/login',
-      template:'login.tpl.html',
-      controller:'loginCtrl'
-    });
-
   }
 ])
+
+
 // run is where we set initial rootscope properties
 .run([
   '$rootScope',
   '$state',
   'api-promises',
   'utils',
-  'dashboardFactory',
   '$stateParams',
   'lodash',
   '$timeout',
-  'user',
-  function ($root, $state, apiPromises,utils,dashboardFactory,$stateParams,_,$timeout,user) {
+  function ($root, $state, apiPromises,utils,$stateParams,_,$timeout) {
     // This section is fugly!
     // Lazy loading templates and states is not something UI router handles well.
     utils.enableDebugging();
 
     // set root properties - I think these can go in a parent controller.
     // console.log('apiPromises.login',apiPromises.login.get());
-    apiPromises.login.get().then(function(auth){
-      console.log('login.get() arguments', arguments );
-      $root.user = {
-        name:'foo',
-        settings:{
-          defaultDashboard:'fooDash',
-          dashboards:[
-            {
-              name:'fooDash',
-              widgets:['login']
-            }
-          ],
-          widgets:[
-            {name:'login',template:'login'}
-          ],
-          plugins:[
-
-          ]
-        }
-      };
-      $root.dashboardList = $root.user.settings.dashboards;
+    // apiPromises.login.get().then(function(auth){
+      // $root.dashboardList = $root.user.settings.dashboards;
       // $root.activeDashboard = _.find($root.dashboardList,{name:$root.user.settings.defaultDashboard});
       // $root.setActiveWidgets($root.activeDashboard);
 
       // $root.setActiveWidgets(dashboardObj);
 
 
-      $root.closeMenus = function(){
-        var open = false;
-        if($root.dashboardListSelectorVisible){open = true;$root.dashboardListSelectorVisible = 0;}
-        if($root.showleftmenu){open = true;$root.showleftmenu = 0;}
-        if($root.showrightmenu){open = true;$root.showrightmenu = 0;}
-        return open;
-      };
-
-      $root.setActiveWidgets = function(widgetsList){
-        $root.activeWidgets = _.map(widgetsList,function(widgetName){
-          return _.find($root.user.settings.widgets,{name:widgetName});
-        });
-      };
-      //
-      $root.setActiveDashboard = function(dashboardObj){
-        // handle states internally since triggering on $stateChangeSuccess kills css animations,
-        // stateChangeStart doesn't fire on reloads
-        // and stateNotFound only works the first time a state is called
-        console.log('running $root.setActiveDashboard');
-        if(!dashboardObj){return false; }
-        var menusOpen = $root.closeMenus();
-        $root.activeDashboard = dashboardObj;
-        $root.dashboardChanged = !$root.dashboardChanged;
-        if(menusOpen){
-          $timeout(function(){
-            // $state.transitionTo(stateName,{notify:true});
-            $state.go('root.' + dashboardObj.name);
-            $root.setActiveWidgets(dashboardObj.widgets);
-          },1050); // wait for menu close
-        } else {
-          $state.go('root.' + dashboardObj.name);
-          $root.setActiveWidgets(dashboardObj.widgets);
-          console.log('switching dashboard');
-        }
-      };
-    });
-    //
-    $root.$on('$stateNotFound',function(event, unfoundState, fromState, fromParams){
-      console.log('$stateNotFound ' + unfoundState.to + '  - fired when a state cannot be found by its name.');
-
-      var dashboardObj = _.find($root.dashboardList,{name:unfoundState.to});
-      // if there are display templates, create the state and retry it
-      // event.preventDefault();
-      if (dashboardObj) {
-        // $root.closeMenus();
-        // we can't use event.retry because it will try switching the state before the menus close.
-        // event.retry = dashboardFactory(unfoundState.to);
-
-        dashboardFactory(dashboardObj).then(function(stateObj){
-          $root.setActiveDashboard(dashboardObj);
-        });
-        return;
-      }
-      // else prevent the transition
-      console.log('preventing switch to new state - no dashboard defined with that name');
-      event.preventDefault();
-    });
-  }
-])
-
-
-// MAY BE ABLE TO USE THIS FOR WIDGETS
-// lazy loads dashboards
-// returns a promise for when the state is done loading
-.service('dashboardFactory', [
-  'api-promises',
-  '$q',
-  function (apiPromises, $q) {
-    return function(dashboardObj){
-      // get which dashboard to populate the state data from
-      var stateObjDeferred = $q.defer();
-        // parse dashboards here.
-      apiPromises.login.get().then(function(api){
-
-        // create a state object for the dashboard
-        var stateObj = {
-          name:'root.' + dashboardObj.name,
-          url:dashboardObj.name,
-          data:dashboardObj,
-          controller:'MainViewCtrl',
-          templateUrl:'dashboard.tpl.html' // gets replaced by the partialsContainer directive
-        };
-
-        // create the state
-        STATE_PROVIDER.state(stateObj);
-      // resolve the stateDefinedDeferred to load our newly defined state
-        console.log('STATE '+ stateObj.name + ' now exists');
-        stateObjDeferred.resolve(stateObj);
-      });
-      return stateObjDeferred.promise;
+    $root.closeMenus = function(){
+      var open = false;
+      if($root.dashboardListSelectorVisible){open = true;$root.dashboardListSelectorVisible = 0;}
+      if($root.showleftmenu){open = true;$root.showleftmenu = 0;}
+      if($root.showrightmenu){open = true;$root.showrightmenu = 0;}
+      return open;
     };
-  }
-])
-.service('authPromise', [
-  'api-promises',
-  '$q',
-  function (engineApiPromise, $q) {
 
+    $root.setActiveWidgets = function(widgetsList){
+      $root.activeWidgets = _.map(widgetsList,function(widgetName){
+        return _.find($root.user.settings.widgets,{name:widgetName});
+      });
+    };
+    //
   }
 ])
+
 
 /**
  * Controllers
  */
 
-.controller("MainViewCtrl", ['$scope', function($scope){
-  console.log('MainViewCtrl $scope',$scope);
+.controller("MainCtrl", ['$scope','Restangular','$q','$window',function($scope,Restangular,$q,$window){
+  var def = $q.defer();
+  var token = $window.localStorage.auth_token;
+  $scope.moreinfo=false;
+  $scope.login=false;
+  $scope.register=false;
+  $scope.auth_token = $window.localStorage.auth_token;
+  Restangular.all('auth_check')
+  .getList({},{token: $scope.auth_token})
+  .then(function(){
+    console.log('auth_check success arguments',arguments);
+  })
+  .catch(function () {
+    console.log('auth_check fail arguments',arguments);
+    $scope.moreinfo = true;
+  });
+  return def;
 }])
 
-.controller('LoginCtrl', ['$scope','api-promises','$window',function ($scope, apiPromises, $window) {
+// .service('userReady', ['Restangular','$q','$window', function(Restangular,$q,$window){
+//   Restangular.all('auth_check')
+//   .getList({},{token:token})
+//   .then(function(){
+//     console.log('auth_check success arguments',arguments);
+//   })
+//   .catch(function () {
+//     console.log('auth_check fail arguments',arguments);
+//   });
+// }])
+
+// create separate login panel for now.
+// make switch in html.
+// convert this to a widget later
+.controller('LoginCtrl', ['$scope','Restangular','$q','$window', function($scope,Restangular,$q,$window){
   $scope.user = {
     "email": "test@realize.pe",
     "password": "test"
   };
+
   $scope.message = '';
-  $scope.submit = function () {
-    apiPromises.login.get().then(function(preLoginData){
-      apiPromises.login.post($scope.user,{'X-CSRFToken':preLoginData.csrf_token})
-      .then(function(postLoginData){
-        $window.sessionStorage.token = postLoginData.token;
+  $scope.loginOrRegister = function (either){
+    Restangular.all(either).getList().then(function(data){
+      console.log(either + ' GET success arguments',arguments);
+      Restangular.all(either).post($scope.user,{},{'X-CSRFToken':data.csrf_token})
+      .then(function(data){
+        console.log(either + ' POST success arguments',arguments);
+        console.log('$window.localStorage.token',$window.localStorage.token);
+        $window.localStorage.token = data.token;
         $scope.message = 'Welcome';
       })
-      .error(function(){
+      .catch(function(){
         delete $window.sessionStorage.token; // Erase the token if the user fails to log in
-
         // Handle login errors
-        console.log('submit error arguments',arguments);
+        console.log(either + ' POST error arguments',arguments);
         $scope.message = 'Error: Invalid user or password';
       });
-
+    })
+    .catch(function(){
+      console.log(either + ' GET error arguments',arguments);
+      console.log('login get fail',arguments);
+    });
+  };
+  $scope.logout = function () {
+    Restangular.all('logout').getList()
+    .then(function(){
+      $scope.$parent.moreinfo=true;
+      $scope.$parent.login=$scope.register=false;
+      $scope.$parent.message="logged out";
+      delete $window.localStorage.token;
+    })
+    .catch(function(){
+      console.log('logout fail',arguments);
     });
   };
 }])
+
 // Top Nav
 .controller("TopNavCtrl", ['$scope', function($scope){
   console.log('TopNavCtrl $scope',$scope);
@@ -277,6 +175,50 @@ var happ = angular.module( 'realize', [
 }])
 
 // adds a pseudo phone body around the content when on a desktop, for pre-beta evaluation
+
+.directive('widget', [function () {
+  return {
+    template: 'login.tpl.html',
+    replace: true,
+    restrict: 'E',
+    controller: 'WidgetCtrl'
+  };
+}])
+
+.directive('dashboard', [function () {
+  return {
+    template: 'login.tpl.html',
+    replace: true,
+    restrict: 'E',
+    controller: 'WidgetCtrl'
+  };
+}])
+
+.directive('leftMenu', [function () {
+  return {
+    templateUrl: 'left-menu.tpl.html',
+    replace: true,
+    restrict: 'E',
+    controller: 'LeftMenuCtrl'
+  };
+}])
+.directive('rightMenu', [function () {
+  return {
+    templateUrl: 'right-menu.tpl.html',
+    replace: true,
+    restrict: 'E',
+    controller: 'RightMenuCtrl'
+  };
+}])
+.directive('topNav', [function () {
+  return {
+    templateUrl: 'top-nav.tpl.html',
+    replace: true,
+    restrict: 'E',
+    controller: 'TopNavCtrl'
+  };
+}])
+
 .directive('hapSize', ['$timeout','$window', 'utils', function ($timeout, $window, utils) {
   return {
     restrict: 'A',
@@ -388,57 +330,54 @@ var happ = angular.module( 'realize', [
 ['$rootScope','$templateCache','$compile',
 function ($root, $templateCache, $compile) {
   return {
-    template: '<div></div>',
+    template: '<div>foo</div>',
     replace: true,
-    restrict: 'E',
+    restrict: 'E'
     // compile runs digest once.
     // link would run digest each time the model changes, including each time a new child is appended.
-    compile:function(){ // tElement, tAttrs, transclude
-      return {
-        pre:function(scope, iElement, iAttrs){ // scope, iElement, iAttrs, controller
-          var counter = 0;
-          // for some reason, making this $root.$watch causes the counter to log 3, 2, 1;
-          // where making it scope.$watch only makes it render 1 each time.
-          // Apparently a root watch will run 3 times.
-          //
-          scope.$watchCollection('[dashboard,people]', function (changed) { // also works
-          // scope.$watch('[dashboard,people]', function (changed) {
-            console.log('RENDERING',++counter);
-            // clean up
-            iElement.html('');
-
-            var groupOrIndividual = $root.people.tags.indexOf('group') < 0 ? 'individual' : 'group';
-            // loop over the dashboard's display templates
-            console.log('iAttrs',iAttrs);
-            var templateObj = iAttrs.templateObjectsArray === 'appSettings' ?
-              $root.user.installed_tabs.realize_app.settings :
-              $root.dashboard[iAttrs.templateObjectsArray];
-            var templateArray;
-            if(templateObj === undefined || templateObj[groupOrIndividual] === undefined || !templateObj[groupOrIndividual].length){
-              templateArray = [{template:''}];
-              console.log('No templates defined for dashboard: ' + $root.dashboard.name);
-              console.log('templateObj: ' + templateObj);
-            } else{
-              templateArray = templateObj[groupOrIndividual];
-            }
-            // var tempDom = angular.element('<div></div>');
-            angular.forEach(templateArray,function(obj,idx){
-              // create a new child scope for each
-              var childScope = scope.$new();
-              // add the template's data to its scope
-              childScope.template_data = obj;
-              childScope.idx = idx;
-              // get the partials from the cache
-              var templateStr = $templateCache.get('dashboards/' + obj.template.split(' : ').join('/'));
-              // if the template str is still blank, return a message;
-              // console.log('templateStr',templateStr);
-              templateStr = templateStr || '<div>The author of dashboard "' + $root.dashboard.name + '" did not specify a template to display ' + groupOrIndividual + 's.</div>';
-              // append the element to the dom - can batch these into one dom write for performance
-              iElement.append($compile(templateStr)(childScope));
-            });
-          });
-        }
-      };
-    }
+    // compile:function(){ // tElement, tAttrs, transclude
+    //   return {
+    //     pre:function(scope, iElement, iAttrs){ // scope, iElement, iAttrs, controller
+    //       // var counter = 0;
+    //       // for some reason, making this $root.$watch causes the counter to log 3, 2, 1;
+    //       // where making it scope.$watch only makes it render 1 each time.
+    //       // Apparently a root watch will run 3 times.
+    //       //
+    //       scope.$watchCollection('[dashboard,people]', function (changed) { // also works
+    //       // // scope.$watch('[dashboard,people]', function (changed) {
+    //       //   console.log('RENDERING',++counter);
+    //       //   // clean up
+    //       //   iElement.html('');
+    //       //   var templateObj = iAttrs.templateObjectsArray === 'appSettings' ?
+    //       //     $root.user.installed_tabs.realize_app.settings :
+    //       //     $root.dashboard[iAttrs.templateObjectsArray];
+    //       //   var templateArray;
+    //       //   if(templateObj === undefined || templateObj[groupOrIndividual] === undefined || !templateObj[groupOrIndividual].length){
+    //       //     templateArray = [{template:''}];
+    //       //     console.log('No templates defined for dashboard: ' + $root.dashboard.name);
+    //       //     console.log('templateObj: ' + templateObj);
+    //       //   } else{
+    //       //     templateArray = templateObj[groupOrIndividual];
+    //       //   }
+    //       //   // var tempDom = angular.element('<div></div>');
+    //       //   angular.forEach(templateArray,function(obj,idx){
+    //         // angular.forEach([],function(obj,idx){
+    //         //   // create a new child scope for each
+    //         //   var childScope = scope.$new();
+    //         //   // add the template's data to its scope
+    //         //   childScope.template_data = obj;
+    //         //   childScope.idx = idx;
+    //         //   // get the partials from the cache
+    //         //   var templateStr = $templateCache.get('dashboards/' + obj.template.split(' : ').join('/'));
+    //         //   // if the template str is still blank, return a message;
+    //         //   // console.log('templateStr',templateStr);
+    //         //   templateStr = templateStr || '<div>The author of dashboard "' + $root.dashboard.name + '" did not specify a template to display ' + groupOrIndividual + 's.</div>';
+    //         //   // append the element to the dom - can batch these into one dom write for performance
+    //         //   iElement.append($compile(templateStr)(childScope));
+    //         // });
+    //       });
+    //     }
+    //   };
+    // }
   };
 }]);

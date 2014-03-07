@@ -162,43 +162,6 @@ module.exports = function ( grunt ) {
      * The grunt-contrib-connect plugin provides a lightweight web server to view the app
      */
 
-//     var mountFolder = function (connect, dir) {
-//     return connect.static(require('path').resolve(dir));
-// };
-    // connect:{ // lightweight web server to view the app
-    //   build:{
-    //     options:{
-    //       base:'<%= build.dirs.app %>',
-    //       // livereload:true, // inject the livereload script
-    //       port:8001,
-    //       // livereload: 35729
-    //       // debug:true
-    //     }
-    //   },
-    //   server: {
-    //     options: {
-    //       hostname: 'localhost',
-    //       port: 8000,
-    //       middleware: function() {
-    //         return [proxySnippet];
-    //       },
-    //       livereload: 35729
-    //     },
-    //     proxies: [{
-    //       context: '/api/v',
-    //       host: 'localhost',
-    //       rewrite: {
-    //         '/api' : '/'
-    //       },
-    //       port: 8080
-    //     },
-    //     {
-    //       context: '/',
-    //       host: 'localhost',
-    //       port: 8001
-    //     }]
-    //   }
-    // },
     connect: {
       options: {
         port: 8000,
@@ -533,10 +496,11 @@ module.exports = function ( grunt ) {
       index: {files: 'index.html', tasks: ['concat:build_index','unit'] },
       // Recompile template cache on change
       compile_partials_to_tpls: {
-        files: ['**/*.tpl.{html,partial}'],
+        files: ['**/*.html'],
         tasks: [
           'html2js',
           'eslint:built_html_templates',
+          'concat:build_index',
           'unit'
         ]
       },

@@ -33,30 +33,30 @@ angular.module( 'realize.api-promises', [
   // returns an api promise for the engine - purposes
 
   // allow us to lazy-define functions here to call the api only when necessary, then use cached data afterward.
-  var loginAttemptDeferred=$q.defer();
-  var loginSuccessDeferred=$q.defer();
+  // var loginAttemptDeferred=$q.defer();
+  // var loginSuccessDeferred=$q.defer();
 
-  var loginAttemptPromise;
-  var loginSuccessPromise;
+  // var loginAttemptPromise;
+  // var loginSuccessPromise;
 
-  var api={
-    login:{
-      get:function(){
-        // if we've already made the request, return a promise that gives the result
-        // if(loginAttemptPromise){
-        //   loginAttemptPromise.then(function(result){
-        //     loginAttemptDeferred.resolve(result);
-        //   });
-        //   return loginAttemptDeferred.promise;
-        // }
-        // otherwise make the request
-        return loginAttemptPromise = loginAttemptPromise || Restangular.all('login').getList();
-      },
-      post:function(formData){
-        return loginSuccessPromise = Restangular.all('login').post({"email": "test@realize.pe", "password": "test"});
-      }
-    }
-  };
-
-  return api;
+  // var api={
+  //   login:{
+  //     get:function(){
+  //       // if we've already made the request, return a promise that gives the result
+  //       // if(loginAttemptPromise){
+  //       //   loginAttemptPromise.then(function(result){
+  //       //     loginAttemptDeferred.resolve(result);
+  //       //   });
+  //       //   return loginAttemptDeferred.promise;
+  //       // }
+  //       // otherwise make the request
+  //       return loginAttemptPromise = loginAttemptPromise || Restangular.all('login').getList();
+  //     },
+  //     post:function(formData){
+  //       return loginSuccessPromise = Restangular.all('login').post({"email": "test@realize.pe", "password": "test"});
+  //     }
+  //   }
+  // };
+  var foo = Restangular;
+  return $q;
 }]);

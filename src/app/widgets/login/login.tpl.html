@@ -1,8 +1,11 @@
 <div class="widget-body">
   <form>
-    <label for='email'></label><input type='email'></input>
+    <p>{{message}}</p>
+    <label for='email'>Email</label><input type='email'></input>
     <label for='password'>Password</label><input type='password'></input>
     <label for='remember-me'></label><input name="remember-me" type='checkbox'></input>
-    <button type="submit" ng-click="login()">Login</button>
+
+    <button type="submit" ng-click="login?loginOrRegister('login'):loginOrRegister('register')">Login</button>
+    <h2><a logout ng-click="logout()">Logout</a></h2>
   </form>
 </div>

@@ -60,7 +60,7 @@
     "no-return-assign":2, //disallow use of assignment in return statement
     "no-script-url":2, //disallow use of javascript: urls.
     "no-self-compare":2, //disallow comparisons where both sides are exactly the same
-    "no-unused-expressions":0, //disallow usage of expressions in statement position
+    "no-unused-expressions":1, //disallow usage of expressions in statement position
     "no-with":2, //disallow use of the with statement
     "no-yoda":2, //disallow Yoda conditions
     "radix":2, //require use of the second argument for parseInt()
@@ -81,7 +81,7 @@
     "no-shadow-restricted-names":2, //disallow shadowing of names such as arguments
     "no-undef":2, //disallow use of undeclared variables unless mentioned in a /*global */ block
     "no-undef-init":2, //disallow use of undefined when initializing variables
-    "no-unused-vars":2, //disallow declaration of variables that are not used in the code
+    "no-unused-vars":1, //disallow declaration of variables that are not used in the code
     "no-use-before-define":2, //disallow use of variables before they are defined
 
     // NODE.JS
