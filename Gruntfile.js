@@ -186,7 +186,7 @@ module.exports = function ( grunt ) {
         // headers:{
         //   'Content-Type':'application/json'
         // },
-        port: 8080,
+        port: 5000,
         changeOrigin:true,
         https: false
       }],
@@ -542,6 +542,8 @@ module.exports = function ( grunt ) {
 
   /** The default task is to build and compile for production */
   grunt.registerTask( 'default', ['build', 'compile']);
+
+  grunt.registerTask( 'fullBuild', ['build', 'buildWidgetListJSON']);
 
   // The `build` task sets up a dev and testing environment
   grunt.registerTask( 'build', [

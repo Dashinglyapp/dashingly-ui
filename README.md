@@ -1,17 +1,19 @@
-# [Inside: Because What's Inside is What Matters](https://github.com/IDCubed/oms-inside) [![Build Status](https://travis-ci.org/IDCubed/oms-inside.png?branch=master)](https://travis-ci.org/IDCubed/oms-inside)
+# [Realize](https://github.com/realizeapp/realize-ui-angular) [![Build Status](https://travis-ci.org/realizeapp/realize-ui-angular.png?branch=master)](https://travis-ci.org/realizeapp/realize-ui-angular)
 
 ***
 
-note: We're in the process of changing names from Happathon to Inside as we decouple the platform from the applications.  We'll still have a somerville application, but it's a separate project from the Inside platform.
+## Overview
 
-## Quick Start
+This is the UI component of [Realize](http://www.realize.pe).  Please see the [core repo](https://github.com/realizeapp/realize-core) for the backend server and full install/usage instructions.
+
+## Quick Start (Frontend only)
 
 [Install Node.js](http://nodejs.org/) and then:
 
 ```sh
 (Note: on Windows, you can ignore the "sudo" part)
-$ git clone git@github.com:IDCubed/oms-inside.git    # copy repo to your computer
-$ cd oms-inside    # change to inside directory
+$ git clone git@github.com:realizeapp/realize-ui-angular.git    # copy repo to your computer
+$ cd realize-ui-angular    # change to inside directory
 $ sudo npm -g install grunt-cli karma bower    # installs grunt-cli,karma,bower
 $ sudo npm install    # installs node dependencies in a /node_modules/ directory
 $ bower install    # installs js/css dependencies in your /bower_components/ directory
@@ -22,7 +24,7 @@ Click [http://localhost:8000](http://localhost:8000) to open the application in 
 
 And Boom!  You're set up to hack on any of the project's HTML/JavaScript/AngularJS code.  Making changes to those files in the src/ directory will also reload your page automatically.  Happy hacking!
 
-## Inside: Because What's Inside is What Matters
+## Realize
 
 This project's purpose is to advance progress in the mental measurement space in order to complement society's current external metrics with a new breed of measurements based on thought, emotion, learning, well-being, and other internal aspects, so that we may all live more satisfying, healthier lives.
 
@@ -33,7 +35,7 @@ Our society's current metrics are based on external measures like products produ
 Modern sensor technologies and machine learning enable complementary metrics that more deeply reflect our humanity.  Imagine a common core based on metrics like 90% of students learning at or above 90% of their potential each day, or where teachers are evaluated by the percent of students that emotionally loved learning more this year.  Consider a world where the success of a nation depends on it's people's resilience, creativity, peacefulness and happiness, not just the pace at which they consume its resources.
 
 ### The Tech:
-At present, Inside is an an open source, free, customizable platform for Data Scientists, Researchers, Quantified Selfers, and Companies to collectively experiment with past and present mental life data contributed by many individuals and groups.  It's initially designed to run on mobile phones since many of us carry them.  Eventually it will extend to other platforms.
+At present, Realize is an an open source, free, customizable platform for Data Scientists, Researchers, Quantified Selfers, and Companies to collectively experiment with past and present mental life data contributed by many individuals and groups.  It's initially designed to run on mobile phones since many of us carry them.  Eventually it will extend to other platforms.
 
 ## Audience
 
@@ -67,21 +69,12 @@ Solutions, perspectives, insights, are what make a difference.  The authenticati
 
 ## Learn
 
-### Plugins
-
-\* Note: All plugins will eventually be separate git repositories. They're placed a plugins directory to encourage modularity and act as if they were installed.
-
-All plugin directories (those starting with ```inside-```) contain a ```inside.json``` file that defines the plugin configuration.  It will have differences depending on the type of plugin.  The different plugin types, and their JSON structure are defined in the [inside.json spec](https://docs.google.com/document/d/10c_P2pixt1jjV0sPP86JDx1RAvLwvfJpFYM7ISh3Pls/edit#).
-
-Plugins central to the app cannot be removed, but community-contributed plugins may be added and removed as desired.
-
 ### Overall Directory Structure
 
 At a high level, the structure looks roughly like this:
 
-note: This directory structure is outdated due to project changes.  I'll update it as soon as I get the repo's files all updated, and names changed. See [#49](https://github.com/IDCubed/oms-inside/issues/49)- Adam
 ```
-oms-inside/
+realize-ui-angular/
   |- eslint.json // file syntax checking
   |- bower_components/ // all thirdparty libraries before they get copied to src/app/thirdparty
   |- bower.json // bower dependencies stored in bower_components
@@ -94,8 +87,7 @@ oms-inside/
   |- package.json // node package dependencies
   |- travis.yml // enables continuous integration via TravisCI
   |- src/ // contains all the raw source files
-  |  |- inside-android/ // contains all code that runs on android
-  |  |- app/ // the inside app
+  |  |- app/ // the app
   |  |  |- app-utils-module.js // utilities for app.js
   |  |  |- app.js // routing, rendering, and plugin control
   |  |  |- app.less // app-wide styles
@@ -107,39 +99,13 @@ oms-inside/
   |  |  |- right-menu.tpl.html  // template for the right nav (settings) menu
   |  |  |- thirdparty/  //third party libs
   |  |  |- top-nav.tpl.html  // template for the top nav bar
-  |  |  |- plugins/
-  |  |  |  |- inside-api-app_angular/
-  |  |  |  |  |- api-app_angular-module.js // wraps the raw data api for angular-specific performance improvements
-  |  |  |  |  |- inside.json // (these will be in every directory. We won't take up space with them below this)
-  |  |  |  |- inside-challenge-2kind/  // initial campaign
-  |  |  |  |- inside-challenge-inside-research/ // provides json for starting questions
-  |  |  |  |- inside-challenge-somerville-happiness-research/ // somerville happiness survey
-  |  |  |  |- inside-challenge-utils_angular/ // angular-specific templates for challenges to reference
-  |  |  |  |- inside-engine/ // the engine is required for any inside app.  It takes care of user data,
-                                // authentication, settings management, and any other CRUD operations
-                                // it doesn't belong in plugins since it's a separate app from the inside app
-                                // putting it here for mocking until we implement it in the backend
-  |  |  |  |  |- engine-module.js // temporary angular module to mock the engine
-  |  |  |  |  |- assets/
-  |  |  |  |  |  |- <static files>
-  |  |  |  |  |- mock-backend/
-  |  |  |  |  |  |- mock-backend-module.js // provides raw data CRUD interface to all API plugins
-  |  |  |  |  |  |- mock-backend-spec.js // unit tests for the above
-  |  |  |  |  |  |- people-user-module.js // temporary angular module to load the user object - this should be in db
-  |  |  |  |- inside-insight-explorer/ // explorers let you explore various aspects of your data
-  |  |  |  |- inside-insight-status/ // people (individual or group) status dashboard
-  |  |  |  |- inside-insight-utils_angular/ // angular-specific templates for insight plugins to reference
-  |  |  |  |- inside-org_customization-somerville/ // somerville customizations
-  |  |  |  |- inside-people-xxxx/ // eventually discoverable people (groups & individuals) will be listed as
-                                     // installable plugins.  for now they're hard coded into
-                                     // inside-engine/mock-backend/people-user-module.js
 
 ```
 
 ### Detailed Installation
 
 This section provides a little more detailed understanding of what goes into
-getting `oms-inside` up and running. Though `oms-inside` is really simple
+getting `realize` up and running. Though `realize` is really simple
 to use, it might help to have an understanding of the tools involved here, like
 Node.js and Grunt and Bower. If you're completely new to highly organized,
 modern JavaScript development, take a few short minutes to read [this overview
@@ -147,7 +113,7 @@ of the tools](tools.md) before continuing with this section.
 
 Okay, ready to go? Here it is:
 
-`oms-inside` uses [Grunt](http://gruntjs.org) as its build system, so
+`realize` uses [Grunt](http://gruntjs.org) as its build system, so
 [Node.js](http://nodejs.org) is required. Also, Grunt by default no longer comes
 with a command-line utility and Karma and Bower must end up in your global path
 for the build system to find it, so they must be installed independently. Once
@@ -164,8 +130,8 @@ from GitHub, or merge the branch into your existing repository. Assuming you're
 starting from scratch, simply clone this repository using git:
 
 ```sh
-$ git clone git@github.com:IDCubed/oms-inside.git oms-inside
-$ cd oms-inside
+$ git clone git@github.com:realizeapp/realize-ui-angular.git
+$ cd realize-ui-angular
 ```
 
 And then install the remaining build dependencies locally:
@@ -178,7 +144,7 @@ This will read the `dependencies` (empty by default) and the `devDependencies`
 (which contains our build requirements) from `package.json` and install
 everything needed into a folder called `node_modules/`.
 
-There are many Bower packages used by `oms-inside`, like Twitter Bootstrap
+There are many Bower packages used by `realize`, like Twitter Bootstrap
 and Angular UI, which are listed in `bower.js`. To install them into the
 `bower_components/` directory, simply run:
 
@@ -199,7 +165,7 @@ application (or we download it from a different computer), we can simply run the
 `bower install` command as above and all our dependencies will be installed for
 us. Neat!
 
-Technically, `oms-inside` is now ready to go.
+Technically, `realize` is now ready to go.
 
 However, prior to hacking on your application, you will want to modify the
 `package.json` file to contain your project's information. Do not remove any
@@ -229,7 +195,7 @@ This will build, concatenate and minify your sources and place them by default i
 The best way to learn about the build system is by familiarizing yourself with
 Grunt and then reading through the heavily documented build script,
 `Gruntfile.js`. But you don't need to do that to be very productive with
-`oms-inside`. What follows in this section is a quick introduction to the
+`realize`. What follows in this section is a quick introduction to the
 tasks provided and should be plenty to get you started.  TODO, generate this from the
 Gruntfile.js 'build' section comments
 
@@ -260,8 +226,7 @@ We're currently using Travis-CI for integration.
 
 ## Roadmap
 
-[Our Roadmap](ROADMAP.md)
-
+We don't have a roadmap yet, but will be working on one in the future.
 
 ## Contributing
 If you're new to open source development, check out jQuery's [Getting Started Contributing](http://contribute.jquery.org/open-source/)
@@ -273,15 +238,11 @@ Then check out [Contributing](CONTRIBUTING.md)
 
 **Chat**
 
-We're currently using the #oms channel on freenode.  If you're unfamiliar with IRC, use Freenode's webchat.  Go to http://webchat.freenode.net/, pick a nickname, and enter #oms for the channel, [like so](http://photos1.meetupstatic.com/photos/event/3/8/5/6/highres_305894422.jpeg).  That will connect you to our chat channel.
-
-**Event Coordination**
-
-On [Meetup](http://www.meetup.com/Hacking-Somerville-Happiness/)
+We have an IRC channel at #realize on freenode.  Use [this cool](http://webchat.freenode.net/?nick) web IRC client to join.
 
 **Application issues/feedback **
 
-Via our [Github Repository](https://github.com/IDCubed/oms-inside/issues).  Feel free to submit issues if you find bugs or see something that needs doing.  Even better, do it and submit a pull request. :)
+Via our [Github Repository](https://github.com/realizeapp/realize-ui-angular/issues).  Feel free to submit issues if you find bugs or see something that needs doing.  Even better, do it and submit a pull request. :)
 
 ### Licensing
 By submitting a patch, you agree to license your work under the same license as that used by the project.
