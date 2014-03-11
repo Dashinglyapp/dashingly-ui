@@ -1,0 +1,9 @@
+<div class="panel panel-default">
+  <div class="panel-heading">{{widget.name}}</div>
+  <div class="panel-body widget-content">
+    <widget-content></widget-content>
+    <div ng-repeat="child in widget.children">
+      <widget></widget>
+    </div>
+  </div>
+</div>

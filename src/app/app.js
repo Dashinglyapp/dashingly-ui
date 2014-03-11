@@ -1,18 +1,36 @@
-var STATE_PROVIDER; // ugly global workaround for lazy loading states.  Only used in app.js file.
 var DEBUG_MODE = false;
-var happ = angular.module( 'realize', [
+window.realize = angular.module( 'realize', [
   'html_templates_jsfied',
   'ui.router',
   'ngTouch',
   'ui.bootstrap',
-  'realize.api-promises',
-  'realize-app-utils'
+  'realize-app-utils',
+  'restangular'
 ])
 
-.config( ['$stateProvider','$urlRouterProvider','$locationProvider',
-  function ($stateProvider , $urlRouterProvider, $locationProvider) {
-    // store the state provider for lazy loading states
-    STATE_PROVIDER = $stateProvider;
+.config( ['$stateProvider','$urlRouterProvider','$locationProvider','$controllerProvider','$compileProvider','RestangularProvider',
+  function ($stateProvider , $urlRouterProvider, $locationProvider,$controllerProvider,$compileProvider,RestangularProvider) {
+    RestangularProvider.setBaseUrl('/api/v1/');
+    // RestangularProvider.setListTypeIsArray(false);
+    RestangularProvider.setResponseExtractor(function(response, operation, what,something,something2) {
+      console.log('extractor response',response);
+      console.log('extractor operation',operation);
+      console.log('extractor what',what);
+      console.log('extractor something',something);
+      console.log('extractor something2',something2);
+      return response;
+      // if(operation === 'getList'){
+      //   return response;
+      // }
+      // return response[what];
+      // return operation === 'getList' ?
+      //   response :
+      //   response[what];
+      // return response;
+    });
+    window.registerController = function(name,fnArray){
+      $controllerProvider.register(name,fnArray);
+    };
     // console.log('$rootScope',$rootScope);
     // enable pushstate so urls are / instead of /#/ as root
     $locationProvider.html5Mode(true);
@@ -24,13 +42,32 @@ var happ = angular.module( 'realize', [
     $stateProvider.state({
       name:'root',
       url:'/',
-      templateURL:'dashboard.tpl.html',
-      controller:'MainCtrl'//,
-      // resolve:{
-      //   auth:['userReady',function(userReady){
-      //     return userReady;
-      //   }]
-      // }
+      templateUrl:'widget.tpl.html',
+      controller:'WidgetCtrl',
+      resolve:{
+        baseTemplateName:['$rootScope','user','widget','resource','$q',function($root,user,widget,resource,$q){
+          console.log('in baseTemplateName');
+          var d = $q.defer();
+          user.hasAuth()
+          .then(function (userProfile) {
+            // for now, load the default dashboard.
+            // otherwise we'll load the user's default dashboard
+            console.log('baseTemplateName success');
+            widget.getTemplate('realize_default_dashboard')
+            .then(function () {
+              d.resolve('realize_default_dashboard');
+            });
+          })
+          .catch(function () {
+            console.log('baseTemplateName fail');
+            widget.getTemplate('realize_default_dashboard')
+            .then(function () {
+              d.resolve('realize_default_dashboard');
+            });
+          });
+          return d.promise;
+        }]
+      }
     });
   }
 ])
@@ -40,26 +77,16 @@ var happ = angular.module( 'realize', [
 .run([
   '$rootScope',
   '$state',
-  'api-promises',
   'utils',
   '$stateParams',
   'lodash',
   '$timeout',
-  function ($root, $state, apiPromises,utils,$stateParams,_,$timeout) {
-    // This section is fugly!
-    // Lazy loading templates and states is not something UI router handles well.
+  'Restangular',
+  '$q',
+  '$http',
+  '$window',
+  function ($root, $state, utils,$stateParams,_,$timeout, Restangular, $q, $http, $window) {
     utils.enableDebugging();
-
-    // set root properties - I think these can go in a parent controller.
-    // console.log('apiPromises.login',apiPromises.login.get());
-    // apiPromises.login.get().then(function(auth){
-      // $root.dashboardList = $root.user.settings.dashboards;
-      // $root.activeDashboard = _.find($root.dashboardList,{name:$root.user.settings.defaultDashboard});
-      // $root.setActiveWidgets($root.activeDashboard);
-
-      // $root.setActiveWidgets(dashboardObj);
-
-
     $root.closeMenus = function(){
       var open = false;
       if($root.dashboardListSelectorVisible){open = true;$root.dashboardListSelectorVisible = 0;}
@@ -67,13 +94,6 @@ var happ = angular.module( 'realize', [
       if($root.showrightmenu){open = true;$root.showrightmenu = 0;}
       return open;
     };
-
-    $root.setActiveWidgets = function(widgetsList){
-      $root.activeWidgets = _.map(widgetsList,function(widgetName){
-        return _.find($root.user.settings.widgets,{name:widgetName});
-      });
-    };
-    //
   }
 ])
 
@@ -81,82 +101,6 @@ var happ = angular.module( 'realize', [
 /**
  * Controllers
  */
-
-.controller("MainCtrl", ['$scope','Restangular','$q','$window',function($scope,Restangular,$q,$window){
-  var def = $q.defer();
-  var token = $window.localStorage.auth_token;
-  $scope.moreinfo=false;
-  $scope.login=false;
-  $scope.register=false;
-  $scope.auth_token = $window.localStorage.auth_token;
-  Restangular.all('auth_check')
-  .getList({},{token: $scope.auth_token})
-  .then(function(){
-    console.log('auth_check success arguments',arguments);
-  })
-  .catch(function () {
-    console.log('auth_check fail arguments',arguments);
-    $scope.moreinfo = true;
-  });
-  return def;
-}])
-
-// .service('userReady', ['Restangular','$q','$window', function(Restangular,$q,$window){
-//   Restangular.all('auth_check')
-//   .getList({},{token:token})
-//   .then(function(){
-//     console.log('auth_check success arguments',arguments);
-//   })
-//   .catch(function () {
-//     console.log('auth_check fail arguments',arguments);
-//   });
-// }])
-
-// create separate login panel for now.
-// make switch in html.
-// convert this to a widget later
-.controller('LoginCtrl', ['$scope','Restangular','$q','$window', function($scope,Restangular,$q,$window){
-  $scope.user = {
-    "email": "test@realize.pe",
-    "password": "test"
-  };
-
-  $scope.message = '';
-  $scope.loginOrRegister = function (either){
-    Restangular.all(either).getList().then(function(data){
-      console.log(either + ' GET success arguments',arguments);
-      Restangular.all(either).post($scope.user,{},{'X-CSRFToken':data.csrf_token})
-      .then(function(data){
-        console.log(either + ' POST success arguments',arguments);
-        console.log('$window.localStorage.token',$window.localStorage.token);
-        $window.localStorage.token = data.token;
-        $scope.message = 'Welcome';
-      })
-      .catch(function(){
-        delete $window.sessionStorage.token; // Erase the token if the user fails to log in
-        // Handle login errors
-        console.log(either + ' POST error arguments',arguments);
-        $scope.message = 'Error: Invalid user or password';
-      });
-    })
-    .catch(function(){
-      console.log(either + ' GET error arguments',arguments);
-      console.log('login get fail',arguments);
-    });
-  };
-  $scope.logout = function () {
-    Restangular.all('logout').getList()
-    .then(function(){
-      $scope.$parent.moreinfo=true;
-      $scope.$parent.login=$scope.register=false;
-      $scope.$parent.message="logged out";
-      delete $window.localStorage.token;
-    })
-    .catch(function(){
-      console.log('logout fail',arguments);
-    });
-  };
-}])
 
 // Top Nav
 .controller("TopNavCtrl", ['$scope', function($scope){
@@ -174,25 +118,79 @@ var happ = angular.module( 'realize', [
   console.log('RightMenuCtrl $scope',$scope);
 }])
 
+
+.controller("WidgetContainerCtrl", ['$scope','Restangular','$q','$window','baseTemplateName',function($scope,Restangular,$q,$window,baseTemplateName){
+  console.log('WidgetContainerCtrl RUNNING');
+  $scope.add(baseTemplateName);
+}])
+
+.controller("WidgetCtrl", ['$scope','Restangular','$q','$window','widget','user','resource','baseTemplateName',function($scope,Restangular,$q,$window,widget,user,resource,baseTemplateName){
+  console.log('WidgetCtrl RUNNING');
+  $scope.add = function  (widgetName,options) {
+    widget.getTemplate(widgetName)
+    .then(function (templateHtmlStr) {
+
+      var opts = angular.extend({name:widgetName,content:templateHtmlStr},options);
+      console.log('opts',opts);
+
+      // widget.loadChildren()
+      // if(options.resource){
+      //   // get stuff from user profile
+      //   // widget.loadResource()
+      // } else if (options.children){
+      //   options.children
+      //   angular.forEach(options.children,function(child,idx){
+
+      //   })
+      // }
+      widget.loadData('somedataurl')
+      .then(function (data) {
+        angular.extend(opts,data);
+        $scope.widget = opts;
+        console.log('data,opts',data,opts);
+      });
+    })
+    .catch(function () {
+      console.log('widget.getTemplate fail args in WidgetCtrl',arguments );
+    });
+  };
+  $scope.buildResourceTree = function (resourceObj) {
+    // var default_widget = user.getDefaultWidget();
+    // resource.getTree(user.profile.resources);
+    // baseTemplateName
+  };
+  $scope.addChildren = function(resourceObj){
+
+  };
+
+  $scope.remove = function  (widgetHash) {
+    $scope.widget = null;
+  };
+
+  $scope.add(baseTemplateName);
+}])
+
 // adds a pseudo phone body around the content when on a desktop, for pre-beta evaluation
 
-.directive('widget', [function () {
+.directive('widgetContent', ['$compile', function ($compile) {
   return {
-    template: 'login.tpl.html',
-    replace: true,
+    template:'<div></div>',
     restrict: 'E',
-    controller: 'WidgetCtrl'
+    replace:true,
+    scope:false,
+    compile:function(tElement){ // tElement, tAttrs, transclude
+      return {
+        pre:function(scope, iElement, iAttrs){
+          scope.$watch('widget.content',function(tpl){
+            iElement.html('');
+            iElement.append($compile(scope.widget.content)(scope));
+          });
+        }
+      };
+    }
   };
 }])
 
-.directive('dashboard', [function () {
-  return {
-    template: 'login.tpl.html',
-    replace: true,
-    restrict: 'E',
-    controller: 'WidgetCtrl'
-  };
-}])
 
 .directive('leftMenu', [function () {
   return {
@@ -202,6 +200,7 @@ var happ = angular.module( 'realize', [
     controller: 'LeftMenuCtrl'
   };
 }])
+
 .directive('rightMenu', [function () {
   return {
     templateUrl: 'right-menu.tpl.html',
@@ -210,6 +209,7 @@ var happ = angular.module( 'realize', [
     controller: 'RightMenuCtrl'
   };
 }])
+
 .directive('topNav', [function () {
   return {
     templateUrl: 'top-nav.tpl.html',
@@ -279,34 +279,6 @@ var happ = angular.module( 'realize', [
         container.css({
           fontSize:px(4)
         });
-
-        // resize menu buttons
-        // var menuToggleSize = px(25);
-        // container.find('.menu-toggle').css({
-        //   height:menuToggleSize,
-        //   width:menuToggleSize
-        // });
-
-
-        // var menu = angular.element('.panel');
-        // // console.log('(menuToggleSize + 30)+px',(menuToggleSize + 30)+'px');
-        // menu.css({
-        //   bottom:px(26),
-        //   fontSize:px(3.5)
-        // });
-
-        // var menuBody = angular.element('.panel-body');
-        // var guttersWidth = 40;
-        // var columns = 3;
-        // var buttonWidth = ((menuBody.width() - guttersWidth) / columns)+'px';
-        // menuBody.find('.btn').each(function(){
-        //   angular.element(this).css({
-        //     height:buttonWidth,
-        //     width:buttonWidth
-        //   });
-        // });
-
-        // angular.element('.splash').addClass('hidden');
       }
       // wait for browser rendering to finish the last menu
       // ugh. Angular lacks a callback for all rendering done.
