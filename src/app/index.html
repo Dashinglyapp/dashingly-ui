@@ -25,23 +25,7 @@
       <left-menu></left-menu>
       <right-menu></right-menu>
       <top-nav></top-nav>
-      <div class="dashboard" ng-controller="MainCtrl">
-        <div class="login" ng-show="login" ng-controller="LoginCtrl">
-          <h3>login</h3>
-          <div ng-include src="'widgets/login/login.tpl.html'"></div>
-        </div>
-        <div class="register" ng-show="register" ng-controller="LoginCtrl">
-          <h3>Register</h3>
-          <div ng-include src="'widgets/login/login.tpl.html'"></div>
-        </div>
-        <div class="moreinfo" ng-if="moreinfo">
-          <h2><a ng-click="$parent.login=1;$parent.moreinfo=0;">Login</a></h2>
-          <h2><a ng-click="$parent.register=1;$parent.moreinfo=0;">Register</a></h2>
-        </div>
-
-        <!-- <div ng-repeat="widget in $root.activeWidgets">{{widget.name}}</div> -->
-      </div>
-
+      <div ui-view></div>
     </div>
   </body>
 </html>

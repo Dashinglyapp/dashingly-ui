@@ -4,6 +4,194 @@ angular.module('realize-app-utils', [])
   return $window._;
 }])
 
+.factory("user", ['$rootScope','lodash','$q','Restangular','$window',function($root, _,$q,Restangular,$window) {
+  // console.log('$q.defer',$q.defer);
+  var authObj;
+  var authPromise;
+  var profileDef = $q.defer();
+  var profilePromise = profileDef.promise;
+  var user = {
+    token:$window.localStorage.realize_user_auth_token || '',
+    hashkey:$window.localStorage.realize_user_hashkey || '',
+    default_widget:$window.localStorage.realize_user_default_widget || 'realize_default_dashboard'
+  };
+  // if user is ready, render user
+  // if user is not, render login, then do user ready
+  console.log('user copy 1',angular.copy(user));
+  var api = {
+    getAuthPromise:function(){
+      // get the user's profile
+      var d = $q.defer();
+      console.log('user copy',angular.copy(user));
+      Restangular.all('auth_check')
+      .post(null,null,{token: user.token || ''})
+      .then(function (data) {
+        console.log('auth_check data',data);
+        if(data.token){
+          api.authorize(data);
+        } else {
+          api.deAuthorize(data);
+        }
+        d.resolve(data);
+      });
+      return d.promise;
+    },
+    getProp:function(prop){
+      return angular.copy(user[prop]);
+    },
+    setProp:function(prop,val){
+      if(typeof prop === 'object'){
+        angular.extend(user,prop);
+      } else {
+        user[prop] = val;
+      }
+      $root.user = angular.copy(user);
+      return $root.user;
+    },
+    deAuthorize:function (data) {
+      console.log('auth_check fail arguments',arguments);
+      api.setProp('authed',false);
+      delete $window.localStorage.realize_user_auth_token;
+      delete $window.localStorage.realize_user_hashkey;
+      return data;
+    },
+    authorize:function (userObj) {
+      $window.localStorage.realize_user_auth_token = userObj.token;
+      $window.localStorage.realize_user_hashkey = userObj.hashkey;
+      $window.localStorage.realize_user_default_widget = user.default_widget;
+      user.authed = true;
+      api.setProp(userObj);
+      console.log($root.user);
+      return $root.user;
+    },
+    hasAuth:function(){
+      var d = $q.defer();
+      if(user.authed){
+        console.log('user.authed:',user.authed);
+        $root.user = $root.user || angular.copy(user);
+        d.resolve($root.user);
+        return d.promise;
+      }
+      // console.log('in hasAuth, user not authed');
+      return api.getAuthPromise();
+    }
+  };
+  return api;
+}])
+
+.factory("resource", ['Restangular','$rootScope','lodash','user','$q','$http',function(Restangular, $rootScope, _, user,$q,$http) {
+
+  var api = {
+    getPromise:function (url) {
+      if(!user.hasAuth()) {return;}// body...
+
+    },
+    set:function (url,obj) {
+      // body...
+    }
+  };
+  return api;
+}])
+
+.factory("widget", ['$rootScope','lodash','user','$q','$http','$window',function($rootScope, _, user,$q,$http,$window) {
+  var scriptsCache = {}; // hold previously loaded scripts so we don't load them twice.
+  var activeWidgets = [];
+  var widgetTemplateList;
+  var widgetHTMLPromisesCache = {};
+  var api = {
+    save:function(){
+
+    },
+    update:function () {
+      // body...
+    },
+    getChildren:function () {
+      // body...
+    },
+    listAll:function(){ // list all widgets
+      var d = $q.defer();
+      if(widgetTemplateList){
+        d.resolve(widgetTemplateList);
+        return d.promise;
+      }
+      $http.get('/widgetList.json').then(function  (obj) {
+        widgetTemplateList = obj.data;
+        d.resolve(widgetTemplateList);
+      });
+      widgetTemplateList = d.promise;
+      return widgetTemplateList;
+    },
+    getTemplate:function(widgetName){
+      var d = $q.defer();
+      if(widgetHTMLPromisesCache[widgetName]){
+        d.resolve(widgetHTMLPromisesCache[widgetName]);
+        return d.promise;
+      }
+      api.listAll()
+      .then(function (list) { // wrap the loaded widget object in a promise
+        var widgetObj = list[widgetName];
+        if(!widgetObj){
+          d.reject();
+          return console.log('no widget exists with template name ',widgetName);
+        }
+        api.loadJs(widgetObj)
+        .then(function () {
+          api.loadHtml(widgetObj)
+          .then(function (htmlStr) {
+            widgetHTMLPromisesCache[widgetName] = d.promise;
+            d.resolve(htmlStr);
+          });
+        });
+      });
+      return d.promise;
+    },
+    loadHtml:function(widgetObj){
+      var d = $q.defer();
+      if(widgetObj.html.length){
+        console.log('widgetObj',widgetObj);
+        $http.get(widgetObj.dir + widgetObj.html[0])
+        .then(function (obj) {
+          d.resolve(obj.data);
+        })
+        .catch(function () {
+          d.reject('loadHtml fail',arguments);
+        });
+        return d.promise;
+      }
+      d.resolve('');
+      return d.promise;
+    },
+    loadJs:function(widgetObj){
+      var d = $q.defer();
+      if(!widgetObj.js || widgetObj.js.length === 0) {
+        console.log('no scripts on this widget',widgetObj);
+        d.resolve();
+        return d.promise;
+      }
+      var promises = [];
+      angular.forEach(widgetObj.js,function (url,idx) {
+        if(scriptsCache[url]){return;}
+        promises.push($window.$.getScript(widgetObj.dir + url));
+      });
+      $window.$.when.apply(null,promises)
+      .then(function(){
+        d.resolve();
+      })
+      .fail(function(){
+        d.resolve();//reject('loadJs fail',arguments);
+      });
+      return d.promise;
+    },
+    loadData:function(){
+      var d = $q.defer();
+      d.resolve({foo:'bar',baz:'bop'});
+      return d.promise;
+    }
+  };
+  return api;
+}])
+
+
 .factory("utils", ['$templateCache','$rootScope','lodash',function($templateCache, $rootScope, _) {
   return {
     // dynamically assembles templates for each state from multiple partials

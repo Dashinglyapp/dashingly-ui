@@ -26,8 +26,9 @@ module.exports = function ( grunt ) {
   grunt.loadNpmTasks("grunt-sync");
   grunt.loadNpmTasks('grunt-connect-proxy');
 
-
+  // require libs
   var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
+  var pathLib = require('path');
   /**
    * Add params for running our Karma unit and end-to-end tests
    */
@@ -148,6 +149,16 @@ module.exports = function ( grunt ) {
     //   }
     // },
 
+    // creates a manifest file for all widgets for the js to request them
+    buildWidgetListJSON:{ // adds all our app's css and js files to index.html
+      bar:{
+        files:[{
+          cwd:'<%= src.dirs.app %>',
+          src:'widgets/**/*.*',
+          dest:'<%= build.dirs.app %>widgetList.json'
+        }]
+      }
+    },
 
     clean: [
     /**
@@ -185,7 +196,7 @@ module.exports = function ( grunt ) {
           middleware: function (connect) {
             return [
               proxySnippet,
-              connect.static(require('path').resolve(grunt.config.get('build.dirs.app')))
+              connect.static(pathLib.resolve(grunt.config.get('build.dirs.app')))
             ];
           }
         }
@@ -226,7 +237,7 @@ module.exports = function ( grunt ) {
               grunt.config.get('build.dirs.app') + '**/*.{css,js}'
             )
             .forEach(function(path) {
-              if(path.indexOf('thirdparty') > -1) {
+              if(/thirdparty|widgets/.test(path)) {
                 return;
               }
               var newStr = path.replace(/.*?\/app\//,'');
@@ -252,6 +263,7 @@ module.exports = function ( grunt ) {
           }
         }
       },
+
 
       //`compile_css` concatenates our app and thirdparty css in a single file.
       compile_css: {
@@ -335,7 +347,7 @@ module.exports = function ( grunt ) {
         base:'<%= src.dirs.app %>'// strips the build dir from the template name
       },
       src_tpls_plus_build_tpls_to_js:{
-        src:'<%= src.dirs.app %>**/*.tpl.{html,partial}',
+        src:['<%= src.dirs.app %>**/*.tpl.{html,partial}','!<%= src.dirs.widgets %>**'],
         dest:'<%= build.dirs.app %>html_templates_jsfied.js'
       }
     },
@@ -490,7 +502,7 @@ module.exports = function ( grunt ) {
       rootfiles:{files: ['Gruntfile.js','package.json','bower.json'],tasks:['eslint:rootfiles','build','configureProxies','unit'],options:{cwd:'.'}},
       // compile app's angular dependencies on change
       main_app_module: {files:'app.js', tasks: ['eslint:built_appjs','unit'] },
-      angular_modules: {files: ['**/*-module.js','!**/people-user-module.js'], tasks: ['sync:src_js_css_html_to_build','unit'] },
+      angular_modules: {files: ['**/*-module.js'], tasks: ['eslint:src_js','sync:src_js_css_html_to_build','unit'] },
       static_files_excluding_angular_modules:{files: ['**/*.{css,js,html}','!**/*-module.js','!index.html'], tasks: ['sync:src_js_css_html_to_build','unit']},
       // compile index on change
       index: {files: 'index.html', tasks: ['concat:build_index','unit'] },
@@ -525,7 +537,7 @@ module.exports = function ( grunt ) {
   grunt.registerTask( 'unit', ['buildSpec'/*,'karma:unit:run'*/]);
 
   // Initialize the dev setup - it does a clean build before watching for changes
-  grunt.registerTask( 'dev', ['build', /*'karma:unit', */'configureProxies','connect:livereload', 'watch' ]);
+  grunt.registerTask( 'dev', ['build', /*'karma:unit', */'buildWidgetListJSON','configureProxies','connect:livereload', 'watch' ]);
 
 
   /** The default task is to build and compile for production */
@@ -578,4 +590,26 @@ module.exports = function ( grunt ) {
     //   grunt.fail.fatal('insight-status plugin not added to template cache via html2js!');
     // }
   });
+
+  grunt.registerMultiTask('buildWidgetListJSON', 'Builds a manifest of json widgets', function() {
+      var jsonObj = {};
+      var dest = '';
+      this.filesSrc.forEach(function(filePath) {
+          var dirname = pathLib.dirname(filePath);
+          var filename = pathLib.basename(filePath,'');
+          //var url = dirname + '/' + filename;
+          var widgetName = dirname.slice(dirname.indexOf('/') + 1);
+          var extension = pathLib.extname(filePath).slice(1);
+          jsonObj[widgetName] = jsonObj[widgetName] || {};
+          jsonObj[widgetName].dir = dirname+'/';
+          jsonObj[widgetName][extension] = jsonObj[widgetName][extension] || [];
+          jsonObj[widgetName][extension].push(filename);
+      });
+
+      console.log('jsonObj',jsonObj);
+      grunt.file.write(this.files[0].dest,JSON.stringify(jsonObj));
+
+
+  });
+
 };
