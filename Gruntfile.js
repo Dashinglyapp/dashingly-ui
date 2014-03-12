@@ -186,7 +186,7 @@ module.exports = function ( grunt ) {
         // headers:{
         //   'Content-Type':'application/json'
         // },
-        port: 8080,
+        port: 5000,
         changeOrigin:true,
         https: false
       }],
@@ -537,7 +537,7 @@ module.exports = function ( grunt ) {
   grunt.registerTask( 'unit', ['buildSpec'/*,'karma:unit:run'*/]);
 
   // Initialize the dev setup - it does a clean build before watching for changes
-  grunt.registerTask( 'dev', ['build', /*'karma:unit', */'buildWidgetListJSON','configureProxies','connect:livereload', 'watch' ]);
+  grunt.registerTask( 'dev', ['build', 'buildWidgetListJSON', 'configureProxies','connect:livereload', 'watch' ]);
 
 
   /** The default task is to build and compile for production */
@@ -558,9 +558,9 @@ module.exports = function ( grunt ) {
     'sync:assets', // along with assets
     'concat:build_index', // build our index file with all its dependencies
     'buildSpec', // test our build
-    'eslint:test'
+    'eslint:test',
     // , // lint our mocha tests
-    // 'karma:unit' // run the unit tests
+    'karma:unit' // run the unit tests
   ]);
 
   // The `compile` task preps the app for production by concatenating, minifying, compressing the code.
@@ -601,12 +601,12 @@ module.exports = function ( grunt ) {
           var widgetName = dirname.slice(dirname.indexOf('/') + 1);
           var extension = pathLib.extname(filePath).slice(1);
           jsonObj[widgetName] = jsonObj[widgetName] || {};
-          jsonObj[widgetName].dir = dirname+'/';
+          jsonObj[widgetName].dir = dirname + '/';
           jsonObj[widgetName][extension] = jsonObj[widgetName][extension] || [];
           jsonObj[widgetName][extension].push(filename);
       });
 
-      console.log('jsonObj',jsonObj);
+      // console.log('jsonObj',jsonObj);
       grunt.file.write(this.files[0].dest,JSON.stringify(jsonObj));
 
 
