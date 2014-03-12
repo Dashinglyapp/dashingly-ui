@@ -19,20 +19,51 @@ angular.module('realize-app-utils', [])
   // if user is not, render login, then do user ready
   console.log('user copy 1',angular.copy(user));
   var api = {
-    getAuthPromise:function(){
+    hasAuth:function(){
       // get the user's profile
       var d = $q.defer();
+      console.log('user token before sending',angular.copy(user.token));
       console.log('user copy',angular.copy(user));
+      if(user.authed){
+        d.resolve(user);
+        return d.promise;
+      }
       Restangular.all('auth_check')
-      .post(null,null,{token: user.token || ''})
+      .post({token: user.token || ''}, null, null)
       .then(function (data) {
-        console.log('auth_check data',data);
-        if(data.token){
-          api.authorize(data);
+        // {"authenticated": true, "email": "test@realize.pe", "hashkey": "e0be3f51228558713dc44522c651ccb2", "id": 1 }
+        console.log('auth_check data',arguments);
+        if(data && data.authenticated){
+          if(!$root.user){
+            api.authorize({hashkey:data.hashkey,id:data.id,token:user.token});
+          }
+          d.resolve($root.user);
         } else {
-          api.deAuthorize(data);
+          console.error('user not authenticated in hasAuth',data);
+          d.reject(data);
         }
-        d.resolve(data);
+      })
+      .catch(function (err) {
+        d.reject(err);
+      });
+      return d.promise;
+    },
+    tryAuthorization:function  (options) {
+      var d = $q.defer();
+      if(!options || !options.formData || !options.loginType){
+        console.error("tryAuthorization requires arg {formData:{username:'',email:''},loginType:''}");
+        d.reject('tryauthorization failed');
+        return d.promise;
+      }
+      Restangular.all(options.loginType.toLowerCase())
+      .post(options.formData,{},{'Content-Type':'application/json'})
+      .then(function(data){
+        console.log(options.loginType + ' POST success arguments',arguments);
+        api.authorize(data.user);
+        d.resolve();
+      })
+      .catch(function(err){
+        d.reject(err);
       });
       return d.promise;
     },
@@ -50,46 +81,107 @@ angular.module('realize-app-utils', [])
     },
     deAuthorize:function (data) {
       console.log('auth_check fail arguments',arguments);
-      api.setProp('authed',false);
+      user = {};
+      $root.user = {};
       delete $window.localStorage.realize_user_auth_token;
       delete $window.localStorage.realize_user_hashkey;
       return data;
     },
     authorize:function (userObj) {
+      console.log('in authorize fn');
+      if(!userObj.token || !userObj.hashkey){
+        console.error('userObj must have token & hashkey properties to authorize');
+        return $root.user;
+      }
       $window.localStorage.realize_user_auth_token = userObj.token;
       $window.localStorage.realize_user_hashkey = userObj.hashkey;
       $window.localStorage.realize_user_default_widget = user.default_widget;
-      user.authed = true;
-      api.setProp(userObj);
-      console.log($root.user);
+      api.setProp(angular.extend({authed:true},userObj));
       return $root.user;
-    },
-    hasAuth:function(){
-      var d = $q.defer();
-      if(user.authed){
-        console.log('user.authed:',user.authed);
-        $root.user = $root.user || angular.copy(user);
-        d.resolve($root.user);
-        return d.promise;
-      }
-      // console.log('in hasAuth, user not authed');
-      return api.getAuthPromise();
     }
   };
   return api;
 }])
 
-.factory("resource", ['Restangular','$rootScope','lodash','user','$q','$http',function(Restangular, $rootScope, _, user,$q,$http) {
+.factory("resource", ['Restangular','$rootScope','lodash','user','$q','$http','widget',function(Restangular, $rootScope, _, user,$q,$http,widget) {
 
   var api = {
-    getPromise:function (url) {
-      if(!user.hasAuth()) {return;}// body...
-
+    get:function (url) {
+      var d = $q.defer();
+      user.hasAuth()
+      .then(function(data){
+        d.resolve(data.settings);
+      });
+      return d.promise;
     },
     set:function (url,obj) {
-      // body...
+      // var d = $q.defer();
+      // accepts {}
+      // user.hasAuth()
+      // .then(function(){
+        var tree = {
+          name:'realize_default_dashboard',
+          type:'widget',
+          children:[
+            {
+              type:'widget',
+              name:'child1',
+              children:[],
+              settings:{}
+            },
+            {
+              type:'widget',
+              name:'child2',
+              children: [
+                {
+                  type: 'widget',
+                  name: 'grandchild2',
+                  children: [],
+                  settings: {}
+                }, {
+                  type: 'widget',
+                  name: 'grandchild2',
+                  children: [],
+                  settings: {}
+                }
+              ],
+              settings:{}
+            }
+          ],
+          settings:{}
+        };
+        function recurseBottomUp(obj){
+          var results = {arr:[]};
+          function recurse(o){
+            var d = $q.defer();
+            var promises = [];
+            if(o.children.length){
+              promises = _.map(o.children,function (child,idx) {
+                return recurse(child);
+              });
+            }
+            $q.all(promises)
+            .finally(function () {
+              // put restangular here
+              window.setTimeout(function(){
+                console.log('resolving',o);
+                results.arr.push(o);
+              },1000);
+            });
+          }
+          recurse(obj);
+          return results;
+        }
+        // recurseBottomUp(tree);
+        // d.resolve();
+        console.log('recurseBottomUp(tree)',recurseBottomUp(tree));
+      // });
+      // return d.promise;
     }
+
   };
+  // d.resolve(api);
+
   return api;
 }])
 
@@ -98,6 +190,7 @@ angular.module('realize-app-utils', [])
   var activeWidgets = [];
   var widgetTemplateList;
   var widgetHTMLPromisesCache = {};
+
   var api = {
     save:function(){
 

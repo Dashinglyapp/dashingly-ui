@@ -12,39 +12,35 @@ window.registerController('LoginCtrl', ['$scope','Restangular','$q','$window', '
     "email": "test@realize.pe",
     "password": "testtest"
   };
-  $scope.loginOrRegister = function (){
-    var either = $scope.widget.loginType.toLowerCase();
-    Restangular.all(either)
-    .post($scope.formData,{},{'Content-Type':'application/json'})
-    .then(function(data){
-      console.log(either + ' POST success arguments',arguments);
-      user.authorize(data.user);
+  $scope.loginOrRegister = function  () {
+    var options = {
+      loginType:$scope.loginType,
+      formData:$scope.formData
+    };
+    user.tryAuthorization(options)
+    .then(function () {
+      // redirect to user's dashboard
       $scope.add(user.getProp('default_widget'));
     })
     .catch(function(err){
-      user.deAuthorize();
+      console.log(' POST error iter,obj', err);
+      var errorsArr = [];
       angular.forEach(err.data.fields,function(obj,iter){
-        console.log(either + ' POST error iter,obj', iter,obj);
+        console.log(options.loginType + ' POST error iter,obj', iter,obj);
         if(obj.errors.length){
           angular.forEach(obj,function(str){
             console.error(str);
-            // $scope.postMessage += str + '</br>';
           });
         }
       });
-      $scope.postMessage = 'POST error';
+      // handle inline errors here
     });
   };
 
   $scope.logout = function () {
     Restangular.all('logout').getList()
-    .then(function(){
-    })
-    .catch(function(){
-      console.log('logout fail',arguments);
-    })
     .finally(function () {
-      delete $window.localStorage.token;
+      user.deAuthorize();
       $scope.add('realize_default_dashboard');
       // body...
     });

@@ -5,6 +5,7 @@ window.realize = angular.module( 'realize', [
   'ngTouch',
   'ui.bootstrap',
   'realize-app-utils',
+  // 'mock-backend',
   'restangular'
 ])
 
@@ -12,22 +13,17 @@ window.realize = angular.module( 'realize', [
   function ($stateProvider , $urlRouterProvider, $locationProvider,$controllerProvider,$compileProvider,RestangularProvider) {
     RestangularProvider.setBaseUrl('/api/v1/');
     // RestangularProvider.setListTypeIsArray(false);
-    RestangularProvider.setResponseExtractor(function(response, operation, what,something,something2) {
-      console.log('extractor response',response);
-      console.log('extractor operation',operation);
-      console.log('extractor what',what);
-      console.log('extractor something',something);
-      console.log('extractor something2',something2);
-      return response;
-      // if(operation === 'getList'){
-      //   return response;
-      // }
-      // return response[what];
-      // return operation === 'getList' ?
-      //   response :
-      //   response[what];
-      // return response;
-    });
+    // RestangularProvider.setResponseExtractor(function(response, operation, what,something,something2) {
+    //   // console.log('extractor response',response);
+    //   // console.log('extractor operation',operation);
+    //   // console.log('extractor what',what);
+    //   // console.log('extractor something',something);
+    //   // console.log('extractor something2',something2);
+    //   // console.log()
+    //   return response;
+    // });
+    //
+    // enables registering controllers asynchronously
     window.registerController = function(name,fnArray){
       $controllerProvider.register(name,fnArray);
     };
@@ -74,18 +70,7 @@ window.realize = angular.module( 'realize', [
 
 
 // run is where we set initial rootscope properties
-.run([
-  '$rootScope',
-  '$state',
-  'utils',
-  '$stateParams',
-  'lodash',
-  '$timeout',
-  'Restangular',
-  '$q',
-  '$http',
-  '$window',
-  function ($root, $state, utils,$stateParams,_,$timeout, Restangular, $q, $http, $window) {
+.run(['$rootScope', 'utils', function ($root, utils) {
     utils.enableDebugging();
     $root.closeMenus = function(){
       var open = false;
@@ -102,7 +87,6 @@ window.realize = angular.module( 'realize', [
  * Controllers
  */
 
-// Top Nav
 .controller("TopNavCtrl", ['$scope', function($scope){
   console.log('TopNavCtrl $scope',$scope);
 }])
@@ -118,59 +102,32 @@ window.realize = angular.module( 'realize', [
   console.log('RightMenuCtrl $scope',$scope);
 }])
 
-
-.controller("WidgetContainerCtrl", ['$scope','Restangular','$q','$window','baseTemplateName',function($scope,Restangular,$q,$window,baseTemplateName){
-  console.log('WidgetContainerCtrl RUNNING');
-  $scope.add(baseTemplateName);
-}])
-
 .controller("WidgetCtrl", ['$scope','Restangular','$q','$window','widget','user','resource','baseTemplateName',function($scope,Restangular,$q,$window,widget,user,resource,baseTemplateName){
   console.log('WidgetCtrl RUNNING');
   $scope.add = function  (widgetName,options) {
     widget.getTemplate(widgetName)
     .then(function (templateHtmlStr) {
 
-      var opts = angular.extend({name:widgetName,content:templateHtmlStr},options);
-      console.log('opts',opts);
 
       // widget.loadChildren()
-      // if(options.resource){
-      //   // get stuff from user profile
-      //   // widget.loadResource()
-      // } else if (options.children){
-      //   options.children
-      //   angular.forEach(options.children,function(child,idx){
-
-      //   })
-      // }
       widget.loadData('somedataurl')
       .then(function (data) {
-        angular.extend(opts,data);
-        $scope.widget = opts;
-        console.log('data,opts',data,opts);
+        angular.extend($scope,{name:widgetName,content:templateHtmlStr},data,options);
+        // console.log('data,opts',data,opts);
       });
     })
     .catch(function () {
       console.log('widget.getTemplate fail args in WidgetCtrl',arguments );
     });
   };
-  $scope.buildResourceTree = function (resourceObj) {
-    // var default_widget = user.getDefaultWidget();
-    // resource.getTree(user.profile.resources);
-    // baseTemplateName
-  };
-  $scope.addChildren = function(resourceObj){
-
-  };
 
   $scope.remove = function  (widgetHash) {
-    $scope.widget = null;
+    // remove code
   };
 
   $scope.add(baseTemplateName);
 }])
 
-// adds a pseudo phone body around the content when on a desktop, for pre-beta evaluation
 
 .directive('widgetContent', ['$compile', function ($compile) {
   return {
@@ -181,9 +138,9 @@ window.realize = angular.module( 'realize', [
     compile:function(tElement){ // tElement, tAttrs, transclude
       return {
         pre:function(scope, iElement, iAttrs){
-          scope.$watch('widget.content',function(tpl){
+          scope.$watch('content',function(tpl){
             iElement.html('');
-            iElement.append($compile(scope.widget.content)(scope));
+            iElement.append($compile(scope.content)(scope));
           });
         }
       };
@@ -219,6 +176,7 @@ window.realize = angular.module( 'realize', [
   };
 }])
 
+// adds a pseudo phone body around the content when on a desktop, for pre-beta evaluation
 .directive('hapSize', ['$timeout','$window', 'utils', function ($timeout, $window, utils) {
   return {
     restrict: 'A',
