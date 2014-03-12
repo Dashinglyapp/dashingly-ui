@@ -1,16 +1,16 @@
 {
-  "author": "Adam Laughlin",
-  "name": "happathon",
+  "author": "Realize",
+  "name": "realize-ui-angular",
   "version": "0.0.1",
-  "homepage": "https://github.com/IDCubed/oms-happathon",
+  "homepage": "https://github.com/realizeapp/realize-ui-angular",
   "licenses": {
-    "type": "MIT + IDcubed name use addendum",
-    "url": "https://raw.github.com/IDCubed/oms-happathon/master/LICENSE"
+    "type": "AGPL",
+    "url": "https://raw.github.com/realizeapp/realize-ui-angular/master/LICENSE"
   },
-  "bugs": "https://github.com/IDCubed/oms-happathon/issues",
+  "bugs": "https://github.com/realizeapp/realize-ui-angular/issues",
   "repository": {
     "type": "git",
-    "url": "git@github.com:IDCubed/oms-happathon.git"
+    "url": "git@github.com:realizeapp/realize-ui-angular.git"
   },
   "dependencies": {},
   "devDependencies": {
@@ -22,7 +22,7 @@
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-watch": "~0.4.0",
     "grunt-contrib-uglify": "~0.2.0",
-    "grunt-karma": "~0.5.0",
+    "grunt-karma": "~0.8.0",
     "grunt-ngmin": "0.0.2",
     "grunt-html2js": "~0.1.3",
     "grunt-conventional-changelog": "~0.1.1",
