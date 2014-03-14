@@ -1,5 +1,5 @@
 {
-  "name": "happathon",
+  "name": "realize-ui-angular",
   "version": "0.0.1",
   "dependencies": {
     "angular": "~1.2.5",
@@ -18,11 +18,11 @@
     "restangular": "~1.2.1"
   },
   "authors": [
-    "Adam Laughlin <adam.laughlin@gmail.com>"
+    "Adam Laughlin <adam.laughlin@gmail.com>",
+    "Vik Paruchuri <vik.paruchuri@gmail.com>"
   ],
-  "description": "The Happathon Project Application & Engine",
+  "description": "The Realize Angular UI",
   "keywords": [
-    "happathon",
     "happiness",
     "well-being",
     "big-data",
@@ -30,9 +30,6 @@
     "quantified-self",
     "self-improvement"
   ],
-  "license": "MIT",
-  "homepage": "happathon.com",
-  "resolutions": {
-    "angular": "~1.2.5"
-  }
+  "license": "AGPL",
+  "homepage": "realize.pe"
 }

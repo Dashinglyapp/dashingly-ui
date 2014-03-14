@@ -543,6 +543,8 @@ module.exports = function ( grunt ) {
   /** The default task is to build and compile for production */
   grunt.registerTask( 'default', ['build', 'compile']);
 
+  grunt.registerTask( 'fullBuild', ['build', 'buildWidgetListJSON']);
+
   // The `build` task sets up a dev and testing environment
   grunt.registerTask( 'build', [
     // if this is the first run, it should copy the third party libs servero your thirdparty dir
