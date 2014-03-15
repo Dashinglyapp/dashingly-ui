@@ -2,8 +2,6 @@
 <h2 ng-show="$root.user.id">Logged in as {{$root.user.id}}</h2>
 <h2 ng-hide="$root.user.id">Logged out.</h2>
 <button class="btn btn-lg btn-default" ng-click="add('default_dashboard')">ADD WIDGET</button>
-<div class="moreinfo">
-  More Info!
-  <h2><a ng-click="add('realize_login',{loginType:'login'})">Login</a></h2>
-  <h2><a ng-click="add('realize_login',{loginType:'register'})">Register</a></h2>
+<div class="moreinfo" ng-controller="LoginCtrl">
+  <a ng-click="logout()">Logout</a>
 </div>

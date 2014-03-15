@@ -16,16 +16,23 @@
     <!-- token_replace_js_here -->
   </head>
   <body ng-cloak>
-    <div  class="root-container"
+    <div  class="root-container check-login"
           ng-swipe-left="$root.showleftmenu=0;"
           ng-swipe-right="$root.showrightmenu=0;"
           ng-click="$root.closeMenus();"
-          hap-size>
+          hap-size
+            >
 
-      <left-menu></left-menu>
-      <right-menu></right-menu>
-      <top-nav></top-nav>
-      <div ui-view></div>
+      <div id="menus">
+          <left-menu></left-menu>
+          <right-menu></right-menu>
+          <top-nav></top-nav>
+      </div>
+      <login-form ng-if="login" id="loginForm"></login-form>
+
+      <div id="content">
+        <div ui-view></div>
+      </div>
     </div>
   </body>
 </html>

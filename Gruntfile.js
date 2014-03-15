@@ -67,6 +67,7 @@ module.exports = function ( grunt ) {
         '<%= src.dirs.thirdparty %>angular-mocks/angular-mocks.js',
         '<%= src.dirs.thirdparty %>angular-touch/angular-touch.min.js',
         '<%= src.dirs.thirdparty %>angular-ui-router/release/angular-ui-router.js',
+        '<%= src.dirs.thirdparty %>angular-http-auth/src/http-auth-interceptor.js',
         '<%= src.dirs.thirdparty %>angular-gesture/ngGesture/gesture.js',
         '<%= src.dirs.thirdparty %>angular-ui-utils/modules/utils.js',
         '<%= src.dirs.thirdparty %>restangular/dist/restangular.js'

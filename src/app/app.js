@@ -6,7 +6,8 @@ window.realize = angular.module( 'realize', [
   'ui.bootstrap',
   'realize-app-utils',
   // 'mock-backend',
-  'restangular'
+  'restangular',
+  'http-auth-interceptor'
 ])
 
 .config( ['$stateProvider','$urlRouterProvider','$locationProvider','$controllerProvider','$compileProvider','RestangularProvider',
@@ -49,13 +50,6 @@ window.realize = angular.module( 'realize', [
             // for now, load the default dashboard.
             // otherwise we'll load the user's default dashboard
             console.log('baseTemplateName success');
-            widget.getTemplate('realize_default_dashboard')
-            .then(function () {
-              d.resolve('realize_default_dashboard');
-            });
-          })
-          .catch(function () {
-            console.log('baseTemplateName fail');
             widget.getTemplate('realize_default_dashboard')
             .then(function () {
               d.resolve('realize_default_dashboard');
@@ -128,6 +122,53 @@ window.realize = angular.module( 'realize', [
   $scope.add(baseTemplateName);
 }])
 
+.controller('LoginCtrl', ['$scope','Restangular','$q','$window', 'user', 'authService' ,function($scope,Restangular,$q,$window,user, authService){
+    // var Restangular = $injector.get('Restangular');
+    console.log('LoginCtrl scope',$scope);
+    $scope.formData = {
+        "email": "test@realize.pe",
+        "password": "testtest"
+    };
+    $scope.loginType = "Login";
+    var loginOrRegister = function  () {
+        var options = {
+            loginType:$scope.loginType,
+            formData:$scope.formData
+        };
+        user.tryAuthorization(options)
+            .then(function () {
+                // redirect to user's dashboard
+                var token = user.getProp('token');
+                var data = {};
+                var updater = function(config){
+                    if(config !== undefined){
+                        if(config.data !== undefined){
+                            config.data.token = token;
+                        }
+                        if(config.headers !== undefined){
+                            config.headers['Authentication-Token'] = token;
+                        }
+                    }
+                    return config;
+                };
+                authService.loginConfirmed(data, updater);
+            });
+    };
+    $scope.login = function(){
+        loginOrRegister();
+    };
+    $scope.register = function(){
+        loginOrRegister();
+    };
+    $scope.logout = function () {
+        Restangular.all('logout').getList()
+            .finally(function () {
+                user.deAuthorize();
+                $scope.add('realize_default_dashboard');
+                // body...
+            });
+    };
+}])
 
 .directive('widgetContent', ['$compile', function ($compile) {
   return {
@@ -148,6 +189,30 @@ window.realize = angular.module( 'realize', [
   };
 }])
 
+.directive('checkLogin', [function(){
+    return {
+        restrict: 'C',
+        link: function(scope, elem, attrs){
+            console.log('checkLogin');
+            var login = elem.find("#loginForm");
+            var main = elem.find("#content");
+            scope.$on('event:auth-loginRequired', function() {
+                scope.login = true;
+                login.slideDown('slow', function() {
+                    main.hide();
+                });
+                console.log('checkLogin: auth-needed');
+            });
+
+            scope.$on('event:auth-loginConfirmed', function() {
+                console.log('checkLogin: login-confirmed');
+                main.show();
+                login.slideUp();
+                scope.login = false;
+            });
+        }
+    };
+}])
 
 .directive('leftMenu', [function () {
   return {
@@ -156,6 +221,15 @@ window.realize = angular.module( 'realize', [
     restrict: 'E',
     controller: 'LeftMenuCtrl'
   };
+}])
+
+.directive('loginForm', [function(){
+   return {
+       templateUrl: 'widgets/realize_login/realize_login.tpl.html',
+       replace: true,
+       restrict: "E",
+       controller: "LoginCtrl"
+   };
 }])
 
 .directive('rightMenu', [function () {
