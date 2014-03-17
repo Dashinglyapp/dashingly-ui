@@ -1,0 +1,12 @@
+{
+    "title": "Dashboard",
+    "module": "realizeDashboard",
+    "version": ".1",
+    "authors": ["Realize"],
+    "tags": ["core"],
+    "plugin": "",
+    "endpoints": [],
+    "javascripts": ["dashboard.js"],
+    "templates": ["realize_default_dashboard.tpl.html"],
+    "css": []
+}

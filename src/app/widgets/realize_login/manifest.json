@@ -1,0 +1,12 @@
+{
+    "title": "Realize Login",
+    "module": "RealizeLogin",
+    "version": ".1",
+    "authors": ["Realize"],
+    "tags": ["core"],
+    "plugin": "",
+    "endpoints": [],
+    "javascripts": [],
+    "templates": ["realize_login.tpl.html"],
+    "css": []
+}

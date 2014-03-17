@@ -131,7 +131,10 @@
   },
   "globals":{
     "console":true,
-    "angular":true
+    "angular":true,
+    "require":true,
+    "define":true,
+    "ngDefine":true
   },
   "env":{
     "node":true,
