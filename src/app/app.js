@@ -11,7 +11,7 @@ window.realize = angular.module( 'realize', [
 ])
 
 .config( ['$stateProvider','$urlRouterProvider','$locationProvider','$controllerProvider','$compileProvider','RestangularProvider',
-  function ($stateProvider , $urlRouterProvider, $locationProvider,$controllerProvider,$compileProvider,RestangularProvider) {
+  function ($stateProvider, $urlRouterProvider, $locationProvider, $controllerProvider, $compileProvider, RestangularProvider) {
     RestangularProvider.setBaseUrl('/api/v1/');
     // RestangularProvider.setListTypeIsArray(false);
     // RestangularProvider.setResponseExtractor(function(response, operation, what,something,something2) {
@@ -28,6 +28,12 @@ window.realize = angular.module( 'realize', [
     window.registerController = function(name,fnArray){
       $controllerProvider.register(name,fnArray);
     };
+      RestangularProvider.addFullRequestInterceptor(function(element, operation, route, url, headers, params) {
+          headers['Authentication-Token'] = window.localStorage.realize_user_auth_token || '';
+          return {
+              headers: headers
+          };
+      });
     // console.log('$rootScope',$rootScope);
     // enable pushstate so urls are / instead of /#/ as root
     $locationProvider.html5Mode(true);
@@ -81,14 +87,64 @@ window.realize = angular.module( 'realize', [
  * Controllers
  */
 
-.controller("TopNavCtrl", ['$scope', function($scope){
+.controller("TopNavCtrl", ['$scope', '$window', 'user', 'Restangular', function($scope, $window, user, Restangular){
   console.log('TopNavCtrl $scope',$scope);
+  var baseAuthorizations;
+  $scope.updateAuthorizations = function(){
+        baseAuthorizations = Restangular.one("user", user.getProp('hashkey')).all('authorizations');
+        baseAuthorizations.getList().then(function (data){
+            console.log("Authorization list: ", data);
+            $scope.authorizationList = data;
+        });
+  };
+    $scope.updateAuthorizations();
+    $scope.$on('$viewContentLoaded', function() {
+        $scope.updateAuthorizations();
+    });
+
+  $scope.authRedirect = function(auth){
+      var query_url = auth.url + "?token=" + user.getProp('token');
+      $window.location.href = query_url;
+  };
 }])
 
 
-.controller("LeftMenuCtrl", ['$scope', function($scope){
+.controller("LeftMenuCtrl", ['$scope', 'user', 'Restangular', function($scope, user, Restangular){
   $scope.dashboardListSource = 'installed';
   console.log('LeftMenuCtrl $scope',$scope);
+  var basePlugins;
+  $scope.updatePlugins = function(){
+       basePlugins = Restangular.one("user", user.getProp('hashkey')).all('plugins');
+      basePlugins.getList().then(function (data) {
+              console.log("Plugin list: ", data);
+              $scope.pluginList = data;
+          });
+  };
+  $scope.updatePlugins();
+    $scope.$on('$viewContentLoaded', function() {
+        $scope.updatePlugins();
+    });
+    $scope.addPlugin = function(pluginHashkey){
+        console.log("Adding plugins.");
+    };
+
+    $scope.removePlugin = function(pluginHashkey){
+
+    };
+  $scope.addPlugin = function(pluginObj){
+            console.log("Adding a plugin");
+            basePlugins.one(pluginObj.hashkey).one('actions').one('add').get(null, null, null).then(function (data) {
+                console.log("Plugin added: ", data);
+                $scope.updatePlugins();
+            });
+        };
+  $scope.removePlugin = function(pluginObj){
+      console.log("Removing a plugin");
+      basePlugins.one(pluginObj.hashkey).one('actions').one('remove').get(null, null, null).then(function (data) {
+          console.log("Plugin added: ", data);
+          $scope.updatePlugins();
+      });
+  };
 }])
 
 
@@ -161,7 +217,7 @@ window.realize = angular.module( 'realize', [
         loginOrRegister();
     };
     $scope.logout = function () {
-        Restangular.all('logout').getList()
+        Restangular.one('logout').get(null, null, null)
             .finally(function () {
                 user.deAuthorize();
                 $scope.add('realize_default_dashboard');
@@ -219,7 +275,10 @@ window.realize = angular.module( 'realize', [
     templateUrl: 'left-menu.tpl.html',
     replace: true,
     restrict: 'E',
-    controller: 'LeftMenuCtrl'
+    controller: 'LeftMenuCtrl',
+    link: function(scope){
+        scope.updatePlugins();
+    }
   };
 }])
 

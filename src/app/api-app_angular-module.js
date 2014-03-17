@@ -1,11 +1,7 @@
-// contains the base forms.
-// Provides basic data syncing for apps that want to use the personal data cloud for storage.
-// Back end data must have all base form data to authenticate for valid realize measurement
-// provides methods to extend its forms with additional questions
 angular.module( 'realize.api-promises', [
   'restangular'
 ])
-.config( ['RestangularProvider', function (RestangularProvider) {
+.config( ['RestangularProvider', 'user', function (RestangularProvider, user) {
     // Define Restangular settings for back-end sync
     RestangularProvider.setBaseUrl('/api/v1/');
     RestangularProvider.setListTypeIsArray(false);

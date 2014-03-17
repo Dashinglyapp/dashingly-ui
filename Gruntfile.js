@@ -156,7 +156,7 @@ module.exports = function ( grunt ) {
         files:[{
           cwd:'<%= src.dirs.app %>',
           src:'widgets/**/*.*',
-          dest:'<%= build.dirs.app %>widgetList.json'
+          dest:'<%= build.dirs.app %>/data/widgetList.json'
         }]
       }
     },

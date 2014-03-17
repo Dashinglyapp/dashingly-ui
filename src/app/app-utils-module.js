@@ -207,12 +207,16 @@ angular.module('realize-app-utils', [])
         d.resolve(widgetTemplateList);
         return d.promise;
       }
-      $http.get('/widgetList.json').then(function  (obj) {
+      $http.get('/data/widgetList.json').then(function  (obj) {
         widgetTemplateList = obj.data;
         d.resolve(widgetTemplateList);
       });
       widgetTemplateList = d.promise;
       return widgetTemplateList;
+    },
+    getWidgetConfig: function(widgetName){
+        var d = $q.defer();
+
     },
     getTemplate:function(widgetName){
       var d = $q.defer();
