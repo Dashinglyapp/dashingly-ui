@@ -606,6 +606,7 @@ module.exports = function ( grunt ) {
               var manifest = grunt.file.readJSON(dirPath + "/manifest.json");
               jsonObj[widgetName] = manifest;
               jsonObj[widgetName].dir = dirName + '/';
+              jsonObj[widgetName].name = widgetName;
           } catch(err){
               grunt.log.warn("Error reading manifest file from " + dirPath + " :", err);
           }

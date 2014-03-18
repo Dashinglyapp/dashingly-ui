@@ -1,10 +1,14 @@
-ngDefine('realize-utils',
-    ['module:oc.lazyLoad:ocLazyLoad'],
-    function(module) {
+define(['angularAMD', 'restangular'],
+    function(angularAMD) {
+        var module = angular.module('realize-utils', ['ng', 'restangular']);
         module
-            .config(['$ocLazyLoadProvider', function($ocLazyLoadProvider){
-                $ocLazyLoadProvider.config({
-                    asyncLoader: require
+            .config(['RestangularProvider', function(RestangularProvider){
+                RestangularProvider.setBaseUrl('/api/v1/');
+                RestangularProvider.addFullRequestInterceptor(function(element, operation, route, url, headers, params) {
+                    headers['Authentication-Token'] = window.localStorage.realize_user_auth_token || '';
+                    return {
+                        headers: headers
+                    };
                 });
             }])
             .factory('lodash',['$window',function($window){
@@ -111,18 +115,33 @@ ngDefine('realize-utils',
             .factory("resource", ['Restangular','$rootScope','lodash','user','$q','$http','widget',function(Restangular, $rootScope, _, user,$q,$http,widget) {
 
                 var api = {
+                    baseResources: function(){
+                        return Restangular.one('user', user.getProp('hashkey'));
+                    },
                     getResources: function(){
                         var d = $q.defer();
-                        var baseResources = Restangular.one('user', user.getProp('hashkey')).all('resources');
-                        baseResources.getList().then(function(data){
+                        api.baseResources().all('resources').getList().then(function(data){
                             d.resolve(data);
                         });
                         return d.promise;
                     },
                     addResource: function(data){
                         var d = $q.defer();
-                        var baseResources = Restangular.one('user', user.getProp('hashkey'));
-                        baseResources.post("resources", data).then(function(data){
+                        api.baseResources().post("resources", data).then(function(data){
+                            d.resolve(data);
+                        });
+                        return d.promise;
+                    },
+                    getResourceTree: function(hashkey){
+                        var d = $q.defer();
+                        api.baseResources().one("resources", hashkey).one("tree").get(null, null, null).then(function(data){
+                            d.resolve(data);
+                        });
+                        return d.promise;
+                    },
+                    getTree: function(){
+                        var d = $q.defer();
+                        api.baseResources().one("resources").one("tree").get(null, null, null).then(function(data){
                             d.resolve(data);
                         });
                         return d.promise;
@@ -131,7 +150,7 @@ ngDefine('realize-utils',
                 return api;
             }])
 
-            .factory("dashboard", ['$rootScope','lodash','user','$q','$http','$window', '$ocLazyLoad', 'resource', function($rootScope, _, user,$q,$http,$window, $ocLazyLoad, resource){
+            .factory("dashboard", ['$rootScope','lodash','user','$q','$http','$window', 'resource', function($rootScope, _, user,$q,$http,$window, resource){
                 var dashboardCache = {};
                 var api = {
                     listAll:function(){
@@ -139,7 +158,9 @@ ngDefine('realize-utils',
                         resource.getResources().then(function(data){
                             console.log("Resource data for user: ", data);
                             for(var i = 0; i < data.length; i++){
-                                dashboardCache[data[i].hashkey] = data[i];
+                                if(data[i].type === "dashboard"){
+                                    dashboardCache[data[i].hashkey] = data[i];
+                                }
                             }
                             d.resolve(dashboardCache);
                         });
@@ -158,12 +179,35 @@ ngDefine('realize-utils',
                             d.resolve(dashboardCache);
                         });
                         return d.promise;
+                    },
+                    detail:function(hashkey){
+                        var d = $q.defer();
+                        resource.getResourceTree(hashkey).then(function(data){
+                           console.log(data);
+                            d.resolve(data);
+                        });
+                        return d.promise;
+                    },
+                    addWidget: function(widgetData, dashboardHashkey){
+                        var d = $q.defer();
+                        widgetData.parent = dashboardHashkey;
+                        var data = {
+                            parent: dashboardHashkey,
+                            name: widgetData.name,
+                            type: 'widget'
+                        };
+
+                        resource.addResource(data).then(function(data){
+                            console.log("Added widget to dashboard: ", data);
+                            d.resolve(data);
+                        });
+                        return d.promise;
                     }
                 };
                 return api;
             }])
 
-            .factory("widget", ['$rootScope','lodash','user','$q','$http','$window', '$ocLazyLoad', function($rootScope, _, user,$q,$http,$window, $ocLazyLoad) {
+            .factory("widget", ['$rootScope','lodash','user','$q','$http','$window', function($rootScope, _, user,$q,$http,$window) {
                 var scriptsCache = {}; // hold previously loaded scripts so we don't load them twice.
                 var activeWidgets = {};
                 var widgetTemplateList;
@@ -181,8 +225,8 @@ ngDefine('realize-utils',
                             modules.push(widgetObj.module);
 
                             element.html(widgetObj.template_html);
-                            console.log("Bootstrapping modules", modules, "for widget", widgetObj, "in element", element);
-                            angular.bootstrap(element, modules);
+                            element.attr('ng-controller', widgetObj.controller);
+                            console.log("Loading controller", widgetObj.controller, "for widget", widgetObj, "in element", element);
                             d.resolve(widgetObj);
                         });
                         return d.promise;
@@ -236,13 +280,19 @@ ngDefine('realize-utils',
                                     console.log("Loading these files for widget: ", widgetName, files);
                                     load_data.files = files;
                                 }
-                                $ocLazyLoad.load(load_data).then(function(mod) {
-                                    console.log('Done loading: ' + widgetName + " :", mod);
-                                    api.getTemplate(mod).then(function(template_html){
-                                        mod.template_html = template_html;
-                                        mod.module = widgetObj.module;
+                                
+                                var deps = ['angularAMD'];
+                                for(var i = 0; i < load_data.files.length; i++){
+                                    deps.push(load_data.files[i]);
+                                }
+
+                                require(deps, function (angularAMD) {
+                                    angularAMD.processQueue();
+                                    api.getTemplate(load_data).then(function(template_html){
+                                        console.log('Done loading: ' + widgetName + " :", widgetObj, "Controller is: ", widgetObj.controller);
+                                        widgetObj.template_html = template_html;
                                         activeWidgets[widgetName] = d.promise;
-                                        d.resolve(mod);
+                                        d.resolve(widgetObj);
                                     });
                                 });
                             });
@@ -250,7 +300,7 @@ ngDefine('realize-utils',
                     },
                     getTemplate:function(widgetObj){
                         var d = $q.defer();
-                        if(widgetObj.template_html){
+                        if(widgetObj.template_html && widgetObj.template_html.length > 0){
                             d.resolve(widgetObj.template_html);
                             return d.promise;
                         }
@@ -349,6 +399,5 @@ ngDefine('realize-utils',
 
                 };
             }]);
-
     }
 );

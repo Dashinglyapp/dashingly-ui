@@ -1,6 +1,6 @@
 {
     "title": "Dashboard",
-    "module": "realizeDashboard",
+    "controller": "DashboardCtrl",
     "version": ".1",
     "authors": ["Realize"],
     "tags": ["core"],

@@ -1,0 +1,12 @@
+{
+    "title": "Github Chart",
+    "controller": "ChartCtrl",
+    "version": ".1",
+    "authors": ["Realize"],
+    "tags": ["dashboard-item"],
+    "plugin": "",
+    "endpoints": [],
+    "javascripts": ["chart.js"],
+    "templates": ["chart.tpl.html"],
+    "css": []
+}

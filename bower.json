@@ -18,8 +18,7 @@
     "restangular": "~1.3.1",
     "angular-http-auth": "~1.2.1",
     "requirejs": "~2.1.11",
-    "ocLazyLoad": "~0.0.3",
-    "requirejs-angular-define": "~1.1.0"
+    "angularAMD": "~0.1.0"
   },
   "authors": [
     "Adam Laughlin <adam.laughlin@gmail.com>",
@@ -35,5 +34,8 @@
     "self-improvement"
   ],
   "license": "AGPL",
-  "homepage": "realize.pe"
+  "homepage": "realize.pe",
+  "devDependencies": {
+    "angular-http-auth": "~1.2.1"
+  }
 }

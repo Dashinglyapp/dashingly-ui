@@ -1,9 +1,10 @@
-ngDefine('mock-backend',
-    ['module:ngMockE2E:angularMocks',
-     'module:restangular',
-     'module:realize-app-utils'],
-    function(module){
-    module
+define(
+    ['angularAMD',
+     'angularMocks',
+     'restangular',
+     'realize-utils'],
+    function(angularAMD){
+        var module = angular.module('mock-backend', ['angularMockE2E', 'restangular', 'realize-utils'])
     .factory('realizeMockData', [function () {
       return {
         hashFaker:function(min,max){

@@ -1,7 +1,6 @@
-ngDefine('realize.settings',
-    ['angular'],
-    function(module, angular){
-    module
+define(['angular'],
+    function(angular){
+        var module = angular.module('realize.settings', [])
     .controller( 'PeopleCtrl', ['$scope', '$log', '$rootScope',
     function ( $scope, $log, $rootScope) {
 

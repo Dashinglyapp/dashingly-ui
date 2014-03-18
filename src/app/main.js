@@ -1,4 +1,4 @@
-require.config({
+var config = {
     paths: {
         'angular': 'thirdparty/angular/angular',
         'angular-ui-router': 'thirdparty/angular-ui-router/release/angular-ui-router',
@@ -12,12 +12,12 @@ require.config({
         'angularUIUtils': 'thirdparty/angular-ui-utils/modules/utils',
         'restangular': 'thirdparty/restangular/dist/restangular',
         'html_templates_jsfied': 'html_templates_jsfied',
-        'ngDefine': 'thirdparty/requirejs-angular-define/src/ngDefine',
         'ngParse': 'thirdparty/requirejs-angular-define/src/ngParse',
-        'ocLazyLoad': 'thirdparty/ocLazyLoad/ocLazyLoad',
         'controllers': 'components/app/controllers',
         'directives': 'components/app/directives',
-        'realize-utils': 'app/components/util/utils'
+        'realize-utils': 'components/util/utils',
+        'angularAMD': 'thirdparty/angularAMD/angularAMD',
+        'ngload': 'thirdparty/angularAMD/ngload'
     },
     shim: {
         'angular' : {'deps': ['jquery'], 'exports' : 'angular'},
@@ -42,25 +42,26 @@ require.config({
         'restangular': {
             deps: ['angular', 'lodash']
         },
-        'ocLazyLoad': {
+        'angularAMD': {
             deps: ['angular']
+        },
+        'ngload': {
+            deps: ['angularAMD']
         }
     },
     priority: [
         "angular"
-    ],
-    packages: {
-        app: {'location': '../app'}
-    }
-});
+    ]
+};
 
-//http://code.angularjs.org/1.2.1/docs/guide/bootstrap#overview_deferred-bootstrap
-require(['ngDefine', 'angular'], function(ngDefine, angular) {
+require.config(config);
+
+require(['angularAMD'], function(angularAMD) {
 
     // require the application
-    require(['app'], function() {
+    require(['app', 'components/app/controllers', 'components/app/directives'], function(app) {
 
         // bootstrap the application
-        angular.bootstrap(document, ['realize']);
+        angularAMD.bootstrap(app, true, document);
     });
 });
