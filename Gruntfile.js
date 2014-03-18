@@ -433,7 +433,7 @@ module.exports = function ( grunt ) {
      * Only our `app.less` file is included in compilation.  It must import all other files.
      */
       build: {
-        src: [ '<%= src.dirs.app %>app.less' ],
+        src: [ '<%= src.dirs.app %>css/app.less' ],
         dest: '<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css',
         options: {
           compile: true,
@@ -445,7 +445,7 @@ module.exports = function ( grunt ) {
       },
       // the compile phase only adds the compress option
       compile: {
-        src: [ '<%= src.dirs.app %>app.less' ],
+        src: [ '<%= src.dirs.app %>css/app.less' ],
         dest: '<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css',
         options: {
           compile: true,
@@ -518,7 +518,7 @@ module.exports = function ( grunt ) {
         ]
       },
       // compile less on change
-      appless:{ files: 'app.less', tasks: ['recess:build','unit']},
+      appless:{ files: 'css/app.less', tasks: ['recess:build','unit']},
       // add bootstrap less files
       bootstrapless:{ files: 'thirdparty/bootstrap/**/*.less', tasks: ['recess:build','unit']},
       // Copy any changed assets
@@ -601,6 +601,7 @@ module.exports = function ( grunt ) {
 
           var widgetName = dirPath.slice(dirPath.lastIndexOf('/') + 1);
           var dirName = "widgets/" + widgetName;
+
           try{
               var manifest = grunt.file.readJSON(dirPath + "/manifest.json");
               jsonObj[widgetName] = manifest;

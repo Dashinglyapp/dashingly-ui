@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="realize">
+<html>
   <head>
     <title ng-bind-template="{{$root.people.menuTitle}}"></title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
@@ -26,9 +26,10 @@
           <top-nav></top-nav>
       </div>
       <login-form ng-if="login" id="loginForm"></login-form>
-
-      <div id="content">
-        <div ui-view></div>
+      <div id="dashboard">
+          <div id="content" ng-non-bindable data-$injector="">
+              <div id="dashboard-container"></div>
+          </div>
       </div>
     </div>
 

@@ -1,2 +1,0 @@
-ngDefine('realizeDashboard', function(module) {
-});

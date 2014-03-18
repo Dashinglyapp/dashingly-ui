@@ -7,6 +7,6 @@
     "plugin": "",
     "endpoints": [],
     "javascripts": ["dashboard.js"],
-    "templates": ["realize_default_dashboard.tpl.html"],
+    "templates": ["dashboard.tpl.html"],
     "css": []
 }

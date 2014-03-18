@@ -14,7 +14,10 @@ require.config({
         'html_templates_jsfied': 'html_templates_jsfied',
         'ngDefine': 'thirdparty/requirejs-angular-define/src/ngDefine',
         'ngParse': 'thirdparty/requirejs-angular-define/src/ngParse',
-        'ocLazyLoad': 'thirdparty/ocLazyLoad/ocLazyLoad'
+        'ocLazyLoad': 'thirdparty/ocLazyLoad/ocLazyLoad',
+        'controllers': 'components/app/controllers',
+        'directives': 'components/app/directives',
+        'realize-utils': 'app/components/util/utils'
     },
     shim: {
         'angular' : {'deps': ['jquery'], 'exports' : 'angular'},
@@ -52,13 +55,12 @@ require.config({
 });
 
 //http://code.angularjs.org/1.2.1/docs/guide/bootstrap#overview_deferred-bootstrap
-window.name = "NG_DEFER_BOOTSTRAP!";
 require(['ngDefine', 'angular'], function(ngDefine, angular) {
 
     // require the application
     require(['app'], function() {
 
         // bootstrap the application
-        angular.bootstrap(document.body, ['realize']);
+        angular.bootstrap(document, ['realize']);
     });
 });
