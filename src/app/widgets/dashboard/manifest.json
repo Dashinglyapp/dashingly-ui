@@ -1,6 +1,6 @@
 {
     "title": "Dashboard",
-    "module": "realizeDashboard",
+    "module": "realize-dashboard",
     "version": ".1",
     "authors": ["Realize"],
     "tags": ["core"],

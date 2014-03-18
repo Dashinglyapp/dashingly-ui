@@ -1,19 +1,18 @@
-ngDefine('realize', [
+define([
     'angular',
+    'angularAMD',
     'jquery',
-    'module:ui.router:angular-ui-router',
+    'angular-ui-router',
     'ngTouch',
-    'module:restangular',
-    'module:ui.bootstrap:angular-ui-bootstrap',
-    'module:html_templates_jsfied',
-    'module:realize-utils:components/util/utils',
-    'module:http-auth-interceptor',
-    'controllers',
-    'directives'
-], function (module, angular, angularRoute, html_templates_jsfied, ngTouch, restangular) {
+    'restangular',
+    'angular-ui-bootstrap',
+    'html_templates_jsfied',
+    'realize-utils',
+    'http-auth-interceptor'
+], function (angular, angularAMD, $) {
     var DEBUG_MODE = false;
 
-    module
+    var module = angular.module('realize', ['ui.bootstrap', 'ui.router', 'restangular', 'realize-utils', 'http-auth-interceptor'])
     .config( ['$stateProvider','$urlRouterProvider','$locationProvider','$controllerProvider','$compileProvider','RestangularProvider',
       function ($stateProvider, $urlRouterProvider, $locationProvider, $controllerProvider, $compileProvider, RestangularProvider) {
         RestangularProvider.setBaseUrl('/api/v1/');
@@ -49,5 +48,5 @@ ngDefine('realize', [
         };
       }
     ]);
-
+    return module;
 });

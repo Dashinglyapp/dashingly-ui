@@ -1,8 +1,15 @@
 <div ng-controller="DashboardCtrl">
     <div>Dashboard</div>
-    <h2 ng-show="$root.user.id">Logged in as {{$root.user.id}}</h2>
-    <h2 ng-hide="$root.user.id">Logged out.</h2>
-    <button class="btn btn-lg btn-default" ng-click="add('default_dashboard')">ADD WIDGET</button>
+    <div class="dropdown">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Add Widget <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li ng-repeat="widget in items">
+                <a ng-click="add(widget)">{{widget.title}}</a>
+            </li>
+        </ul>
+    </div>
     <div class="wrapper" ng-non-bindable data-$injector="">
         <div id="widget-container">
 

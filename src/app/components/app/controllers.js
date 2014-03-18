@@ -1,21 +1,28 @@
-ngDefine('realize', ['angular', 'jquery'], function(module, angular, $){
-    module.controller("DashboardCtrl", ["$scope", "$window", "user", "Restangular", 'dashboard', 'widget', '$rootScope', '$document', function($scope, $window, user, Restangular, dashboard, widget, $root, $document){
+define(['app', 'angular', 'jquery'], function(app, angular, $){
+    app
+    .controller("DashboardCtrl", ["$scope", "$window", "user", "Restangular", 'dashboard', 'widget', '$rootScope', '$document', function($scope, $window, user, Restangular, dashboard, widget, $root, $document){
         console.log('DashboardCtrl $scope',$scope);
 
         $scope.updateDashboards = function(){
             dashboard.listAll().then(function(data){
                 console.log('User dashboards:', data);
+                var dashboardKey;
                 if(Object.keys(data).length === 0){
                     dashboard.add('default').then(function(data){
+                        dashboardKey = Object.keys(data)[0];
                         $scope.dashboards = data;
+                        $scope.renderDashboard(dashboardKey);
                     });
                 } else{
+                    dashboardKey = Object.keys(data)[0];
                     $scope.dashboards = data;
+                    $scope.renderDashboard(dashboardKey);
                 }
             });
         };
-
-        $scope.updateDashboards();
+        user.hasAuth().then(function(profile){
+            $scope.updateDashboards();
+        });
 
         $scope.$on('$viewContentLoaded', function() {
             $scope.updateDashboards();
@@ -23,13 +30,11 @@ ngDefine('realize', ['angular', 'jquery'], function(module, angular, $){
 
         $scope.renderDashboard = function(dashboardKey){
             var elem = $document.find("#dashboard-container");
+            $(elem).data('hashkey', dashboardKey);
             widget.addToPage('dashboard', elem).then(function(){
-                $(elem).data('hashkey', dashboardKey);
+
             });
         };
-        user.hasAuth().then(function(profile){
-            $scope.renderDashboard(undefined);
-        });
     }])
 
     /**

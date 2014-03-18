@@ -1,5 +1,5 @@
-ngDefine('realize', ['angular'], function(module){
-    module
+define(['app'], function(app){
+    app
     .directive('widgetContent', ['$compile', function ($compile) {
         return {
             template:'<div></div>',
@@ -19,7 +19,7 @@ ngDefine('realize', ['angular'], function(module){
         };
     }])
 
-        .directive('checkLogin', [function(){
+    .directive('checkLogin', [function(){
             return {
                 restrict: 'C',
                 link: function(scope, elem, attrs){
@@ -44,7 +44,7 @@ ngDefine('realize', ['angular'], function(module){
             };
         }])
 
-        .directive('leftMenu', [function () {
+    .directive('leftMenu', [function () {
             return {
                 templateUrl: 'templates/left-menu.tpl.html',
                 replace: true,
@@ -56,7 +56,7 @@ ngDefine('realize', ['angular'], function(module){
             };
         }])
 
-        .directive('loginForm', [function(){
+    .directive('loginForm', [function(){
             return {
                 templateUrl: 'templates/realize_login.tpl.html',
                 replace: true,
@@ -65,7 +65,7 @@ ngDefine('realize', ['angular'], function(module){
             };
         }])
 
-        .directive('rightMenu', [function () {
+    .directive('rightMenu', [function () {
             return {
                 templateUrl: 'templates/right-menu.tpl.html',
                 replace: true,
@@ -74,7 +74,7 @@ ngDefine('realize', ['angular'], function(module){
             };
         }])
 
-        .directive('topNav', [function () {
+    .directive('topNav', [function () {
             return {
                 templateUrl: 'templates/top-nav.tpl.html',
                 replace: true,
@@ -84,7 +84,7 @@ ngDefine('realize', ['angular'], function(module){
         }])
 
         // adds a pseudo phone body around the content when on a desktop, for pre-beta evaluation
-        .directive('hapSize', ['$timeout','$window', 'utils', function ($timeout, $window, utils) {
+    .directive('hapSize', ['$timeout','$window', 'utils', function ($timeout, $window, utils) {
             return {
                 restrict: 'A',
                 link: function (scope) { // scope, iElement, iAttrs
