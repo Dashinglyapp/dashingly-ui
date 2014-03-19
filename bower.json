@@ -17,7 +17,9 @@
     "lodash": "~2.4.1",
     "angular-http-auth": "~1.2.1",
     "requirejs": "~2.1.11",
-    "angularAMD": "~0.1.0"
+    "angularAMD": "~0.1.0",
+    "momentjs": "~2.5.1",
+    "angular-charts": "~0.0.1"
   },
   "authors": [
     "Adam Laughlin <adam.laughlin@gmail.com>",

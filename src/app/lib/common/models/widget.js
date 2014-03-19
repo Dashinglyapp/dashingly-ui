@@ -133,19 +133,17 @@ define(['angularAMD', 'realize-sync', 'lodash', 'user'],
                         d.resolve('');
                         return d.promise;
                     },
-                    create: function(name, type, parent){
+                    create: function(data){
                         var d = $q.defer();
-                        var data = {
-                            parent: parent,
-                            name: name,
-                            type: type
-                        };
-
-                        sync.resource("create", {scope: "user", scopeHash: user.getProp('hashkey'), data: data})
-                        .then(function(data){
-                            console.log("Added widget to dashboard: ", data);
-                            d.resolve(data);
+                        api.loadWidget(data.type).then(function(widgetObj){
+                            data.views = widgetObj.endpoints;
+                            sync.resource("create", {scope: "user", scopeHash: user.getProp('hashkey'), data: data})
+                                .then(function(data){
+                                    console.log("Added widget to dashboard: ", data);
+                                    d.resolve(data);
+                                });
                         });
+
                         return d.promise;
                     },
                     detail:function(hashkey){

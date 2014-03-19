@@ -10,11 +10,13 @@ define([
     'user',
     'widget',
     'lodash',
-    'realize-lodash'
+    'realize-lodash',
+    'angular-charts',
+    'moment'
 ], function (angular, angularAMD, $) {
     var DEBUG_MODE = false;
 
-    var module = angular.module('realize', ['ui.bootstrap', 'ui.router', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash'])
+    var module = angular.module('realize', ['ui.bootstrap', 'ui.router', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts'])
     .constant('EVENTS', {
         // auth
         loginSuccess: 'auth-loginConfirmed',

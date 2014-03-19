@@ -14,6 +14,9 @@ var config = {
         'ngParse': 'thirdparty/requirejs-angular-define/src/ngParse',
         'angularAMD': 'thirdparty/angularAMD/angularAMD',
         'ngload': 'thirdparty/angularAMD/ngload',
+        'd3': 'thirdparty/d3/d3.min',
+        'angular-charts': 'thirdparty/angular-charts/dist/angular-charts.min',
+        'moment': 'thirdparty/momentjs/min/moment.min',
 
         // Templates
         'html_templates_jsfied': 'html_templates_jsfied',
@@ -38,6 +41,9 @@ var config = {
         'angularMocks': {
             deps:['angular'],
             'exports':'angular.mock'
+        },
+        'angular-charts': {
+          deps: ['jquery', 'angular', 'd3']
         },
         'ngTouch':{
             deps: ['angular'],

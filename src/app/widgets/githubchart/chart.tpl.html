@@ -1,8 +1,5 @@
 <div ng-controller="ChartCtrl">
-    <ul>
-        {{hashkey}}
-        <li ng-repeat="child in children">
-            <a>{{child.name}}</a>
-        </li>
-    </ul>
+    <div ng-if="chartData">
+        <div ac-chart="'line'" ac-data="chartData" ac-config="chartConfig" class='chart'></div>
+    </div>
 </div>
