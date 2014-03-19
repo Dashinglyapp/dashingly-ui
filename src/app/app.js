@@ -4,44 +4,48 @@ define([
     'jquery',
     'angular-ui-router',
     'ngTouch',
-    'restangular',
     'angular-ui-bootstrap',
     'html_templates_jsfied',
-    'realize-utils',
-    'http-auth-interceptor'
+    'realize-debugging',
+    'user',
+    'widget',
+    'lodash',
+    'realize-lodash'
 ], function (angular, angularAMD, $) {
     var DEBUG_MODE = false;
 
-    var module = angular.module('realize', ['ui.bootstrap', 'ui.router', 'restangular', 'realize-utils', 'http-auth-interceptor'])
-    .config( ['$stateProvider','$urlRouterProvider','$locationProvider','$controllerProvider','$compileProvider','RestangularProvider',
-      function ($stateProvider, $urlRouterProvider, $locationProvider, $controllerProvider, $compileProvider, RestangularProvider) {
-        RestangularProvider.setBaseUrl('/api/v1/');
-        window.registerController = function(name,fnArray){
-          $controllerProvider.register(name,fnArray);
-        };
-          RestangularProvider.addFullRequestInterceptor(function(element, operation, route, url, headers, params) {
-              headers['Authentication-Token'] = window.localStorage.realize_user_auth_token || '';
-              return {
-                  headers: headers
-              };
-          });
-        // console.log('$rootScope',$rootScope);
+    var module = angular.module('realize', ['ui.bootstrap', 'ui.router', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash'])
+    .constant('EVENTS', {
+        // auth
+        loginSuccess: 'auth-loginConfirmed',
+        loginFailed: 'auth-login-failed',
+        logoutSuccess: 'auth-logout-success',
+        tokenExpired: 'auth-token-expired',
+        notAuthenticated: 'auth-loginRequired',
+        notAuthorized: 'auth-not-authorized',
+        switchWidgetTree: 'widget-replace-tree'
+    })
+
+    .constant('USER_ROLES', {
+        all: '*',
+        admin: 'admin',
+        guest: 'guest'
+    })
+
+    .config( ['$stateProvider','$urlRouterProvider','$locationProvider','$controllerProvider','$compileProvider',
+      function ($stateProvider, $urlRouterProvider, $locationProvider, $controllerProvider, $compileProvider) {
         // enable pushstate so urls are / instead of /#/ as root
         $locationProvider.html5Mode(true);
-        /**
-         * States
-         */
         $urlRouterProvider.otherwise('/');
       }
     ])
 
 
     // run is where we set initial rootscope properties
-    .run(['$rootScope', 'utils', function ($root, utils) {
-        utils.enableDebugging();
+    .run(['$rootScope', 'debugging', function ($root, debugging) {
+        debugging.enableDebugging();
         $root.closeMenus = function(){
           var open = false;
-          if($root.dashboardListSelectorVisible){open = true;$root.dashboardListSelectorVisible = 0;}
           if($root.showleftmenu){open = true;$root.showleftmenu = 0;}
           if($root.showrightmenu){open = true;$root.showrightmenu = 0;}
           return open;

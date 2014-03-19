@@ -1,5 +1,6 @@
 var config = {
     paths: {
+        // Third party
         'angular': 'thirdparty/angular/angular',
         'angular-ui-router': 'thirdparty/angular-ui-router/release/angular-ui-router',
         'jquery': 'thirdparty/jquery/jquery',
@@ -10,14 +11,26 @@ var config = {
         'http-auth-interceptor': 'thirdparty/angular-http-auth/src/http-auth-interceptor',
         'angularGesture': 'thirdparty/angular-gesture/ngGesture/gesture',
         'angularUIUtils': 'thirdparty/angular-ui-utils/modules/utils',
-        'restangular': 'thirdparty/restangular/dist/restangular',
-        'html_templates_jsfied': 'html_templates_jsfied',
         'ngParse': 'thirdparty/requirejs-angular-define/src/ngParse',
-        'controllers': 'components/app/controllers',
-        'directives': 'components/app/directives',
-        'realize-utils': 'components/util/utils',
         'angularAMD': 'thirdparty/angularAMD/angularAMD',
-        'ngload': 'thirdparty/angularAMD/ngload'
+        'ngload': 'thirdparty/angularAMD/ngload',
+
+        // Templates
+        'html_templates_jsfied': 'html_templates_jsfied',
+
+        // Core app modules
+        'controllers': 'lib/app/controllers',
+        'directives': 'lib/app/directives',
+
+        // Common app modules
+        'realize-debugging': 'lib/common/modules/debugging',
+        'realize-sync': 'lib/common/modules/sync',
+        'realize-mock-backend': 'lib/common/modules/mock-backend',
+        'realize-lodash': 'lib/common/modules/lodash',
+
+        // Common app models
+        'widget': 'lib/common/models/widget',
+        'user': 'lib/common/models/user'
     },
     shim: {
         'angular' : {'deps': ['jquery'], 'exports' : 'angular'},
@@ -39,9 +52,6 @@ var config = {
         'http-auth-interceptor': {
             deps: ['angular']
         },
-        'restangular': {
-            deps: ['angular', 'lodash']
-        },
         'angularAMD': {
             deps: ['angular']
         },
@@ -59,7 +69,7 @@ require.config(config);
 require(['angularAMD'], function(angularAMD) {
 
     // require the application
-    require(['app', 'components/app/controllers', 'components/app/directives'], function(app) {
+    require(['app', 'controllers', 'directives'], function(app) {
 
         // bootstrap the application
         angularAMD.bootstrap(app, true, document);

@@ -1,20 +1,21 @@
-define(['app', 'angular', 'jquery'], function(app, angular, $){
+define(['app', 'angular', 'jquery', 'user', 'realize-sync'], function(app, angular, $){
     app
-    .controller("DashboardCtrl", ["$scope", "$window", "user", "Restangular", 'dashboard', 'widget', '$rootScope', '$document', function($scope, $window, user, Restangular, dashboard, widget, $root, $document){
-        console.log('DashboardCtrl $scope',$scope);
+    .controller("DashboardsCtrl", ["$scope", "$window", "user", 'widget', '$rootScope', '$document', function($scope, $window, user, widget, $root, $document){
+        console.log('DashboardsCtrl $scope',$scope);
+        $scope.dashboards = [];
 
         $scope.updateDashboards = function(){
-            dashboard.listAll().then(function(data){
+            widget.listInstalledByType("dashboard").then(function(data){
                 console.log('User dashboards:', data);
                 var dashboardKey;
                 if(Object.keys(data).length === 0){
-                    dashboard.add('default').then(function(data){
-                        dashboardKey = Object.keys(data)[0];
-                        $scope.dashboards = data;
+                    widget.create('default', 'dashboard', null).then(function(data){
+                        dashboardKey = data.hashkey;
+                        $scope.dashboards.push(data);
                         $scope.renderDashboard(dashboardKey);
                     });
                 } else{
-                    dashboardKey = Object.keys(data)[0];
+                    dashboardKey = data[0].hashkey;
                     $scope.dashboards = data;
                     $scope.renderDashboard(dashboardKey);
                 }
@@ -29,10 +30,9 @@ define(['app', 'angular', 'jquery'], function(app, angular, $){
         });
 
         $scope.renderDashboard = function(dashboardKey){
-            var elem = $document.find("#dashboard-container");
-            $(elem).data('hashkey', dashboardKey);
-            widget.addToPage('dashboard', elem).then(function(){
-
+            widget.loadWidget('dashboard').then(function(data){
+                $root.widgetHashkey = dashboardKey;
+                $scope.widgetTemplateId = data.template;
             });
         };
     }])
@@ -41,12 +41,12 @@ define(['app', 'angular', 'jquery'], function(app, angular, $){
      * Controllers
      */
 
-    .controller("TopNavCtrl", ['$scope', '$window', 'user', 'Restangular', function($scope, $window, user, Restangular){
+    .controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', function($scope, $window, user, sync){
         console.log('TopNavCtrl $scope',$scope);
         var baseAuthorizations;
         $scope.updateAuthorizations = function(){
-            baseAuthorizations = Restangular.one("user", user.getProp('hashkey')).all('authorizations');
-            baseAuthorizations.getList().then(function (data){
+            sync.authorizations('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
+            .then(function (data){
                 console.log("Authorization list: ", data);
                 $scope.authorizationList = data;
             });
@@ -63,13 +63,13 @@ define(['app', 'angular', 'jquery'], function(app, angular, $){
     }])
 
 
-    .controller("LeftMenuCtrl", ['$scope', 'user', 'Restangular', function($scope, user, Restangular){
+    .controller("LeftMenuCtrl", ['$scope', 'user', 'sync', function($scope, user, sync){
         $scope.dashboardListSource = 'installed';
         console.log('LeftMenuCtrl $scope',$scope);
         var basePlugins;
         $scope.updatePlugins = function(){
-            basePlugins = Restangular.one("user", user.getProp('hashkey')).all('plugins');
-            basePlugins.getList().then(function (data) {
+            sync.plugins('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
+            .then(function (data) {
                 console.log("Plugin list: ", data);
                 $scope.pluginList = data;
             });
@@ -87,14 +87,16 @@ define(['app', 'angular', 'jquery'], function(app, angular, $){
         };
         $scope.addPlugin = function(pluginObj){
             console.log("Adding a plugin");
-            basePlugins.one(pluginObj.hashkey).one('actions').one('add').get(null, null, null).then(function (data) {
+            sync.plugins("add", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
+            .then(function (data) {
                 console.log("Plugin added: ", data);
                 $scope.updatePlugins();
             });
         };
         $scope.removePlugin = function(pluginObj){
             console.log("Removing a plugin");
-            basePlugins.one(pluginObj.hashkey).one('actions').one('remove').get(null, null, null).then(function (data) {
+            sync.plugins("remove", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
+            .then(function (data) {
                 console.log("Plugin added: ", data);
                 $scope.updatePlugins();
             });
@@ -106,7 +108,7 @@ define(['app', 'angular', 'jquery'], function(app, angular, $){
         console.log('RightMenuCtrl $scope',$scope);
     }])
 
-    .controller("WidgetCtrl", ['$scope','Restangular','$q','$window','widget','user','resource','baseTemplateName',function($scope,Restangular,$q,$window,widget,user,resource,baseTemplateName){
+    .controller("WidgetCtrl", ['$scope','$q','$window','widget','user','resource','baseTemplateName',function($scope,$q,$window,widget,user,resource,baseTemplateName){
         console.log('WidgetCtrl RUNNING');
 
 
@@ -116,32 +118,36 @@ define(['app', 'angular', 'jquery'], function(app, angular, $){
 
     }])
 
-    .controller('LoginCtrl', ['$scope','Restangular','$q','$window', 'user', 'authService' ,function($scope,Restangular,$q,$window,user, authService){
-        // var Restangular = $injector.get('Restangular');
+    .controller('LoginCtrl', ['$scope','$q','$window', 'user', 'authService', 'sync', function($scope,$q,$window,user, authService, sync){
         console.log('LoginCtrl scope',$scope);
-        $scope.formData = {
+        $scope.data = {
             "email": "test@realize.pe",
             "password": "testtest"
         };
-        $scope.loginType = "Login";
+        $scope.loginType = "login";
         var loginOrRegister = function  () {
             var options = {
                 loginType:$scope.loginType,
-                formData:$scope.formData
+                data:$scope.data
             };
             user.tryAuthorization(options)
                 .then(function () {
                     // redirect to user's dashboard
                     var token = user.getProp('token');
+                    console.log("Logged in!  Token is now: ", token);
                     var data = {};
                     var updater = function(config){
                         if(config !== undefined){
                             if(config.data !== undefined){
                                 config.data.token = token;
+                            } else {
+                                config.data = {token: token}
                             }
                             if(config.headers !== undefined){
                                 config.headers['Authentication-Token'] = token;
                             }
+                        } else {
+                            config = {data: {token: token}}
                         }
                         return config;
                     };
@@ -155,7 +161,7 @@ define(['app', 'angular', 'jquery'], function(app, angular, $){
             loginOrRegister();
         };
         $scope.logout = function () {
-            Restangular.one('logout').get(null, null, null)
+            sync.logout()
                 .finally(function () {
                     user.deAuthorize();
                 });

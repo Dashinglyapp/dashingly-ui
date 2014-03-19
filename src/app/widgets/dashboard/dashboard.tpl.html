@@ -1,4 +1,4 @@
-<div>
+<div ng-controller="WidgetDashboardCtrl">
     <div>Dashboard</div>
     <div class="dropdown">
         <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
@@ -10,7 +10,7 @@
             </li>
         </ul>
     </div>
-    <div id="widget-container">
-
+    <div ng-repeat="widget in loadedWidgets">
+        <ng-include src="widget.template" ng-show="widget.template !== undefined"></ng-include>
     </div>
 </div>

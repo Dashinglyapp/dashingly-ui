@@ -9,8 +9,7 @@
     <!-- compiled CSS -->
     <!-- token_replace_css_here -->
 
-    <script data-main="main" src="thirdparty/requirejs/require.js"></script>
-    <script src="thirdparty/requirejs-angular-define/src/ngr.js"></script>
+    <script data-main="require-config" src="thirdparty/requirejs/require.js"></script>
   </head>
   <body ng-cloak>
     <div  class="root-container check-login"
@@ -26,8 +25,8 @@
           <top-nav></top-nav>
       </div>
       <login-form ng-if="login" id="loginForm"></login-form>
-      <div id="dashboard">
-          <div id="dashboard-container"></div>
+      <div id="widget-container" ng-controller="DashboardsCtrl">
+        <ng-include src="widgetTemplateId" ng-if="widgetTemplateId !== undefined"></ng-include>
       </div>
     </div>
 
