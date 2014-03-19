@@ -42,7 +42,7 @@ define([
 
 
     // run is where we set initial rootscope properties
-    .run(['$rootScope', 'debugging', function ($root, debugging) {
+    .run(['$rootScope', 'debugging', 'EVENTS', function ($root, debugging, EVENTS) {
         debugging.enableDebugging();
         $root.closeMenus = function(){
           var open = false;

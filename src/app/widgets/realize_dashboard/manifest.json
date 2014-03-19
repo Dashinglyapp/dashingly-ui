@@ -1,6 +1,7 @@
 {
     "title": "Dashboard",
     "controller": "WidgetDashboardCtrl",
+    "type": "dashboard",
     "version": ".1",
     "authors": ["Realize"],
     "tags": ["core"],

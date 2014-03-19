@@ -16,6 +16,9 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                 // if user is not, render login, then do user ready
                 console.log('user copy 1',angular.copy(user));
                 var api = {
+                    isAuthed:function(){
+                        return ($window.localStorage.realize_user_auth_token !== '') && ($window.localStorage.realize_user_auth_token !== undefined)
+                    },
                     hasAuth:function(){
                         // get the user's profile
                         var d = $q.defer();

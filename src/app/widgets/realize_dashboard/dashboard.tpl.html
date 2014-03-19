@@ -10,7 +10,7 @@
             </li>
         </ul>
     </div>
-    <div ng-repeat="widget in loadedWidgets">
-        <ng-include src="widget.template" ng-show="widget.template !== undefined"></ng-include>
+    <div ng-repeat="widgetData in loadedWidgets">
+        <ng-include src="widgetData.template" ng-show="widgetData.template !== undefined"></ng-include>
     </div>
 </div>

@@ -62,7 +62,7 @@ define(
 
 
             /*NOTE: $httpBackend CALLS MUST BE IN A "RUN" FUNCTION TO WORK!!!*/
-            .run(['user','widget','resource', '$httpBackend', 'realizeMockData', '_', function (user,widget,resource,$httpBackend,mocks, _) {
+            .run(['user','widget', '$httpBackend', 'realizeMockData', '_', function (user,widget,$httpBackend,mocks, _) {
                 console.log('RUNNING BACKEND MODULE');
 
                 // ensure templates get passed through

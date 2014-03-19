@@ -1,0 +1,27 @@
+<div ng-controller="LoginCtrl">
+    <form>
+
+        <p class="form-group"><label for='email'>Email</label><input type='email' ng-model="data.email"></input></p>
+        <p class="form-group"><label for='password'>Password</label><input type='password' ng-model="data.password"></input></p>
+        <p class="form-group"><label for='remember-me'></label><input name="remember-me" type='checkbox'></input></p>
+
+        <div class="btn-group">
+            <button
+                    class="btn btn-success btn-lg"
+                    type="submit"
+                    ng-click="login()"
+                    >
+                Login
+            </button>
+
+            <button
+                    class="btn btn-success btn-lg"
+                    type="submit"
+                    ng-click="register()"
+                    >
+                Register
+            </button>
+        </div>
+
+    </form>
+</div>

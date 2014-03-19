@@ -1,6 +1,7 @@
 {
     "title": "Github Chart",
     "controller": "ChartCtrl",
+    "type": "githubchart",
     "version": ".1",
     "authors": ["Realize"],
     "tags": ["dashboard-item"],

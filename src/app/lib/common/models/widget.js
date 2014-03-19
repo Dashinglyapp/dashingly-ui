@@ -42,35 +42,48 @@ define(['angularAMD', 'realize-sync', 'lodash', 'user'],
                         });
                         return d.promise;
                     },
-                    loadWidget:function(widgetName){
+                    listInstalledByTypeAndName: function(type, name){
                         var d = $q.defer();
-                        if(activeWidgets[widgetName]){
-                            d.resolve(activeWidgets[widgetName]);
+                        api.listInstalled().then(function(data){
+                            var widgets = [];
+                            for(var i = 0; i < data.length; i++){
+                                if(data[i].type === type && data[i].name === name){
+                                    widgets.push(data[i]);
+                                }
+                            }
+                            d.resolve(widgets);
+                        });
+                        return d.promise;
+                    },
+                    loadWidget:function(widgetType){
+                        var d = $q.defer();
+                        if(activeWidgets[widgetType]){
+                            d.resolve(activeWidgets[widgetType]);
                             return d.promise;
                         }
                         api.listAll()
                             .then(function (list) { // wrap the loaded widget object in a promise
                                 var i;
-                                var widgetObj = list[widgetName];
+                                var widgetObj = list[widgetType];
                                 if(!widgetObj){
                                     d.reject();
-                                    return console.log('no widget exists with template name ',widgetName);
+                                    return console.log('no widget exists with template name ',widgetType);
                                 }
-                                console.log("Loading widget: ", widgetName, widgetObj);
+                                console.log("Loading widget: ", widgetType, widgetObj);
                                 var load_data = {
-                                    name: widgetObj.name
+                                    type: widgetObj.type
                                 };
                                 if(widgetObj.templates !== undefined && widgetObj.templates.length > 0){
                                     var template = widgetObj.dir + widgetObj.templates[0];
                                     load_data.template = template;
-                                    console.log("Loading this template for widget: ", widgetName, template);
+                                    console.log("Loading this template for widget: ", widgetType, template);
                                 }
                                 if(widgetObj.javascripts !== undefined){
                                     var files = [];
                                     for(i = 0; i < widgetObj.javascripts.length; i++){
                                         files.push("ngload!" + widgetObj.dir + widgetObj.javascripts);
                                     }
-                                    console.log("Loading these files for widget: ", widgetName, files);
+                                    console.log("Loading these files for widget: ", widgetType, files);
                                     load_data.files = files;
                                 }
 
@@ -81,11 +94,11 @@ define(['angularAMD', 'realize-sync', 'lodash', 'user'],
 
                                 require(deps, function (angularAMD) {
                                     api.getTemplate(load_data).then(function(template_html){
-                                        console.log('Done loading: ' + widgetName + " :", widgetObj, "Controller is: ", widgetObj.controller);
+                                        console.log('Done loading: ' + widgetType + " :", widgetObj, "Controller is: ", widgetObj.controller);
                                         widgetObj.template_html = template_html;
                                         widgetObj.template = load_data.template;
                                         $templateCache.put(widgetObj.template, widgetObj.template_html);
-                                        activeWidgets[widgetName] = d.promise;
+                                        activeWidgets[widgetType] = d.promise;
                                         d.resolve(widgetObj);
                                     });
                                 });
@@ -120,11 +133,6 @@ define(['angularAMD', 'realize-sync', 'lodash', 'user'],
                         d.resolve('');
                         return d.promise;
                     },
-                    loadData:function(){
-                        var d = $q.defer();
-                        d.resolve({foo:'bar',baz:'bop'});
-                        return d.promise;
-                    },
                     create: function(name, type, parent){
                         var d = $q.defer();
                         var data = {
@@ -147,6 +155,19 @@ define(['angularAMD', 'realize-sync', 'lodash', 'user'],
                             d.resolve(data);
                         });
                         return d.promise;
+                    }
+                };
+                return api;
+            }])
+
+            .factory("widgetMeta", ['$rootScope', 'user','$q','$http','$window', '$templateCache', 'sync', function($rootScope, user,$q,$http,$window, $templateCache, sync) {
+                var topLevelWidget;
+                var api = {
+                    setTopLevelWidget: function(widgetObj){
+                        topLevelWidget = widgetObj;
+                    },
+                    getTopLevelWidget: function(){
+                        return topLevelWidget;
                     }
                 };
                 return api;

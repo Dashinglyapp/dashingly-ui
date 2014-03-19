@@ -24,9 +24,8 @@
           <right-menu></right-menu>
           <top-nav></top-nav>
       </div>
-      <login-form ng-if="login" id="loginForm"></login-form>
-      <div id="widget-container" ng-controller="DashboardsCtrl">
-        <ng-include src="widgetTemplateId" ng-if="widgetTemplateId !== undefined"></ng-include>
+      <div id="widget-container" ng-controller="WidgetCtrl">
+        <ng-include src="widgetData.template" ng-if="widgetData.template !== undefined"></ng-include>
       </div>
     </div>
 

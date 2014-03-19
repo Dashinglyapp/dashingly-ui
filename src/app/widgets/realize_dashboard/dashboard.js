@@ -1,7 +1,7 @@
 define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'realize-sync'], function(app, angularAMD, angular, $){
-        app.register.controller('WidgetDashboardCtrl', ['$scope', 'widget', '$element', '$rootScope', 'sync', function($scope, widget, $element, $root, sync){
-            console.log("Loaded dashboard widget", $root.widgetHashkey);
-            $scope.hashkey = $root.widgetHashkey;
+        app.register.controller('WidgetDashboardCtrl', ['$scope', 'widget', 'widgetMeta', '$element', '$rootScope', 'sync', function($scope, widget, widgetMeta, $element, $root, sync){
+            $scope.hashkey = $scope.widgetData.hashkey;
+            console.log("Loaded dashboard widget", $scope.hashkey);
             $scope.data = widget.detail($scope.hashkey).then(function(data){
                 $scope.widgets = data.related;
                 for(var i = 0; i < $scope.widgets.length; i++){
@@ -14,7 +14,7 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
 
             $scope.add = function(widgetObj){
                 console.log("Adding a widget to the dashboard.");
-                widget.create(widgetObj.name, "widget", $scope.hashkey).then(function(data){
+                widget.create("defaultWidget", widgetObj.type, $scope.hashkey).then(function(data){
                     $scope.widgets.push(data);
                     $scope.renderWidgets();
                 });
@@ -42,7 +42,11 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
               for(var i = 0; i < $scope.widgets.length; i++){
                   if($scope.widgets[i].rendered !== true){
                       var widgetData = $scope.widgets[i];
-                      widget.loadWidget(widgetData.name).then($scope.processWidget);
+                      widgetData.rendered = true;
+                      widget.loadWidget(widgetData.type).then(function(data){
+                          data.hashkey = widgetData.hashkey;
+                          $scope.processWidget(data);
+                      });
                   }
               }
             };

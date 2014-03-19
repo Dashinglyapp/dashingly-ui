@@ -1,26 +1,18 @@
 define(['app', 'realize-debugging'], function(app){
     app
 
-    .directive('checkLogin', ['EVENTS', function(EVENTS){
+    .directive('checkLogin', ['EVENTS', '$rootScope', function(EVENTS, $root){
             return {
                 restrict: 'C',
                 link: function(scope, elem, attrs){
                     console.log('checkLogin');
-                    var login = elem.find("#loginForm");
-                    var main = elem.find("#widget-container");
                     scope.$on('event:' + EVENTS.notAuthenticated, function() {
-                        scope.login = true;
-                        login.slideDown('slow', function() {
-                            main.hide();
-                        });
+                        $root.$broadcast(EVENTS.switchWidgetTree, "login", "default");
                         console.log('checkLogin: auth-needed');
                     });
 
                     scope.$on('event:' + EVENTS.loginSuccess, function() {
-                        console.log("checkLogin: Login confirmed.");
-                        main.show();
-                        login.slideUp();
-                        scope.login = false;
+                        $root.$broadcast(EVENTS.switchWidgetTree, "dashboard", "default");
                     });
                 }
             };
@@ -35,15 +27,6 @@ define(['app', 'realize-debugging'], function(app){
                 link: function(scope){
                     scope.updatePlugins();
                 }
-            };
-        }])
-
-    .directive('loginForm', [function(){
-            return {
-                templateUrl: 'partials/realize_login.tpl.html',
-                replace: true,
-                restrict: "E",
-                controller: "LoginCtrl"
             };
         }])
 
