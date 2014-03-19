@@ -21,7 +21,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                     widget.listInstalledByTypeAndName(widgetType, widgetName).then(function(data){
                         console.log("Listing widget by type", widgetType, "and name", widgetName, "got data", data);
                         if(data.length === 0){
-                            widget.create(widgetName, widgetType, null).then(function(data){
+                            widget.create({name: widgetName, type: widgetType}).then(function(data){
                                 $scope.setupWidget(data);
                             });
                         } else {
@@ -49,7 +49,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 console.log('User dashboards:', data);
                 var dashboardKey;
                 if(Object.keys(data).length === 0){
-                    widget.create('default', 'dashboard', null).then(function(data){
+                    widget.create({name: 'default', type: 'dashboard'}).then(function(data){
                         dashboardKey = data.hashkey;
                         $scope.dashboards.push(data);
                         $root.$broadcast(EVENTS.switchWidgetTree, "dashboard", "default");

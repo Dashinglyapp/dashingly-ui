@@ -14,7 +14,7 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
 
             $scope.add = function(widgetObj){
                 console.log("Adding a widget to the dashboard.");
-                widget.create("defaultWidget", widgetObj.type, $scope.hashkey).then(function(data){
+                widget.create({name: "defaultWidget", type: widgetObj.type, parent: $scope.hashkey}).then(function(data){
                     $scope.widgets.push(data);
                     $scope.renderWidgets();
                 });

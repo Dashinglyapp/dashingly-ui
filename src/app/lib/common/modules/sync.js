@@ -97,7 +97,7 @@ define(['angularAMD', 'http-auth-interceptor'],
                     promise = normalizeResponseData($http.post(route, options.data));
                     break;
                 case 'readOne':
-                    promise = normalizeResponseData($http.get(route + options.resourceHash ));
+                    promise = normalizeResponseData($http.get(route + "/" + options.resourceHash ));
                     break;
                 case 'readList':
                     promise = normalizeResponseData($http.get(route));
@@ -133,7 +133,7 @@ define(['angularAMD', 'http-auth-interceptor'],
                     promise = normalizeResponseData($http.get(route + "/" + options.resourceHash + "/actions/remove", options.data));
                     break;
                 case 'readOne':
-                    promise = normalizeResponseData($http.get(route + options.resourceHash ));
+                    promise = normalizeResponseData($http.get(route + "/" + options.resourceHash ));
                     break;
                 case 'readList':
                     promise = normalizeResponseData($http.get(route));
@@ -173,8 +173,22 @@ define(['angularAMD', 'http-auth-interceptor'],
             return promise;
         };
 
-        sync.views = function (argument) {
-            // body...
+        sync.views = function (operation, options) {
+            var promise;
+            var route = routeBase + options.scope + '/' + options.scopeHash + '/views';
+            switch(operation){
+                case 'readOne':
+                    promise = normalizeResponseData($http.get(route + "/" + options.resourceHash ));
+                    break;
+                case 'readList':
+                    promise = normalizeResponseData($http.get(route));
+                    break;
+                case 'post':
+                    break;
+                default:
+                    break;
+            }
+            return promise;
         };
 
         sync.widgetList = function (argument) {
