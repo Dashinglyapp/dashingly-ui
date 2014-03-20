@@ -18,33 +18,20 @@ module.exports = function ( grunt ) {
   grunt.loadNpmTasks('grunt-conventional-changelog');
   // grunt.loadNpmTasks('grunt-bump'); // comment out for now since we aren't using it yet
   grunt.loadNpmTasks('grunt-recess');
-  grunt.loadNpmTasks('grunt-karma');
   // grunt.loadNpmTasks('grunt-ngmin'); // comment out for now since we aren't using it yet
   grunt.loadNpmTasks('grunt-gh-pages');
   grunt.loadNpmTasks('grunt-html2js');
+  grunt.loadNpmTasks('grunt-karma');
   grunt.loadNpmTasks('grunt-jsdoc');
   grunt.loadNpmTasks("grunt-sync");
+  grunt.loadNpmTasks("grunt-shell");
   grunt.loadNpmTasks('grunt-connect-proxy');
+  grunt.loadNpmTasks('grunt-protractor-runner');
 
   // require libs
   var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
   var pathLib = require('path');
-  /**
-   * Add params for running our Karma unit and end-to-end tests
-   */
-  var karmaParams = {};
-  karmaParams.plugins = ['karma-mocha']; // add the mocha plugin for BDD & TDD test syntax
-  karmaParams.browsers = [];
 
-  // Configure Karma for TravisCI, our continuous integration server.  It only implements Firefox.  See
-  // http://stackoverflow.com/questions/19255976/how-to-make-travis-execute-angular-tests-on-chrome-please-set-env-variable-chr
-  if (process.env.TRAVIS) {
-    karmaParams.plugins.push('karma-firefox-launcher');
-    karmaParams.browsers.push('Firefox');
-  } else {
-    karmaParams.plugins.push('karma-chrome-launcher');
-    karmaParams.browsers.push('Chrome');
-  }
 
   /**
    * directoryPaths provides shortcuts used in the rest of this file, to avoid path repetition
@@ -89,7 +76,8 @@ module.exports = function ( grunt ) {
         thirdparty: '<%= build.dirs.app %>thirdparty/',
         assets:'<%= build.dirs.app %>assets/',
         js:'<%= build.dirs.app %>js/',
-        css:'<%= build.dirs.app %>'
+        css:'<%= build.dirs.app %>',
+        data:'<%= build.dirs.app%>data/'
       }
     },
     /**
@@ -154,22 +142,25 @@ module.exports = function ( grunt ) {
 
     // creates a manifest file for all widgets for the js to request them
     buildWidgetListJSON:{ // adds all our app's css and js files to index.html
-      bar:{
+      foo:{
         files:[{
-          cwd:'<%= src.dirs.app %>',
-          src:'widgets/**/*.*',
-          dest:'<%= build.dirs.app %>/data/widgetList.json'
+          src:'<%= src.dirs.widgets %>*/manifest.json',
+          dest:'<%= build.dirs.data %>widgetList.json'
         }]
       }
     },
 
-    clean: [
+    clean:{
     /**
      * The directories to delete when `grunt clean` is executed.
      */
-      '<%= build.dirs.root %>',
-      '<%= compile.dirs.root %>'
-    ],
+      options:{
+        force:true
+      },
+      all:{
+        src:['<%= build.dirs.root %>','<%= compile.dirs.root %>']
+      }
+    },
 
 
     /**
@@ -183,16 +174,15 @@ module.exports = function ( grunt ) {
         // change this to '0.0.0.0' to access the server from outside
         hostname: 'localhost'
       },
-      proxies: [{
-        context: '/api/v1/',
-        host: 'localhost',
-        // headers:{
-        //   'Content-Type':'application/json'
-        // },
-        port: 5000,
-        changeOrigin:true,
-        https: false
-      }],
+      proxies: [
+        {
+          context: '/api/v1/',
+          host: 'localhost',
+          port: 5000,
+          changeOrigin:true,
+          https: false
+        }
+      ],
       livereload: {
         options: {
           base: '<%= build.dirs.app %>',
@@ -204,8 +194,7 @@ module.exports = function ( grunt ) {
           }
         }
       },
-      // test: {
-      // },
+
       compile: {
         options: {
           base: '<%= compile.dirs.app %>'
@@ -218,7 +207,6 @@ module.exports = function ( grunt ) {
      * grunt-contrib-concat concatenates multiple source files into a single file.
      */
     concat: {
-
       build_index:{ // adds all our app's css and js files to index.html
         src:'<%= src.dirs.app %>index.html',
         dest:'<%= build.dirs.app %>index.html',
@@ -386,7 +374,7 @@ module.exports = function ( grunt ) {
         /**
          * basePath: Where to look for files relative to this file's location
          */
-        basePath: './',
+        basePath: '<%= build.dirs.app %>',
         /**
          * browsers: The list of browsers to launch to test on. This includes only "Firefox" by
          * default, but other browser names include:
@@ -397,35 +385,69 @@ module.exports = function ( grunt ) {
          * open and the tests will automatically occur there during the build. This has
          * the aesthetic advantage of not launching a browser every time you save.
          */
-        browsers: karmaParams.browsers,
-
         /**
-         * List of file patterns to load into the browser during testing.
-         * They get added in concat.build_index
+         * Add params for running our Karma unit and end-to-end tests
          */
-        files: [
-          'this-should-get-replaced.js'
+
+        browsers: [process.env.TRAVIS ? 'Firefox' : 'Chrome'],
+
+        plugins:[
+          'karma-mocha',
+          'karma-chai',
+          'karma-sinon',
+          'karma-requirejs',
+        // 'karma-phantomjs-launcher',
+           process.env.TRAVIS ? 'karma-firefox-launcher' : 'karma-chrome-launcher'
         ],
+
+
+        logLevel:'DEBUG',
         // list of files to exclude
-        exclude:[],
-        // which BDD/TDD test framework to use.  Mocha does both.
-        frameworks: [ 'mocha' ],
-        // leaving this for reference as I implement E2E tests
-        // plugins: [ 'karma-jasmine', 'karma-firefox-launcher', 'karma-chrome-launcher', 'karma-phantomjs-launcher' ],
-        plugins: karmaParams.plugins,
+        // exclude:[],
+
+        plugins: [ 'karma-jasmine', 'karma-firefox-launcher', 'karma-chrome-launcher', 'karma-phantomjs-launcher' ],
+        urlRoot: '/', // the base path for the browser to use
+        frameworks: [ 'mocha','requirejs'],
         port: 9018, // the basic unit test running port
         runnerPort: 9101, // cli runner port - the port the test runner runs on
-        urlRoot: '/', // the base path for the browser to use
-        autoWatch: false // Disable autowatch since grunt-contrib-watch takes care of it
       },
+
       unit: { // unit test specific params
-        reporters: 'dots',
-        background: true // run async to allow other processes to continue
-      },
-      continuous: {
-        singleRun: true // run once - opens a browser, runs the tests, and closes the browser.
+        reporters: 'spec',
+        background: true, // run async to allow other processes to continue
+        singleRun: false, // run once - opens a browser, runs the tests, and closes the browser.
+        files:[
+          '<%= src.dirs.app %>**/*.spec.js'
+        ],
       }
     },
+
+    protractor: {
+      options: {
+        configFile: "e2e_tests/e2e-protractor-config.js"
+      },
+      e2e: {
+        options: {
+          keepAlive: true,
+          args: {
+            browser: "chrome",
+            baseUrl: "http://<%= connect.options.host %>:<%= connect.options.port %>",
+            // seleniumServerJar:'./node_modules/grunt-protractor-runner/node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar'
+          }
+        }
+      },
+      "build-travis": {
+        options: {
+          keepAlive: false,
+          args: {
+            browser: "phantomjs",
+            baseUrl: "http://<%= cvars.www_server %>:<%= cvars.e2e_port %>"
+          }
+        }
+      }
+    },
+// node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update
+
 
     recess: {
     /**
@@ -453,6 +475,22 @@ module.exports = function ( grunt ) {
           noUnderscores: false,
           noIDs: true,
           zeroUnits: false
+        }
+      }
+    },
+
+
+    // works with grunt-protractor-runner to install the server before trying to run it
+    shell: {
+      'webdriver-manager-update': {
+        command: "node webdriver-manager update",
+        options: {
+          stdout: true,
+          debug:true,
+          execOptions: {
+            cwd: 'node_modules/protractor/bin'
+          },
+          async: false
         }
       }
     },
@@ -538,13 +576,18 @@ module.exports = function ( grunt ) {
   grunt.registerTask( 'unit', ['buildSpec'/*,'karma:unit:run'*/]);
 
   // Initialize the dev setup - it does a clean build before watching for changes
-  grunt.registerTask( 'dev', ['build', 'buildWidgetListJSON', 'configureProxies','connect:livereload', 'watch' ]);
+  grunt.registerTask( 'dev', ['build', 'configureProxies','connect:livereload', 'watch' ]);
+
+  grunt.registerTask( 'e2e',
+    grunt.file.exists('./node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar') ? // is standalone server installed?
+    ['build', 'configureProxies', 'connect:livereload', 'protractor:e2e'] : // yes, run e2e normally
+    ['shell:multiple', 'build', 'configureProxies', 'connect:livereload', 'protractor:e2e'] // no, install it first
+  );
 
 
   /** The default task is to build and compile for production */
   grunt.registerTask( 'default', ['build', 'compile']);
-
-  grunt.registerTask( 'fullBuild', ['build', 'buildWidgetListJSON']);
+  grunt.registerTask( 'setup', ['compile']);
 
   // The `build` task sets up a dev and testing environment
   grunt.registerTask( 'build', [
@@ -560,10 +603,12 @@ module.exports = function ( grunt ) {
     'recess:build', // compile our less to css and copy it to the build dir
     'sync:assets', // along with assets
     'concat:build_index', // build our index file with all its dependencies
+    'buildWidgetListJSON', // add the widgetList file
     'buildSpec', // test our build
-    'eslint:test',
+    'eslint:test'
+    // 'mochaProtractor'
     // , // lint our mocha tests
-    'karma:unit' // run the unit tests
+    // 'karma:unit' // run the unit tests
   ]);
 
   // The `compile` task preps the app for production by concatenating, minifying, compressing the code.
@@ -584,38 +629,22 @@ module.exports = function ( grunt ) {
     if(!grunt.file.exists('build/app/thirdparty.js')) {grunt.fail.fatal('thirdparty js does not exist!');}
     if(!grunt.file.exists('build/app/widgets/')) {grunt.fail.fatal('widgets directory does not exist!');}
     if(!grunt.file.exists('build/app/html_templates_jsfied.js')) {grunt.fail.fatal('html_templates_jsfied does not exist!');}
-    // var user = grunt.file.read('build/app/widgets/happathon-engine/mock-backend/people-user-module.js');
-    // if(user.indexOf('"name":"happathon-form-daily",') < 0){
-    //   grunt.fail.fatal('widgets were not added to user!');
-    // }
-    // var templateFile = grunt.file.read('build/app/html_templates_jsfied.js');
-    // if(templateFile.indexOf('widgets/happathon-insight-utils_angular/all-attributes.tpl.partial') < 0){
-    //   grunt.fail.fatal('insight-status plugin not added to template cache via html2js!');
-    // }
+    if(!grunt.file.exists('build/app/data/widgetList.json')) {grunt.fail.fatal('build/app/data/widgetList.json does not exist!');}
   });
 
   grunt.registerMultiTask('buildWidgetListJSON', 'Builds a manifest of json widgets', function() {
       var jsonObj = {};
       var dest = '';
-      grunt.file.expand('src/app/widgets/*').forEach(function(dirPath) {
-
-          var widgetName = dirPath.slice(dirPath.lastIndexOf('/') + 1);
-          var dirName = "widgets/" + widgetName;
-
-          try{
-              var manifest = grunt.file.readJSON(dirPath + "/manifest.json");
-              jsonObj[manifest.type] = manifest;
-              jsonObj[manifest.type].dir = dirName + '/';
-              jsonObj[manifest.type].dirname = widgetName;
-          } catch(err){
-              grunt.log.warn("Error reading manifest file from " + dirPath + " :", err);
-          }
+      this.filesSrc.forEach(function(dirPath) {
+        var pathArray = dirPath.split('/');
+        var widgetName = pathArray[3];
+        var dirName = pathArray[2]+'/'+widgetName + '/';
+        var manifest = grunt.file.readJSON(dirPath);
+        jsonObj[widgetName] = manifest;
+        jsonObj[widgetName].dir = dirName;
+        jsonObj[widgetName].name = widgetName;
       });
-
-      // console.log('jsonObj',jsonObj);
-      grunt.file.write('build/app/data/widgetList.json',JSON.stringify(jsonObj));
-
-
+      grunt.file.write(this.files[0].dest,JSON.stringify(jsonObj));
   });
 
 };
