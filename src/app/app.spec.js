@@ -11,7 +11,7 @@ describe( 'AppCtrl', function() {
     //   AppCtrl = $controller( 'AppCtrl', { $location: $location, $scope: $scope });
     // }));
     angular.mock.module('realize',function(utils){
-      console.log(utils);
+      console.log('utils',utils);
     });
 
 
