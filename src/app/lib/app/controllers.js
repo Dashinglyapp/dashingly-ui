@@ -3,6 +3,11 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
         .controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', function($root, $scope, user, widget, widgetMeta, EVENTS){
             $scope.widgetMeta = widgetMeta;
             $scope.widgetData = undefined;
+            $scope.currentWidget = {
+                name: undefined,
+                type: undefined
+            };
+
             console.log('WidgetCtrl $scope',$scope);
             $scope.setupWidget = function(data){
                 console.log("Setting up widget: ", data);
@@ -35,7 +40,11 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
             $scope.$on(EVENTS.switchWidgetTree,function (event, widgetType, widgetName) {
                 console.log('EVENTS.switchWidgetTree called with arg: ', widgetType, widgetName);
-                return $scope.replace(widgetType, widgetName);
+                if($scope.currentWidget.type !== widgetType || $scope.currentWidget.name !== widgetName){
+                    $scope.currentWidget.type = widgetType;
+                    $scope.currentWidget.name = widgetName;
+                    return $scope.replace(widgetType, widgetName);
+                }
             });
             $root.initialRenderDone = true;
         }])
