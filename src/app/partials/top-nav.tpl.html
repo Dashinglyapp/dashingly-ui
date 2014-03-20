@@ -1,0 +1,39 @@
+<div class="top-nav">
+  <ul class="nav nav-pills">
+    <li>
+      <a class="plugins-dropdown icon-add-to-list"
+         ng-click="$root.showleftmenu=1;$event.stopPropagation();">
+      </a>
+    </li>
+    <li class="dashboard-dropdown dropdown" ng-controller="DashboardsCtrl">
+      <a class="dropdown-toggle">
+        <span class="icon-info2"></span>
+      </a>
+      <ul class="dropdown-menu">
+        <li ng-repeat="dash in dashboards">
+          <a>
+            <span class="dashboard-select-title">{{dash.name}}</span>
+          </a>
+        </li>
+      </ul>
+    </li>
+      <li class="authorizations dropdown">
+          <a class="dropdown-toggle">
+              <span class="icon-user-add"></span>
+          </a>
+          <ul class="dropdown-menu">
+              <li ng-repeat="auth in authorizationList">
+                  <a ng-click="authRedirect(auth)"><span ng-class="(auth.active==true) ? 'icon-minus' : 'icon-plus'"></span> {{auth.name}}</a>
+              </li>
+          </ul>
+      </li>
+    <li class="settings">
+      <a class="icon-cog" ng-click="$root.showrightmenu=!$root.showrightmenu; $event.stopPropagation();">
+      </a>
+    </li>
+    <li class="help">
+      <a class="icon-info3" ng-click="logout()">
+      </a>
+    </li>
+  </ul>
+</div>

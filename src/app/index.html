@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="realize">
+<html>
   <head>
     <title ng-bind-template="{{$root.people.menuTitle}}"></title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
@@ -9,23 +9,25 @@
     <!-- compiled CSS -->
     <!-- token_replace_css_here -->
 
-    <!-- compiled Third Party JavaScript -->
-    <!-- token_replace_thirdparty_js_here -->
-
-    <!-- compiled App JavaScript -->
-    <!-- token_replace_js_here -->
+    <script data-main="require-config" src="thirdparty/requirejs/require.js"></script>
   </head>
   <body ng-cloak>
-    <div  class="root-container"
+    <div  class="root-container check-login"
           ng-swipe-left="$root.showleftmenu=0;"
           ng-swipe-right="$root.showrightmenu=0;"
           ng-click="$root.closeMenus();"
-          hap-size>
+          hap-size
+            >
 
-      <left-menu></left-menu>
-      <right-menu></right-menu>
-      <top-nav></top-nav>
-      <div ui-view></div>
+      <div id="menus">
+          <left-menu></left-menu>
+          <right-menu></right-menu>
+          <top-nav></top-nav>
+      </div>
+      <div id="widget-container" ng-controller="WidgetCtrl">
+        <ng-include src="widgetData.template" ng-if="widgetData.template !== undefined"></ng-include>
+      </div>
     </div>
+
   </body>
 </html>

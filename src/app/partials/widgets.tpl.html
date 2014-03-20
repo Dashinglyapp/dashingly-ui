@@ -1,0 +1,9 @@
+<div class="panel panel-default">
+    <div class="panel-heading">{{name}}</div>
+    <div class="panel-body widget-content">
+        <ng-include src="template_name"></ng-include>
+        <div ng-repeat="child in children">
+            <ng-include src="child.template_name"></ng-include>
+        </div>
+    </div>
+</div>

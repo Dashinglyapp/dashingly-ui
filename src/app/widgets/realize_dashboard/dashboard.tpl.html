@@ -1,0 +1,16 @@
+<div ng-controller="WidgetDashboardCtrl">
+    <div>Dashboard</div>
+    <div class="dropdown">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+            Add Widget <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu">
+            <li ng-repeat="widget in items">
+                <a ng-click="add(widget)">{{widget.title}}</a>
+            </li>
+        </ul>
+    </div>
+    <div ng-repeat="widgetData in loadedWidgets">
+        <ng-include src="widgetData.template" ng-show="widgetData.template !== undefined"></ng-include>
+    </div>
+</div>

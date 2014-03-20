@@ -1,1 +1,0 @@
-Will contain instructions for creating plugins.

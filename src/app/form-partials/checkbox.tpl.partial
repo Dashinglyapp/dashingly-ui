@@ -1,4 +1,0 @@
-<div>
-  <input name="{{idx}}" type="checkbox" placeholder="{{template_data.placeholder}}"/>
-  <label for="{{idx}}">{{template_data.question}}</label>
-</div>

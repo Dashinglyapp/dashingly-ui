@@ -67,9 +67,11 @@ module.exports = function ( grunt ) {
         '<%= src.dirs.thirdparty %>angular-mocks/angular-mocks.js',
         '<%= src.dirs.thirdparty %>angular-touch/angular-touch.min.js',
         '<%= src.dirs.thirdparty %>angular-ui-router/release/angular-ui-router.js',
+        '<%= src.dirs.thirdparty %>angular-http-auth/src/http-auth-interceptor.js',
         '<%= src.dirs.thirdparty %>angular-gesture/ngGesture/gesture.js',
         '<%= src.dirs.thirdparty %>angular-ui-utils/modules/utils.js',
-        '<%= src.dirs.thirdparty %>restangular/dist/restangular.js'
+        '<%= src.dirs.thirdparty %>restangular/dist/restangular.js',
+        '<%= src.dirs.thirdparty %>requirejs/require.js'
         // we aren't using these yet, so comment them out
         // 'd3/d3.min.js',
         // 'd3.chart/d3.chart.min.js',
@@ -84,6 +86,7 @@ module.exports = function ( grunt ) {
         root:'build/',
         app:'<%= build.dirs.root %>app/',
         widgets:'<%= build.dirs.app %>widgets/',
+        thirdparty: '<%= build.dirs.app %>thirdparty/',
         assets:'<%= build.dirs.app %>assets/',
         js:'<%= build.dirs.app %>js/',
         css:'<%= build.dirs.app %>'
@@ -155,7 +158,7 @@ module.exports = function ( grunt ) {
         files:[{
           cwd:'<%= src.dirs.app %>',
           src:'widgets/**/*.*',
-          dest:'<%= build.dirs.app %>widgetList.json'
+          dest:'<%= build.dirs.app %>/data/widgetList.json'
         }]
       }
     },
@@ -256,9 +259,7 @@ module.exports = function ( grunt ) {
             // add the karmaFiles array to the Gruntfile karma config
             grunt.config.set('karma.options.files',karmaFiles);
             // add all the js, css, and thirdparty code to index.html
-            var newContent = content.replace(/ {4}<\!-- token_replace_thirdparty_js_here -->/i,thirdpartyStr);
-            newContent = newContent.replace(/ {4}<\!-- token_replace_css_here -->/i,cssStr);
-            newContent = newContent.replace(/ {4}<\!-- token_replace_js_here -->/i,jsStr);
+            var newContent = content.replace(/ {4}<\!-- token_replace_css_here -->/i,cssStr);
             return newContent;
           }
         }
@@ -432,7 +433,7 @@ module.exports = function ( grunt ) {
      * Only our `app.less` file is included in compilation.  It must import all other files.
      */
       build: {
-        src: [ '<%= src.dirs.app %>app.less' ],
+        src: [ '<%= src.dirs.app %>css/app.less' ],
         dest: '<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css',
         options: {
           compile: true,
@@ -444,7 +445,7 @@ module.exports = function ( grunt ) {
       },
       // the compile phase only adds the compress option
       compile: {
-        src: [ '<%= src.dirs.app %>app.less' ],
+        src: [ '<%= src.dirs.app %>css/app.less' ],
         dest: '<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css',
         options: {
           compile: true,
@@ -469,7 +470,7 @@ module.exports = function ( grunt ) {
         }]
       },
       // copy over all js/css/html files except thirdparty and tests
-      src_js_css_html_to_build:{cwd: '<%= src.dirs.app %>', src:['**/*.{js,css,html}','!thirdparty/**','!**/*.spec.js'], dest:'<%= build.dirs.app %>'},
+      src_js_css_html_to_build:{cwd: '<%= src.dirs.app %>', src:['**/*.{js,css,html}', '!**/*.spec.js'], dest:'<%= build.dirs.app %>'},
       // assets from source to build
       assets:{cwd: '<%= src.dirs.assets %>', src:'**', dest:'<%= build.dirs.assets %>'},
       // assets from source to compile
@@ -517,7 +518,7 @@ module.exports = function ( grunt ) {
         ]
       },
       // compile less on change
-      appless:{ files: 'app.less', tasks: ['recess:build','unit']},
+      appless:{ files: 'css/app.less', tasks: ['recess:build','unit']},
       // add bootstrap less files
       bootstrapless:{ files: 'thirdparty/bootstrap/**/*.less', tasks: ['recess:build','unit']},
       // Copy any changed assets
@@ -596,20 +597,23 @@ module.exports = function ( grunt ) {
   grunt.registerMultiTask('buildWidgetListJSON', 'Builds a manifest of json widgets', function() {
       var jsonObj = {};
       var dest = '';
-      this.filesSrc.forEach(function(filePath) {
-          var dirname = pathLib.dirname(filePath);
-          var filename = pathLib.basename(filePath,'');
-          //var url = dirname + '/' + filename;
-          var widgetName = dirname.slice(dirname.indexOf('/') + 1);
-          var extension = pathLib.extname(filePath).slice(1);
-          jsonObj[widgetName] = jsonObj[widgetName] || {};
-          jsonObj[widgetName].dir = dirname + '/';
-          jsonObj[widgetName][extension] = jsonObj[widgetName][extension] || [];
-          jsonObj[widgetName][extension].push(filename);
+      grunt.file.expand('src/app/widgets/*').forEach(function(dirPath) {
+
+          var widgetName = dirPath.slice(dirPath.lastIndexOf('/') + 1);
+          var dirName = "widgets/" + widgetName;
+
+          try{
+              var manifest = grunt.file.readJSON(dirPath + "/manifest.json");
+              jsonObj[manifest.type] = manifest;
+              jsonObj[manifest.type].dir = dirName + '/';
+              jsonObj[manifest.type].dirname = widgetName;
+          } catch(err){
+              grunt.log.warn("Error reading manifest file from " + dirPath + " :", err);
+          }
       });
 
       // console.log('jsonObj',jsonObj);
-      grunt.file.write(this.files[0].dest,JSON.stringify(jsonObj));
+      grunt.file.write('build/app/data/widgetList.json',JSON.stringify(jsonObj));
 
 
   });
