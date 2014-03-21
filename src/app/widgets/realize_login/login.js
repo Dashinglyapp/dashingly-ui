@@ -5,11 +5,11 @@ define(['app', 'angular'], function(app, angular){
             "email": "test@realize.pe",
             "password": "testtest"
         };
-        $scope.loginType = "login";
-        var loginOrRegister = function  () {
+
+        var loginOrRegister = function  (loginType) {
             var options = {
-                loginType:$scope.loginType,
-                data:$scope.data
+                loginType: loginType,
+                data: $scope.data
             };
             user.tryAuthorization(options)
                 .then(function () {
@@ -36,10 +36,10 @@ define(['app', 'angular'], function(app, angular){
                 });
         };
         $scope.login = function(){
-            loginOrRegister();
+            loginOrRegister('login');
         };
         $scope.register = function(){
-            loginOrRegister();
+            loginOrRegister('register');
         };
         $scope.logout = function () {
             sync.logout()

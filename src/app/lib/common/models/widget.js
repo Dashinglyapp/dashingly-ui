@@ -1,26 +1,23 @@
-define(['angularAMD', 'realize-sync', 'lodash', 'user'],
-    function(angularAMD) {
+define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
+    function(angularAMD, $) {
         var module = angular.module('widget', ['ng', 'realize-sync', 'user']);
         module
             .factory("widget", ['$rootScope','user','$q','$http','$window', '$templateCache', 'sync', function($rootScope, user,$q,$http,$window, $templateCache, sync) {
-                var scriptsCache = {}; // hold previously loaded scripts so we don't load them twice.
                 var activeWidgets = {};
                 var widgetTemplateList;
-                var widgetHTMLPromisesCache = {};
 
                 var api = {
                     listAll:function(){ // list all widgets
                         var d = $q.defer();
                         if(widgetTemplateList){
-                            d.resolve(widgetTemplateList);
+                            d.resolve(angular.copy(widgetTemplateList));
                             return d.promise;
                         }
                         $http.get('/data/widgetList.json').then(function  (obj) {
                             widgetTemplateList = obj.data;
                             d.resolve(widgetTemplateList);
                         });
-                        widgetTemplateList = d.promise;
-                        return widgetTemplateList;
+                        return d.promise;
                     },
                     listInstalled: function(){
                         var d = $q.defer();
@@ -57,17 +54,25 @@ define(['angularAMD', 'realize-sync', 'lodash', 'user'],
                     },
                     loadWidget:function(widgetType){
                         var d = $q.defer();
-                        if(activeWidgets[widgetType]){
-                            d.resolve(activeWidgets[widgetType]);
+
+                        // In theory, this should cache results and serve a deep copy of them up when needed.
+                        // In practice, it returns the same object that exists in the cache, without doing a copy.
+                        // You can probably see why this is a problem.
+                        /** if(activeWidgets[widgetType]){
+                            console.log("Found widget in cache: ", widgetType);
+                            var data = activeWidgets[widgetType];
+                            var newData = angular.copy(data);
+                            d.resolve(newData);
                             return d.promise;
-                        }
+                        } **/
+
                         api.listAll()
                             .then(function (list) { // wrap the loaded widget object in a promise
                                 var i;
                                 var widgetObj = list[widgetType];
                                 if(!widgetObj){
                                     d.reject();
-                                    return console.log('no widget exists with template name ',widgetType);
+                                    return console.log('no widget exists with template name ', widgetType);
                                 }
                                 console.log("Loading widget: ", widgetType, widgetObj);
                                 var load_data = {
@@ -135,14 +140,17 @@ define(['angularAMD', 'realize-sync', 'lodash', 'user'],
                     },
                     create: function(data){
                         var d = $q.defer();
-                        api.loadWidget(data.type).then(function(widgetObj){
-                            data.views = widgetObj.endpoints;
-                            sync.resource("create", {scope: "user", scopeHash: user.getProp('hashkey'), data: data})
-                                .then(function(data){
-                                    console.log("Added widget to dashboard: ", data);
-                                    d.resolve(data);
-                                });
-                        });
+                        var postData = {
+                            views: data.endpoints,
+                            parent: data.parent,
+                            name: data.name,
+                            type: data.type
+                        };
+                        sync.resource("create", {scope: "user", scopeHash: user.getProp('hashkey'), data: postData})
+                            .then(function(data){
+                                console.log("Added widget to dashboard: ", data);
+                                d.resolve(data);
+                            });
 
                         return d.promise;
                     },

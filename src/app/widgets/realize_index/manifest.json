@@ -1,14 +1,14 @@
 {
-    "title": "Login",
-    "controller": "LoginCtrl",
-    "type": "login",
+    "title": "Index",
+    "controller": "IndexCtrl",
+    "type": "index",
     "version": ".1",
     "authors": ["Realize"],
     "tags": ["core"],
     "plugin": "",
     "endpointRegistration": "static",
     "endpoints": [],
-    "javascripts": ["login.js"],
-    "templates": ["login.tpl.html"],
+    "javascripts": ["index.js"],
+    "templates": ["index.tpl.html"],
     "css": []
 }

@@ -10,7 +10,7 @@
         <span class="icon-info2"></span>
       </a>
       <ul class="dropdown-menu">
-        <li ng-repeat="dash in dashboards">
+        <li ng-repeat="dash in dashboards" ng-click="switchDashboard(dash.name)">
           <a>
             <span class="dashboard-select-title">{{dash.name}}</span>
           </a>
