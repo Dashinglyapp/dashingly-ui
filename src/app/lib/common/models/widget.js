@@ -162,6 +162,15 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                             d.resolve(data);
                         });
                         return d.promise;
+                    },
+                    saveSettings: function(data){
+                        var d = $q.defer();
+                        var postData = {
+                            views: data.endpoints,
+                            parent: data.parent,
+                            name: data.name,
+                            type: data.type
+                        };
                     }
                 };
                 return api;

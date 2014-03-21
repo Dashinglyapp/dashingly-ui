@@ -18,6 +18,7 @@ var config = {
         'angular-charts': 'thirdparty/angular-charts/dist/angular-charts.min',
         'moment': 'thirdparty/momentjs/min/moment.min',
         'ngRoute': 'thirdparty/angular-route/angular-route',
+        'angular-formly': 'thirdparty/angular-formly/dist/formly',
 
         // Templates
         'html_templates_jsfied': 'html_templates_jsfied',

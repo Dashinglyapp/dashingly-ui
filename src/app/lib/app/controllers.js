@@ -133,6 +133,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
     .controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', 'EVENTS', '$rootScope', function($scope, $window, user, sync, EVENTS, $root){
         console.log('TopNavCtrl $scope',$scope);
+        $scope.isCollapsed = true;
         $scope.updateAuthorizations = function(){
             sync.authorizations('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
             .then(function (data){
@@ -211,12 +212,6 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
         $scope.$watch(user.isAuthed, $scope.update);
 
-    }])
-
-
-    .controller("RightMenuCtrl", ['$scope', function($scope){
-        console.log('RightMenuCtrl $scope',$scope);
     }]);
-
 });
 

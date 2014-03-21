@@ -3,13 +3,13 @@
   "version": "0.0.1",
   "dependencies": {
     "angular": "~1.2.5",
-    "angular-bootstrap": "~0.6.0",
+    "angular-bootstrap": "~0.10.0",
     "angular-gesture": "~1.3.0",
     "angular-mocks": "~1.2.2",
     "angular-touch": "~1.2.2",
     "angular-ui-router": "~0.2.7",
     "angular-ui-utils": "~0.0.4",
-    "bootstrap": "~3.0.3",
+    "bootstrap": "~3.1.0",
     "d3": "~3.3.12",
     "d3.chart": "~0.1.3",
     "Faker": "~0.5.11",
@@ -20,7 +20,8 @@
     "angularAMD": "~0.1.0",
     "momentjs": "~2.5.1",
     "angular-charts": "~0.0.1",
-    "angular-route": "~1.2.14"
+    "angular-route": "~1.2.14",
+    "angular-formly": "~0.0.9"
   },
   "authors": [
     "Adam Laughlin <adam.laughlin@gmail.com>",
@@ -36,8 +37,5 @@
     "self-improvement"
   ],
   "license": "AGPL",
-  "homepage": "realize.pe",
-  "devDependencies": {
-    "angular-http-auth": "~1.2.1"
-  }
+  "homepage": "realize.pe"
 }

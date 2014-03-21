@@ -17,7 +17,7 @@ module.exports = function ( grunt ) {
   grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-conventional-changelog');
   // grunt.loadNpmTasks('grunt-bump'); // comment out for now since we aren't using it yet
-  grunt.loadNpmTasks('grunt-recess');
+  grunt.loadNpmTasks('grunt-contrib-less');
   // grunt.loadNpmTasks('grunt-ngmin'); // comment out for now since we aren't using it yet
   grunt.loadNpmTasks('grunt-gh-pages');
   grunt.loadNpmTasks('grunt-html2js');
@@ -480,32 +480,34 @@ module.exports = function ( grunt ) {
 // node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update
 
 
-    recess: {
+    less: {
     /**
      * `recess` for LESS files concatenates, converts to CSS, copies, and optionally minifies them;
      * Only our `app.less` file is included in compilation.  It must import all other files.
      */
       build: {
-        src: [ '<%= src.dirs.app %>css/app.less' ],
-        dest: '<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css',
         options: {
           compile: true,
           compress: false,
           noUnderscores: false,
           noIDs: true,
           zeroUnits: false
+        },
+        files: {
+            '<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css': '<%= src.dirs.app %>css/app.less'
         }
       },
       // the compile phase only adds the compress option
       compile: {
-        src: [ '<%= src.dirs.app %>css/app.less' ],
-        dest: '<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css',
         options: {
           compile: true,
           compress: true,
           noUnderscores: false,
           noIDs: true,
           zeroUnits: false
+        },
+        files: {
+            '<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css': '<%= src.dirs.app %>css/app.less'
         }
       }
     },
@@ -595,9 +597,9 @@ module.exports = function ( grunt ) {
         ]
       },
       // compile less on change
-      appless:{ files: 'css/app.less', tasks: ['recess:build','unit']},
+      appless:{ files: 'css/app.less', tasks: ['less:build','unit']},
       // add bootstrap less files
-      bootstrapless:{ files: 'thirdparty/bootstrap/**/*.less', tasks: ['recess:build','unit']},
+      bootstrapless:{ files: 'thirdparty/bootstrap/**/*.less', tasks: ['less:build','unit']},
       // Copy any changed assets
       assets:{files:'assets/**', tasks:['sync:assets','unit']}
 
@@ -640,7 +642,7 @@ module.exports = function ( grunt ) {
     'html2js', // compile the html templates to js and place them in the build dir
     'eslint:built_html_templates', // and lint them
     // 'concat:build_thirdparty_js', // copy third party js & css to build
-    'recess:build', // compile our less to css and copy it to the build dir
+    'less:build', // compile our less to css and copy it to the build dir
     'sync:assets', // along with assets
     'concat:build_index', // build our index file with all its dependencies
     'buildWidgetListJSON', // add the widgetList file
@@ -650,7 +652,7 @@ module.exports = function ( grunt ) {
 
   // The `compile` task preps the app for production by concatenating, minifying, compressing the code.
   grunt.registerTask( 'compile', [
-    'recess:compile',
+    'less:compile',
     'sync:compile_assets',
     'concat:compile_thirdparty_js',
     'concat:compile_js',

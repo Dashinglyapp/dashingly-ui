@@ -12,11 +12,12 @@ define([
     'realize-lodash',
     'angular-charts',
     'moment',
-    'ngRoute'
+    'ngRoute',
+    'angular-formly'
 ], function (angular, angularAMD, $) {
     var DEBUG_MODE = false;
 
-    var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute'])
+    var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly'])
     .constant('EVENTS', {
         // auth
         loginSuccess: 'event:auth-loginConfirmed',
@@ -69,7 +70,6 @@ define([
         $root.closeMenus = function(){
           var open = false;
           if($root.showleftmenu){open = true;$root.showleftmenu = 0;}
-          if($root.showrightmenu){open = true;$root.showrightmenu = 0;}
           return open;
         };
       }

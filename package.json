@@ -1,7 +1,7 @@
 {
   "author": "Realize",
   "name": "realize-ui-angular",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "homepage": "https://github.com/realizeapp/realize-ui-angular",
   "licenses": {
     "type": "AGPL",
@@ -12,10 +12,11 @@
     "type": "git",
     "url": "git@github.com:realizeapp/realize-ui-angular.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "grunt-contrib-less": "~0.11.0"
+  },
   "devDependencies": {
     "grunt": "~0.4.2",
-    "grunt-recess": "~0.5.0",
     "grunt-contrib-clean": "~0.4.1",
     "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-jshint": "~0.7.2",

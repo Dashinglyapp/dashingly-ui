@@ -189,6 +189,7 @@ define(['angularAMD', 'http-auth-interceptor'],
                     promise = normalizeResponseData($http.get(route));
                     break;
                 case 'post':
+                    promise = normalizeResponseData($http.post(route + "/" + options.resourceHash, options.data));
                     break;
                 default:
                     break;
