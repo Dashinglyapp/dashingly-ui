@@ -640,9 +640,9 @@ module.exports = function ( grunt ) {
         var widgetName = pathArray[3];
         var dirName = pathArray[2]+'/'+widgetName + '/';
         var manifest = grunt.file.readJSON(dirPath);
-        jsonObj[widgetName] = manifest;
-        jsonObj[widgetName].dir = dirName;
-        jsonObj[widgetName].name = widgetName;
+        jsonObj[manifest.type] = manifest;
+        jsonObj[manifest.type].dir = dirName;
+        jsonObj[manifest.type].name = widgetName;
       });
       grunt.file.write(this.files[0].dest,JSON.stringify(jsonObj));
   });
