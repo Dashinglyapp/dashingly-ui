@@ -168,7 +168,8 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 $scope.updatePlugins();
             });
         };
-
+		
+        console.log('updating Plugins');
         $scope.updatePlugins();
     }])
 
