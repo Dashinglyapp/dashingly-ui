@@ -21,8 +21,8 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
             $scope.replace = function (widgetType, widgetName) {
                 console.log("Replacing content with widget with type", widgetType, "and name", widgetName);
-                var func;
-                if(user.isAuthed()){
+                user.checkAuth().then(function(profile){
+                    console.log("User is authenticated.");
                     widget.listInstalledByTypeAndName(widgetType, widgetName).then(function(data){
                         console.log("Listing widget by type", widgetType, "and name", widgetName, "got data", data);
                         if(data.length === 0){
@@ -33,19 +33,38 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                             $scope.setupWidget(data[0]);
                         }
                     });
-                } else{
+                }, function(reason){
+                    console.log("Unathenticated user.  Initializing default widget version.");
                     $scope.setupWidget({type: widgetType, name: widgetName, hashkey: ""});
-                }
+                });
             };
 
-            $scope.$on(EVENTS.switchWidgetTree,function (event, widgetType, widgetName) {
-                console.log('EVENTS.switchWidgetTree called with arg: ', widgetType, widgetName);
+            $scope.switchWidget = function(event, widgetType, widgetName){
                 if($scope.currentWidget.type !== widgetType || $scope.currentWidget.name !== widgetName){
+                    console.log('EVENTS.switchWidgetTree called with arg: ', widgetType, widgetName);
                     $scope.currentWidget.type = widgetType;
                     $scope.currentWidget.name = widgetName;
                     return $scope.replace(widgetType, widgetName);
                 }
+            };
+
+            $scope.$on(EVENTS.switchWidgetTree,function (event, widgetType, widgetName) {
+                $scope.switchWidget(event, widgetType, widgetName);
             });
+
+            $scope.$on('event:' + EVENTS.notAuthenticated, function() {
+                $scope.setupWidget({type: 'login', name: 'default', hashkey: ""});
+                console.log('checkLogin: auth-needed');
+            });
+
+            $scope.$on('event:' + EVENTS.loginSuccess, function() {
+                $scope.switchWidget(EVENTS.switchWidgetTree, "dashboard", "default");
+            });
+
+            if($root.initialRenderDone !== true){
+                $scope.setupWidget({type: 'index', name: 'default', hashkey: ""});
+            }
+
             $root.initialRenderDone = true;
         }])
 
@@ -56,27 +75,25 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
         $scope.updateDashboards = function(){
             widget.listInstalledByType("dashboard").then(function(data){
                 console.log('User dashboards:', data);
-                var dashboardKey;
                 if(Object.keys(data).length === 0){
                     widget.create({name: 'default', type: 'dashboard'}).then(function(data){
-                        dashboardKey = data.hashkey;
                         $scope.dashboards.push(data);
-                        $root.$broadcast(EVENTS.switchWidgetTree, "dashboard", "default");
                     });
                 } else{
-                    dashboardKey = data[0].hashkey;
                     $scope.dashboards = data;
-                    $root.$broadcast(EVENTS.switchWidgetTree, "dashboard", "default");
                 }
             });
         };
-        user.hasAuth().then(function(profile){
-            $scope.updateDashboards();
-        });
+
+        $scope.switchDashboard = function(dashName){
+            $root.$broadcast(EVENTS.switchWidgetTree, "dashboard", dashName);
+        };
 
         $scope.$on('$viewContentLoaded', function() {
             $scope.updateDashboards();
         });
+
+        $scope.updateDashboards();
     }])
 
     /**
@@ -92,7 +109,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 $scope.authorizationList = data;
             });
         };
-        $scope.updateAuthorizations();
+
         $scope.$on('$viewContentLoaded', function() {
             $scope.updateAuthorizations();
         });
@@ -108,6 +125,8 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                     user.deAuthorize();
                 });
         };
+
+        $scope.updateAuthorizations();
     }])
 
 
@@ -122,7 +141,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 $scope.pluginList = data;
             });
         };
-        $scope.updatePlugins();
+
         $scope.$on('$viewContentLoaded', function() {
             $scope.updatePlugins();
         });
@@ -149,6 +168,8 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 $scope.updatePlugins();
             });
         };
+
+        $scope.updatePlugins();
     }])
 
 

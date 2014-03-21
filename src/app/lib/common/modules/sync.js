@@ -16,6 +16,9 @@ define(['angularAMD', 'http-auth-interceptor'],
                         config.data = config.data || {};
                         config.headers['Authentication-Token'] = window.localStorage.realize_user_auth_token;
                         config.headers['Content-Type'] = "application/json";
+                    } else if(/GET|DELETE/i.test(config.method)) {
+                        config.headers['Authentication-Token'] = window.localStorage.realize_user_auth_token;
+                        config.headers['Content-Type'] = "application/json";
                     }
                     return config || $q.when(config);
                 }
@@ -42,9 +45,11 @@ define(['angularAMD', 'http-auth-interceptor'],
             var d = $q.defer();
             httpObj.then(
                 function(obj){
+                    console.log("Http success");
                     d.resolve(obj.data || obj);
                 },
                 function(rejection){
+                    console.log("Http rejection.");
                     d.reject(rejection);
                 }
             );

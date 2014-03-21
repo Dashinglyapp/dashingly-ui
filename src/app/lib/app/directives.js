@@ -1,23 +1,6 @@
 define(['app', 'realize-debugging'], function(app){
     app
 
-    .directive('checkLogin', ['EVENTS', '$rootScope', function(EVENTS, $root){
-            return {
-                restrict: 'C',
-                link: function(scope, elem, attrs){
-                    console.log('checkLogin');
-                    scope.$on('event:' + EVENTS.notAuthenticated, function() {
-                        $root.$broadcast(EVENTS.switchWidgetTree, "login", "default");
-                        console.log('checkLogin: auth-needed');
-                    });
-
-                    scope.$on('event:' + EVENTS.loginSuccess, function() {
-                        $root.$broadcast(EVENTS.switchWidgetTree, "dashboard", "default");
-                    });
-                }
-            };
-        }])
-
     .directive('leftMenu', [function () {
             return {
                 templateUrl: 'partials/left-menu.tpl.html',
