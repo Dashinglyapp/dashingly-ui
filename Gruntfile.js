@@ -47,17 +47,17 @@ module.exports = function ( grunt ) {
       },
       // requiredFiles are the prerequisites for the app to run
       requiredFiles:[
-        '<%= src.dirs.thirdparty %>jquery/jquery.min.js',
-        '<%= src.dirs.thirdparty %>lodash/dist/lodash.min.js',
-        '<%= src.dirs.thirdparty %>angular/angular.js',
-        '<%= src.dirs.thirdparty %>angular-bootstrap/ui-bootstrap-tpls.min.js',
-        '<%= src.dirs.thirdparty %>angular-mocks/angular-mocks.js',
-        '<%= src.dirs.thirdparty %>angular-touch/angular-touch.min.js',
-        '<%= src.dirs.thirdparty %>angular-ui-router/release/angular-ui-router.js',
-        '<%= src.dirs.thirdparty %>angular-http-auth/src/http-auth-interceptor.js',
-        '<%= src.dirs.thirdparty %>angular-gesture/ngGesture/gesture.js',
-        '<%= src.dirs.thirdparty %>angular-ui-utils/modules/utils.js',
-        '<%= src.dirs.thirdparty %>restangular/dist/restangular.js',
+        // '<%= src.dirs.thirdparty %>jquery/jquery.min.js',
+        // '<%= src.dirs.thirdparty %>lodash/dist/lodash.min.js',
+        // '<%= src.dirs.thirdparty %>angular/angular.js',
+        // '<%= src.dirs.thirdparty %>angular-bootstrap/ui-bootstrap-tpls.min.js',
+        // '<%= src.dirs.thirdparty %>angular-mocks/angular-mocks.js',
+        // '<%= src.dirs.thirdparty %>angular-touch/angular-touch.min.js',
+        // '<%= src.dirs.thirdparty %>angular-ui-router/release/angular-ui-router.js',
+        // '<%= src.dirs.thirdparty %>angular-http-auth/src/http-auth-interceptor.js',
+        // '<%= src.dirs.thirdparty %>angular-gesture/ngGesture/gesture.js',
+        // '<%= src.dirs.thirdparty %>angular-ui-utils/modules/utils.js',
+        // '<%= src.dirs.thirdparty %>restangular/dist/restangular.js',
         '<%= src.dirs.thirdparty %>requirejs/require.js'
         // we aren't using these yet, so comment them out
         // 'd3/d3.min.js',
@@ -154,10 +154,10 @@ module.exports = function ( grunt ) {
     /**
      * The directories to delete when `grunt clean` is executed.
      */
-      options:{
-        force:true
-      },
       all:{
+        options:{
+          force:true
+        },
         src:['<%= build.dirs.root %>','<%= compile.dirs.root %>']
       }
     },
@@ -182,6 +182,13 @@ module.exports = function ( grunt ) {
           changeOrigin:true,
           https: false
         }
+        // ,{
+        //   context: '/test_proxy/',
+        //   host: 'localhost',
+        //   port: 9018,
+        //   changeOrigin:true,
+        //   https: false
+        // }
       ],
       livereload: {
         options: {
@@ -194,7 +201,6 @@ module.exports = function ( grunt ) {
           }
         }
       },
-
       compile: {
         options: {
           base: '<%= compile.dirs.app %>'
@@ -217,11 +223,11 @@ module.exports = function ( grunt ) {
             var thirdpartyStr = '    <script type = "text/javascript" src="thirdparty.js"></script>\n';
             // need to think of way to intersperse our test files without mixing concerns, but here seems the most dry
             // since we're already looping and reading each file
-            var karmaFiles = [
-              'build/app/thirdparty.js',
-              'node_modules/chai/chai.js',
-              'src/app/thirdparty/angular-mocks/angular-mocks.js'
-            ];
+            // var karmaFiles = [
+            //   'build/app/thirdparty.js',
+            //   'node_modules/chai/chai.js',
+            //   'src/app/thirdparty/angular-mocks/angular-mocks.js'
+            // ];
             // replace index tokens with appropriate css and js files
             grunt.file.expand(
               {nonull:false,debug:false},
@@ -234,7 +240,7 @@ module.exports = function ( grunt ) {
               var newStr = path.replace(/.*?\/app\//,'');
               if(/js$/.test(path)){
                 // add each js file to our karma files
-                karmaFiles.push('build/app/' + newStr);
+                // karmaFiles.push('build/app/' + newStr);
                 // wrap the js with the appropriate tag
                 jsStr += '    <script type="text/javascript" src="' + newStr + '"></script>\n';
               } else {
@@ -243,9 +249,9 @@ module.exports = function ( grunt ) {
               }
             });
             // expand the list of test files and append them to the karma files array
-            karmaFiles.push.apply(karmaFiles,grunt.file.expand('src/app/**/*spec.js'));
+            // karmaFiles.push.apply(karmaFiles,grunt.file.expand('src/app/**/*spec.js'));
             // add the karmaFiles array to the Gruntfile karma config
-            grunt.config.set('karma.options.files',karmaFiles);
+            // grunt.config.set('karma.options.files',karmaFiles);
             // add all the js, css, and thirdparty code to index.html
             var newContent = content.replace(/ {4}<\!-- token_replace_css_here -->/i,cssStr);
             return newContent;
@@ -320,7 +326,7 @@ module.exports = function ( grunt ) {
       src_js:['<%= src.dirs.app %>**/*.js', '!<%= src.dirs.thirdparty %>**'],
       built_appjs: '<%= build.dirs.js %>app.js',
       built_html_templates: '<%= build.dirs.app %>html_templates_jsfied.js',
-      rootfiles: ['Gruntfile.js'], // lints the gruntfile.
+      rootfiles: ['Gruntfile.js','karma.conf.js'], // lints the gruntfile.
       test:['<%= src.dirs.app %>**/*spec.js']
     },
 
@@ -370,55 +376,80 @@ module.exports = function ( grunt ) {
      * Karma tests configuration
      */
     karma: {
-      options: { // options apply to all tests
-        /**
-         * basePath: Where to look for files relative to this file's location
-         */
-        basePath: '<%= build.dirs.app %>',
-        /**
-         * browsers: The list of browsers to launch to test on. This includes only "Firefox" by
-         * default, but other browser names include:
-         * Chrome, ChromeCanary, Firefox, Opera, Safari, PhantomJS
-         *
-         * You may also leave this blank and manually navigate your browser to
-         * http://localhost:9018/ when you're running tests. The window/tab can be left
-         * open and the tests will automatically occur there during the build. This has
-         * the aesthetic advantage of not launching a browser every time you save.
-         */
-        /**
-         * Add params for running our Karma unit and end-to-end tests
-         */
 
-        browsers: [process.env.TRAVIS ? 'Firefox' : 'Chrome'],
-
-        plugins:[
-          'karma-mocha',
-          'karma-chai',
-          'karma-sinon',
-          'karma-requirejs',
-        // 'karma-phantomjs-launcher',
-           process.env.TRAVIS ? 'karma-firefox-launcher' : 'karma-chrome-launcher'
-        ],
-
-
-        logLevel:'DEBUG',
-        // list of files to exclude
-        // exclude:[],
-
-        plugins: [ 'karma-jasmine', 'karma-firefox-launcher', 'karma-chrome-launcher', 'karma-phantomjs-launcher' ],
-        urlRoot: '/', // the base path for the browser to use
-        frameworks: [ 'mocha','requirejs'],
-        port: 9018, // the basic unit test running port
-        runnerPort: 9101, // cli runner port - the port the test runner runs on
-      },
 
       unit: { // unit test specific params
-        reporters: 'spec',
-        background: true, // run async to allow other processes to continue
-        singleRun: false, // run once - opens a browser, runs the tests, and closes the browser.
-        files:[
-          '<%= src.dirs.app %>**/*.spec.js'
-        ],
+
+        // passing options is the same as if we put everything in a karma config file
+        options:{
+          // base path that will be used to resolve all patterns (eg. files, exclude)
+          basePath: '',
+          // urlRoot: '/', // prefix for the test scripts to load from
+
+          /**
+           * browsers: The list of browsers to launch to test on. This includes only "Firefox" by
+           * default, but other browser names include:
+           * Chrome, ChromeCanary, Firefox, Opera, Safari, PhantomJS
+           *
+           * You may also leave this blank and manually navigate your browser to
+           * http://localhost:9018/ when you're running tests. The window/tab can be left
+           * open and the tests will automatically occur there during the build. This has
+           * the aesthetic advantage of not launching a browser every time you save.
+           */
+
+          browsers: [process.env.TRAVIS ? 'Firefox' : 'Chrome'],
+
+          /**
+           * Add params for running our Karma unit and end-to-end tests
+           */
+          plugins: ['karma-mocha', 'karma-chai', 'karma-sinon', 'karma-requirejs',
+            // 'karma-phantomjs-launcher',
+            process.env.TRAVIS ? 'karma-firefox-launcher' : 'karma-chrome-launcher'
+          ],
+
+          // frameworks to use
+          // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
+          frameworks: ['mocha', 'requirejs'],
+
+
+          // list of files / patterns to load in the browser
+          files: ['src/app/require-config-unit.js'],
+          // 'src/app/**/*.spec.js',
+
+          // list of files to exclude
+          exclude: [],
+
+          // preprocess matching files before serving them to the browser
+          // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+          preprocessors: {},
+
+          // test results reporter to use
+          // possible values: 'dots', 'progress'
+          // available reporters: https://npmjs.org/browse/keyword/karma-reporter
+          reporters: 'dots',
+
+          // web server port
+          port: 9018, // the basic unit test running port
+          runnerPort: 9101, // cli runner port - the port the test runner runs on
+
+          // enable / disable colors in the output (reporters and logs)
+          colors: true,
+
+          // level of logging
+          // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+          logLevel: 'LOG_INFO',
+
+          // enable / disable watching file and executing tests whenever any file changes
+          autoWatch: false, // Disable autowatch since grunt-contrib-watch takes care of it
+
+          // start these browsers
+          // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
+
+          // Continuous Integration mode
+          // if true, Karma captures browsers, runs the tests and exits
+          singleRun: false, // run once - opens a browser, runs the tests, and closes the browser.
+          background: true // run async to allow other processes to continue
+        }
       }
     },
 
@@ -431,7 +462,7 @@ module.exports = function ( grunt ) {
           keepAlive: true,
           args: {
             browser: "chrome",
-            baseUrl: "http://<%= connect.options.host %>:<%= connect.options.port %>",
+            baseUrl: "http://<%= connect.options.host %>:<%= connect.options.port %>"
             // seleniumServerJar:'./node_modules/grunt-protractor-runner/node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar'
           }
         }
@@ -490,6 +521,14 @@ module.exports = function ( grunt ) {
           execOptions: {
             cwd: 'node_modules/protractor/bin'
           },
+          async: false
+        }
+      },
+      clean: {
+        command: "rm -rf build/",
+        options: {
+          stdout: true,
+          debug:true,
           async: false
         }
       }
@@ -573,10 +612,10 @@ module.exports = function ( grunt ) {
 
   // define a task for our unit tests.  Adding the "run" param since we only use this in watch
   // where karma is already started
-  grunt.registerTask( 'unit', ['buildSpec'/*,'karma:unit:run'*/]);
+  grunt.registerTask( 'unit', ['buildSpec', 'karma:unit:run']);
 
   // Initialize the dev setup - it does a clean build before watching for changes
-  grunt.registerTask( 'dev', ['build', 'configureProxies','connect:livereload', 'watch' ]);
+  grunt.registerTask( 'dev', ['build', 'configureProxies','connect:livereload', 'karma:unit', 'watch' ]);
 
   grunt.registerTask( 'e2e',
     grunt.file.exists('./node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar') ? // is standalone server installed?
@@ -594,21 +633,19 @@ module.exports = function ( grunt ) {
     // if this is the first run, it should copy the third party libs servero your thirdparty dir
     !grunt.file.exists(grunt.config.get('src.dirs.thirdparty')) ? // does the thirdparty directory exist in src?
       'sync:thirdparty_to_src' : // nope, create it and populate with fresh bower components
-      'clean', // otherwise we're working with an existing install.  Wipe out the build dir for a fresh one.
+      'shell:clean', // otherwise we're working with an existing install.  Wipe out the build dir for a fresh one.
     'eslint:src_js', // lint src js
+    'eslint:rootfiles',
     'sync:src_js_css_html_to_build', // copy everything over to the build dir, excluding the things already copied
     'html2js', // compile the html templates to js and place them in the build dir
     'eslint:built_html_templates', // and lint them
-    'concat:build_thirdparty_js', // copy third party js & css to build
+    // 'concat:build_thirdparty_js', // copy third party js & css to build
     'recess:build', // compile our less to css and copy it to the build dir
     'sync:assets', // along with assets
     'concat:build_index', // build our index file with all its dependencies
     'buildWidgetListJSON', // add the widgetList file
     'buildSpec', // test our build
     'eslint:test'
-    // 'mochaProtractor'
-    // , // lint our mocha tests
-    // 'karma:unit' // run the unit tests
   ]);
 
   // The `compile` task preps the app for production by concatenating, minifying, compressing the code.
@@ -626,7 +663,7 @@ module.exports = function ( grunt ) {
   grunt.registerTask('buildSpec','test That all build files that should exist, do',function(){
     if(!grunt.file.exists('build/app/index.html')) {grunt.fail.fatal('index.html does not exist!');}
     if(!grunt.file.exists('build/app/app.js')) {grunt.fail.fatal('app.js does not exist!');}
-    if(!grunt.file.exists('build/app/thirdparty.js')) {grunt.fail.fatal('thirdparty js does not exist!');}
+    // if(!grunt.file.exists('build/app/thirdparty.js')) {grunt.fail.fatal('thirdparty js does not exist!');}
     if(!grunt.file.exists('build/app/widgets/')) {grunt.fail.fatal('widgets directory does not exist!');}
     if(!grunt.file.exists('build/app/html_templates_jsfied.js')) {grunt.fail.fatal('html_templates_jsfied does not exist!');}
     if(!grunt.file.exists('build/app/data/widgetList.json')) {grunt.fail.fatal('build/app/data/widgetList.json does not exist!');}
@@ -638,7 +675,7 @@ module.exports = function ( grunt ) {
       this.filesSrc.forEach(function(dirPath) {
         var pathArray = dirPath.split('/');
         var widgetName = pathArray[3];
-        var dirName = pathArray[2]+'/'+widgetName + '/';
+        var dirName = pathArray[2] + '/' + widgetName + '/';
         var manifest = grunt.file.readJSON(dirPath);
         jsonObj[manifest.type] = manifest;
         jsonObj[manifest.type].dir = dirName;
