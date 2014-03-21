@@ -319,12 +319,7 @@ module.exports = function ( grunt ) {
         // format: require('eslint-stylish') // custom formatter
         config: 'eslint.json'        // custom config
       },
-      // src_js:{
-      //   src:'<%= src.dirs.app %>app.js'
-      // },
-      // gruntfile:'Gruntfile.js',
       src_js:['<%= src.dirs.app %>**/*.js', '!<%= src.dirs.thirdparty %>**'],
-      built_appjs: '<%= build.dirs.js %>app.js',
       built_html_templates: '<%= build.dirs.app %>html_templates_jsfied.js',
       rootfiles: ['Gruntfile.js','karma.conf.js'], // lints the gruntfile.
       test:['<%= src.dirs.app %>**/*spec.js']
@@ -442,6 +437,13 @@ module.exports = function ( grunt ) {
           // enable / disable watching file and executing tests whenever any file changes
           autoWatch: false, // Disable autowatch since grunt-contrib-watch takes care of it
 
+          proxies:{
+            '/thirdparty':'http://localhost:8000/thirdparty',
+            '/html_templates_jsfied.js':'http://localhost:8000/html_templates_jsfied.js',
+            '/lib':'http://localhost:8000/lib',
+            '/data':'http://localhost:8000/data',
+            '/app.js':'http://localhost:8000/app.js'
+          },
           // start these browsers
           // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
 
@@ -579,7 +581,6 @@ module.exports = function ( grunt ) {
       // When the rootfiles change, lint them.
       rootfiles:{files: ['Gruntfile.js','package.json','bower.json'],tasks:['eslint:rootfiles','build','configureProxies','unit'],options:{cwd:'.'}},
       // compile app's angular dependencies on change
-      main_app_module: {files:'app.js', tasks: ['eslint:built_appjs','unit'] },
       angular_modules: {files: ['**/*-module.js'], tasks: ['eslint:src_js','sync:src_js_css_html_to_build','unit'] },
       static_files_excluding_angular_modules:{files: ['**/*.{css,js,html}','!**/*-module.js','!index.html'], tasks: ['sync:src_js_css_html_to_build','unit']},
       // compile index on change
