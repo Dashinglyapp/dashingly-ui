@@ -17,6 +17,7 @@ var config = {
         'd3': 'thirdparty/d3/d3.min',
         'angular-charts': 'thirdparty/angular-charts/dist/angular-charts.min',
         'moment': 'thirdparty/momentjs/min/moment.min',
+        'ngRoute': 'thirdparty/angular-route/angular-route',
 
         // Templates
         'html_templates_jsfied': 'html_templates_jsfied',

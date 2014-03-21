@@ -1,11 +1,11 @@
-<div class="top-nav">
+<div class="top-nav" ng-controller="TopNavCtrl">
   <ul class="nav nav-pills">
-    <li>
+    <li ng-if="authed">
       <a class="plugins-dropdown icon-add-to-list"
          ng-click="$root.showleftmenu=1;$event.stopPropagation();">
       </a>
     </li>
-    <li class="dashboard-dropdown dropdown" ng-controller="DashboardsCtrl">
+    <li class="dashboard-dropdown dropdown" ng-controller="DashboardsCtrl" ng-if="authed">
       <a class="dropdown-toggle">
         <span class="icon-info2"></span>
       </a>
@@ -17,7 +17,7 @@
         </li>
       </ul>
     </li>
-      <li class="authorizations dropdown">
+      <li class="authorizations dropdown" ng-if="authed">
           <a class="dropdown-toggle">
               <span class="icon-user-add"></span>
           </a>
@@ -27,12 +27,12 @@
               </li>
           </ul>
       </li>
-    <li class="settings">
+    <li class="settings" ng-if="authed">
       <a class="icon-cog" ng-click="$root.showrightmenu=!$root.showrightmenu; $event.stopPropagation();">
       </a>
     </li>
-    <li class="help">
-      <a class="icon-info3" ng-click="logout()">
+    <li class="help" ng-if="authed">
+      <a class="icon-info3" ng-click="logout()" >
       </a>
     </li>
   </ul>

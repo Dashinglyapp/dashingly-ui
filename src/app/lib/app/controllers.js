@@ -11,6 +11,8 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
             console.log('WidgetCtrl $scope',$scope);
             $scope.setupWidget = function(data){
                 console.log("Setting up widget: ", data);
+                 $scope.currentWidget.type = data.type;
+                 $scope.currentWidget.name = data.name;
                 widget.loadWidget(data.type).then(function(widgetObj){
                     widgetObj.hashkey = data.hashkey;
                     widgetMeta.setTopLevelWidget(widgetObj);
@@ -42,30 +44,52 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
             $scope.switchWidget = function(event, widgetType, widgetName){
                 if($scope.currentWidget.type !== widgetType || $scope.currentWidget.name !== widgetName){
                     console.log('EVENTS.switchWidgetTree called with arg: ', widgetType, widgetName);
-                    $scope.currentWidget.type = widgetType;
-                    $scope.currentWidget.name = widgetName;
                     return $scope.replace(widgetType, widgetName);
                 }
             };
 
-            $scope.$on(EVENTS.switchWidgetTree,function (event, widgetType, widgetName) {
-                $scope.switchWidget(event, widgetType, widgetName);
+            $scope.$onRootScope(EVENTS.switchWidgetTree,function (event, widgetType, widgetName) {
+                console.log("WidgetCtrl widget change event", widgetType, widgetName);
+                if(widgetType !== "index"){
+                    $scope.switchWidget(event, widgetType, widgetName);
+                } else {
+                    $scope.setupWidget({type: 'index', name: 'default', hashkey: ""});
+                }
             });
 
-            $scope.$on('event:' + EVENTS.notAuthenticated, function() {
+            $scope.$onRootScope(EVENTS.notAuthenticated, function() {
                 $scope.setupWidget({type: 'login', name: 'default', hashkey: ""});
                 console.log('checkLogin: auth-needed');
             });
 
-            $scope.$on('event:' + EVENTS.loginSuccess, function() {
+            $scope.$onRootScope(EVENTS.loginSuccess, function() {
+                console.log("WidgetCtrl login success");
                 $scope.switchWidget(EVENTS.switchWidgetTree, "dashboard", "default");
             });
 
-            if($root.initialRenderDone !== true){
+             $scope.$onRootScope(EVENTS.logoutSuccess, function() {
+                 console.log("WidgetCtrl logout success");
                 $scope.setupWidget({type: 'index', name: 'default', hashkey: ""});
-            }
+            });
 
             $root.initialRenderDone = true;
+        }])
+
+        .controller('WidgetRouteCtrl', ["$rootScope", "$scope", '$routeParams', "user", 'widget', 'widgetMeta', 'EVENTS', function($root, $scope, $routeParams, user, widget, widgetMeta, EVENTS){
+
+            var name = $routeParams.name;
+            var type = $routeParams.type;
+
+            if(name === undefined){
+                name = "default";
+            }
+
+            if(type === undefined){
+                type = "index";
+            }
+
+            console.log("WidgetRouteCtrl name", name, "type", type);
+            $root.$emit(EVENTS.switchWidgetTree, type, name);
         }])
 
     .controller("DashboardsCtrl", ["$scope", "$window", "user", 'widget', '$rootScope', '$document', 'EVENTS', function($scope, $window, user, widget, $root, $document, EVENTS){
@@ -85,22 +109,29 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
             });
         };
 
+
         $scope.switchDashboard = function(dashName){
-            $root.$broadcast(EVENTS.switchWidgetTree, "dashboard", dashName);
+            console.log("Emitting switch dashboard event", dashName);
+            $root.$emit(EVENTS.switchWidgetTree, "dashboard", dashName);
+        };
+
+        $scope.update = function(){
+            $scope.updateDashboards();
         };
 
         $scope.$on('$viewContentLoaded', function() {
-            $scope.updateDashboards();
+            $scope.update();
         });
 
-        $scope.updateDashboards();
+        $scope.$watch(user.isAuthed, $scope.update);
+
     }])
 
     /**
      * Controllers
      */
 
-    .controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', function($scope, $window, user, sync){
+    .controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', 'EVENTS', '$rootScope', function($scope, $window, user, sync, EVENTS, $root){
         console.log('TopNavCtrl $scope',$scope);
         $scope.updateAuthorizations = function(){
             sync.authorizations('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
@@ -110,9 +141,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
             });
         };
 
-        $scope.$on('$viewContentLoaded', function() {
-            $scope.updateAuthorizations();
-        });
+        $scope.authed = false;
 
         $scope.authRedirect = function(auth){
             var query_url = auth.url + "?token=" + user.getProp('token');
@@ -123,14 +152,25 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
             sync.logout()
                 .finally(function () {
                     user.deAuthorize();
+                    $root.$emit(EVENTS.logoutSuccess);
                 });
         };
 
-        $scope.updateAuthorizations();
+        $scope.update = function(){
+             $scope.updateAuthorizations();
+             $scope.authed = user.isAuthed();
+        };
+
+        $scope.$on('$viewContentLoaded', function() {
+            $scope.update();
+        });
+
+        $scope.$watch(user.isAuthed, $scope.update);
+
     }])
 
 
-    .controller("LeftMenuCtrl", ['$scope', 'user', 'sync', function($scope, user, sync){
+    .controller("LeftMenuCtrl", ['$scope', 'user', 'sync', 'EVENTS', function($scope, user, sync, EVENTS){
         $scope.dashboardListSource = 'installed';
         console.log('LeftMenuCtrl $scope',$scope);
         var basePlugins;
@@ -142,16 +182,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
             });
         };
 
-        $scope.$on('$viewContentLoaded', function() {
-            $scope.updatePlugins();
-        });
-        $scope.addPlugin = function(pluginHashkey){
-            console.log("Adding plugins.");
-        };
 
-        $scope.removePlugin = function(pluginHashkey){
-
-        };
         $scope.addPlugin = function(pluginObj){
             console.log("Adding a plugin");
             sync.plugins("add", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
@@ -168,9 +199,18 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 $scope.updatePlugins();
             });
         };
-		
-        console.log('updating Plugins');
-        $scope.updatePlugins();
+
+
+        $scope.update = function(){
+          $scope.updatePlugins();
+        };
+
+        $scope.$on('$viewContentLoaded', function() {
+            $scope.update();
+        });
+
+        $scope.$watch(user.isAuthed, $scope.update);
+
     }])
 
 

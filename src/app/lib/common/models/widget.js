@@ -5,6 +5,7 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
             .factory("widget", ['$rootScope','user','$q','$http','$window', '$templateCache', 'sync', function($rootScope, user,$q,$http,$window, $templateCache, sync) {
                 var activeWidgets = {};
                 var widgetTemplateList;
+                var defaultName = "default";
 
                 var api = {
                     listAll:function(){ // list all widgets

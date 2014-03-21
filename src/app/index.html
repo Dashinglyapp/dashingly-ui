@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title ng-bind-template="{{$root.people.menuTitle}}"></title>
+    <title>Realize</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <!-- font awesome from BootstrapCDN -->
 <!--     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
@@ -10,6 +10,8 @@
     <!-- token_replace_css_here -->
 
     <script data-main="require-config" src="thirdparty/requirejs/require.js"></script>
+
+     <base href="/">
   </head>
   <body ng-cloak>
     <div  class="root-container"
@@ -27,6 +29,7 @@
       <div id="widget-container" ng-controller="WidgetCtrl">
         <ng-include src="widgetData.template" ng-if="widgetData.template !== undefined"></ng-include>
       </div>
+      <ng-view></ng-view>
     </div>
 
   </body>
