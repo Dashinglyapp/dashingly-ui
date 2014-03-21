@@ -2,7 +2,6 @@ define([
     'angular',
     'angularAMD',
     'jquery',
-    'angular-ui-router',
     'ngTouch',
     'angular-ui-bootstrap',
     'html_templates_jsfied',
@@ -12,20 +11,22 @@ define([
     'lodash',
     'realize-lodash',
     'angular-charts',
-    'moment'
+    'moment',
+    'ngRoute',
+    'angular-formly'
 ], function (angular, angularAMD, $) {
     var DEBUG_MODE = false;
 
-    var module = angular.module('realize', ['ui.bootstrap', 'ui.router', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts'])
+    var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly'])
     .constant('EVENTS', {
         // auth
-        loginSuccess: 'auth-loginConfirmed',
-        loginFailed: 'auth-login-failed',
-        logoutSuccess: 'auth-logout-success',
-        tokenExpired: 'auth-token-expired',
-        notAuthenticated: 'auth-loginRequired',
-        notAuthorized: 'auth-not-authorized',
-        switchWidgetTree: 'widget-replace-tree'
+        loginSuccess: 'event:auth-loginConfirmed',
+        loginFailed: 'event:auth-login-failed',
+        logoutSuccess: 'event:auth-logout-success',
+        tokenExpired: 'event:auth-token-expired',
+        notAuthenticated: 'event:auth-loginRequired',
+        notAuthorized: 'event:auth-not-authorized',
+        switchWidgetTree: 'event:widget-replace-tree'
     })
 
     .constant('USER_ROLES', {
@@ -34,11 +35,31 @@ define([
         guest: 'guest'
     })
 
-    .config( ['$stateProvider','$urlRouterProvider','$locationProvider','$controllerProvider','$compileProvider',
-      function ($stateProvider, $urlRouterProvider, $locationProvider, $controllerProvider, $compileProvider) {
+    .config( ['$locationProvider','$controllerProvider','$compileProvider', '$routeProvider', '$provide',
+      function ($locationProvider, $controllerProvider, $compileProvider, $routeProvider, $provide) {
         // enable pushstate so urls are / instead of /#/ as root
-        $locationProvider.html5Mode(true);
-        $urlRouterProvider.otherwise('/');
+          $routeProvider
+              .when('/', { template: '', controller: 'WidgetRouteCtrl'})
+              .when('/:type', { template: '', controller: 'WidgetRouteCtrl'})
+              .when('/:type/:name', { template: '', controller: 'WidgetRouteCtrl'})
+              .otherwise({
+                  redirectTo: '/'
+              });
+          $locationProvider.html5Mode(true);
+
+           $provide.decorator('$rootScope', ['$delegate', function($delegate){
+
+            Object.defineProperty($delegate.constructor.prototype, '$onRootScope', {
+                value: function(name, listener){
+                    var unsubscribe = $delegate.$on(name, listener);
+                    this.$on('$destroy', unsubscribe);
+                },
+                enumerable: false
+            });
+
+
+            return $delegate;
+        }]);
       }
     ])
 
@@ -49,7 +70,6 @@ define([
         $root.closeMenus = function(){
           var open = false;
           if($root.showleftmenu){open = true;$root.showleftmenu = 0;}
-          if($root.showrightmenu){open = true;$root.showrightmenu = 0;}
           return open;
         };
       }

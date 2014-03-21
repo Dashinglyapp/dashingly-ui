@@ -5,6 +5,7 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
             .factory("widget", ['$rootScope','user','$q','$http','$window', '$templateCache', 'sync', function($rootScope, user,$q,$http,$window, $templateCache, sync) {
                 var activeWidgets = {};
                 var widgetTemplateList;
+                var defaultName = "default";
 
                 var api = {
                     listAll:function(){ // list all widgets
@@ -161,6 +162,15 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                             d.resolve(data);
                         });
                         return d.promise;
+                    },
+                    saveSettings: function(data){
+                        var d = $q.defer();
+                        var postData = {
+                            views: data.endpoints,
+                            parent: data.parent,
+                            name: data.name,
+                            type: data.type
+                        };
                     }
                 };
                 return api;

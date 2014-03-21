@@ -1,0 +1,6 @@
+<div class="panel panel-default">
+    <div class="panel-heading">{{widgetData.name}}</div>
+    <div class="panel-body widget-content">
+        <ng-include src="widgetData.template" ng-if="widgetData.template !== undefined"></ng-include>
+    </div>
+</div>

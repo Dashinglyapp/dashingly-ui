@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title ng-bind-template="{{$root.people.menuTitle}}"></title>
+    <title>Realize</title>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <!-- font awesome from BootstrapCDN -->
 <!--     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
@@ -10,23 +10,34 @@
     <!-- token_replace_css_here -->
 
     <script data-main="require-config" src="thirdparty/requirejs/require.js"></script>
+
+     <base href="/">
   </head>
   <body ng-cloak>
     <div  class="root-container"
           ng-swipe-left="$root.showleftmenu=0;"
-          ng-swipe-right="$root.showrightmenu=0;"
           ng-click="$root.closeMenus();"
-          hap-size
             >
 
       <div id="menus">
           <div ng-include="'partials/left-menu.tpl.html'"></div>
           <div ng-include="'partials/right-menu.tpl.html'"></div>
-          <div ng-include="'partials/top-nav.tpl.html'"></div>
+          <div class="container">
+              <div class="col-md-12">
+                <div ng-include="'partials/top-nav.tpl.html'"></div>
+              </div>
+          </div>
       </div>
       <div id="widget-container" ng-controller="WidgetCtrl">
-        <ng-include src="widgetData.template" ng-if="widgetData.template !== undefined"></ng-include>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <top-level-widget widgetData="widgetData"></top-level-widget>
+                </div>
+            </div>
+        </div>
       </div>
+      <ng-view></ng-view>
     </div>
 
   </body>
