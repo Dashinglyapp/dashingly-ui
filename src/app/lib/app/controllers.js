@@ -74,6 +74,14 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
             $scope.updateDashboards();
         });
 
+        $scope.$on('event:' + EVENTS.notAuthenticated, function() {
+            $root.$broadcast(EVENTS.switchWidgetTree, "login", "default");
+            console.log('checkLogin: auth-needed');
+        });
+
+        $scope.$on('event:' + EVENTS.loginSuccess, function() {
+            $root.$broadcast(EVENTS.switchWidgetTree, "dashboard", "default");
+        });
         $scope.$on('$viewContentLoaded', function() {
             $scope.updateDashboards();
         });
@@ -122,8 +130,11 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 $scope.pluginList = data;
             });
         };
+
         $scope.updatePlugins();
+        console.log('updating Plugins');
         $scope.$on('$viewContentLoaded', function() {
+            console.log('updating Plugins');
             $scope.updatePlugins();
         });
         $scope.addPlugin = function(pluginHashkey){

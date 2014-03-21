@@ -20,9 +20,9 @@
             >
 
       <div id="menus">
-          <left-menu></left-menu>
-          <right-menu></right-menu>
-          <top-nav></top-nav>
+          <div ng-include="'partials/left-menu.tpl.html'"></div>
+          <div ng-include="'partials/right-menu.tpl.html'"></div>
+          <div ng-include="'partials/top-nav.tpl.html'"></div>
       </div>
       <div id="widget-container" ng-controller="WidgetCtrl">
         <ng-include src="widgetData.template" ng-if="widgetData.template !== undefined"></ng-include>

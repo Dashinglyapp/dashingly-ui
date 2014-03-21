@@ -1,55 +1,8 @@
 define(['app', 'realize-debugging'], function(app){
-    app
-
-    .directive('checkLogin', ['EVENTS', '$rootScope', function(EVENTS, $root){
-            return {
-                restrict: 'C',
-                link: function(scope, elem, attrs){
-                    console.log('checkLogin');
-                    scope.$on('event:' + EVENTS.notAuthenticated, function() {
-                        $root.$broadcast(EVENTS.switchWidgetTree, "login", "default");
-                        console.log('checkLogin: auth-needed');
-                    });
-
-                    scope.$on('event:' + EVENTS.loginSuccess, function() {
-                        $root.$broadcast(EVENTS.switchWidgetTree, "dashboard", "default");
-                    });
-                }
-            };
-        }])
-
-    .directive('leftMenu', [function () {
-            return {
-                templateUrl: 'partials/left-menu.tpl.html',
-                replace: true,
-                restrict: 'E',
-                controller: 'LeftMenuCtrl',
-                link: function(scope){
-                    scope.updatePlugins();
-                }
-            };
-        }])
-
-    .directive('rightMenu', [function () {
-            return {
-                templateUrl: 'partials/right-menu.tpl.html',
-                replace: true,
-                restrict: 'E',
-                controller: 'RightMenuCtrl'
-            };
-        }])
-
-    .directive('topNav', [function () {
-            return {
-                templateUrl: 'partials/top-nav.tpl.html',
-                replace: true,
-                restrict: 'E',
-                controller: 'TopNavCtrl'
-            };
-        }])
-
 
     // adds a pseudo phone body around the content when on a desktop, for pre-beta evaluation
+    app
+
     .directive('hapSize', ['$timeout','$window', 'debugging', function ($timeout, $window, debugging) {
             return {
                 restrict: 'A',
