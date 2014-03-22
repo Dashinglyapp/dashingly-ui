@@ -1,0 +1,14 @@
+{
+    "title": "Form",
+    "controller": "FormCtrl",
+    "type": "form",
+    "version": ".1",
+    "authors": ["Realize"],
+    "tags": ["dashboard-item", "form"],
+    "plugin": "",
+    "endpointRegistration": "dynamic",
+    "endpoints": [],
+    "javascripts": ["form.js"],
+    "templates": ["form.tpl.html"],
+    "css": []
+}

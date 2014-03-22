@@ -6,6 +6,7 @@
     "authors": ["Realize"],
     "tags": ["core"],
     "plugin": "",
+    "endpointRegistration": "static",
     "endpoints": [],
     "javascripts": ["dashboard.js"],
     "templates": ["dashboard.tpl.html"],

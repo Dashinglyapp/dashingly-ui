@@ -1,12 +1,13 @@
 {
-    "title": "Github Chart",
+    "title": "Chart",
     "controller": "ChartCtrl",
-    "type": "githubchart",
+    "type": "chart",
     "version": ".1",
     "authors": ["Realize"],
-    "tags": ["dashboard-item"],
+    "tags": ["dashboard-item", "chart"],
     "plugin": "",
-    "endpoints": ["d9ec9527e5fc7c8a61d203ea97164466"],
+    "endpointRegistration": "dynamic",
+    "endpoints": [],
     "javascripts": ["chart.js"],
     "templates": ["chart.tpl.html"],
     "css": []

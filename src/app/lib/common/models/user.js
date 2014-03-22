@@ -2,7 +2,7 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
     function(angularAMD) {
         var module = angular.module('user', ['ng', 'realize-sync', 'realize-lodash']);
             module
-            .factory("user", ['$rootScope','$q', '$window', 'sync', '_', function($root,  $q,$window, sync, _) {
+            .factory("user", ['$rootScope','$q', '$window', 'sync', '_', 'EVENTS', function($root,  $q,$window, sync, _, EVENTS) {
                 // console.log('$q.defer',$q.defer);
                 var authObj;
                 var authPromise;
@@ -10,27 +10,29 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                 var profilePromise = profileDef.promise;
                 var user = {
                     token:$window.localStorage.realize_user_auth_token || '',
-                    hashkey:$window.localStorage.realize_user_hashkey || ''
+                    hashkey:$window.localStorage.realize_user_hashkey || '',
+                    authed: $window.localStorage.realize_user_auth_token !== '' && $window.localStorage.realize_user_auth_token !== undefined
                 };
                 // if user is ready, render user
                 // if user is not, render login, then do user ready
                 console.log('user copy 1',angular.copy(user));
                 var api = {
+                    authed: user.authed,
                     isAuthed:function(){
-                        return $window.localStorage.realize_user_auth_token !== '' && $window.localStorage.realize_user_auth_token !== undefined;
+                        return user.authed;
                     },
-                    hasAuth:function(){
+                    checkAuth:function(){
                         // get the user's profile
                         var d = $q.defer();
                         console.log('user token before sending',angular.copy(user.token));
                         console.log('user copy',angular.copy(user));
-                        if(user.authed){
+                        if(user.authed === true){
                             d.resolve(user);
                             return d.promise;
                         }
+                        console.log("Doing auth check.");
                         sync.auth_check({data: {token: user.token || ''}})
                             .then(function (data) {
-                                // {"authenticated": true, "email": "test@realize.pe", "hashkey": "e0be3f51228558713dc44522c651ccb2", "id": 1 }
                                 console.log('auth_check data',arguments);
                                 if(data && data.authenticated){
                                     if(!$root.user){
@@ -39,10 +41,13 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                                     d.resolve($root.user);
                                 } else {
                                     console.error('user not authenticated in hasAuth',data);
+                                    api.setProp('authed', false);
                                     d.reject(data);
                                 }
                             })
                             .catch(function (err) {
+                                console.log("Auth check failed.");
+                                api.setProp('authed', false);
                                 d.reject(err);
                             });
                         return d.promise;
@@ -67,6 +72,7 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                                 d.resolve();
                             })
                             .catch(function(err){
+                                api.setProp('authed', false);
                                 d.reject(err);
                             });
                         return d.promise;
@@ -84,11 +90,12 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                         return $root.user;
                     },
                     deAuthorize:function (data) {
-                        console.log('auth_check fail arguments',arguments);
+                        console.log('Deauthorizing user: ',arguments);
                         user = {};
                         $root.user = {};
                         delete $window.localStorage.realize_user_auth_token;
                         delete $window.localStorage.realize_user_hashkey;
+                        api.setProp('authed', false);
                         return data;
                     },
                     authorize:function (userObj) {
@@ -100,6 +107,7 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                         $window.localStorage.realize_user_auth_token = userObj.token;
                         $window.localStorage.realize_user_hashkey = userObj.hashkey;
                         api.setProp(angular.extend({authed:true},userObj));
+                        api.setProp('authed', true);
                         return $root.user;
                     }
                 };
