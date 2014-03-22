@@ -1,4 +1,15 @@
 var config = {
+    // deps:(function (files) {
+    //     var tests = [];
+    //     for (var file in files) {
+    //       if (files.hasOwnProperty(file)) {
+    //         if (/spec\.js$/.test(file)) {
+    //           tests.push(file);
+    //         }
+    //       }
+    //     } // body...
+    //     return tests;
+    // })(window.__karma__.files),
     paths: {
         // Tests
         'appSpec': 'app.spec.js',
