@@ -455,33 +455,6 @@ module.exports = function ( grunt ) {
       }
     },
 
-    protractor: {
-      options: {
-        configFile: "e2e_tests/e2e-protractor-config.js"
-      },
-      e2e: {
-        options: {
-          keepAlive: true,
-          args: {
-            browser: "chrome",
-            baseUrl: "http://<%= connect.options.host %>:<%= connect.options.port %>"
-            // seleniumServerJar:'./node_modules/grunt-protractor-runner/node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar'
-          }
-        }
-      },
-      "build-travis": {
-        options: {
-          keepAlive: false,
-          args: {
-            browser: "phantomjs",
-            baseUrl: "http://<%= cvars.www_server %>:<%= cvars.e2e_port %>"
-          }
-        }
-      }
-    },
-// node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update
-
-
     less: {
     /**
      * `recess` for LESS files concatenates, converts to CSS, copies, and optionally minifies them;
@@ -513,6 +486,34 @@ module.exports = function ( grunt ) {
         }
       }
     },
+
+
+    protractor: {
+      options: {
+        configFile: "e2e_tests/e2e-protractor-config.js"
+      },
+      e2e: {
+        options: {
+          // debug:true,
+          keepAlive: false,
+          args: {
+            browser: "chrome",
+            baseUrl: "http://<%= connect.options.host %>:<%= connect.options.port %>"
+            // seleniumServerJar:'./node_modules/grunt-protractor-runner/node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar'
+          }
+        }
+      },
+      "build-travis": {
+        options: {
+          keepAlive: false,
+          args: {
+            browser: "phantomjs",
+            baseUrl: "http://<%= cvars.www_server %>:<%= cvars.e2e_port %>"
+          }
+        }
+      }
+    },
+// node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update
 
 
     // works with grunt-protractor-runner to install the server before trying to run it
@@ -622,8 +623,8 @@ module.exports = function ( grunt ) {
 
   grunt.registerTask( 'e2e',
     grunt.file.exists('./node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar') ? // is standalone server installed?
-    ['build', 'configureProxies', 'connect:livereload', 'protractor:e2e'] : // yes, run e2e normally
-    ['shell:multiple', 'build', 'configureProxies', 'connect:livereload', 'protractor:e2e'] // no, install it first
+    ['configureProxies', 'connect:livereload', 'protractor:e2e'] : // yes, run e2e normally
+    ['shell:multiple', 'configureProxies', 'connect:livereload', 'protractor:e2e'] // no, install it first
   );
 
 
