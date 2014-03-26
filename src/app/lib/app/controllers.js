@@ -212,6 +212,91 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
         $scope.$watch(user.isAuthed, $scope.update);
 
+    }])
+
+    .controller('WidgetSettingsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', function($scope, user, sync, EVENTS, widget, $root){
+            $scope.collapseSettings = true;
+            $scope.formData = {};
+            if($scope.widgetData !== undefined){
+                $scope.settings = $scope.widgetData.settings;
+                $scope.hashkey = $scope.widgetData.hashkey;
+                $scope.tags = $scope.widgetData.tags;
+
+                $scope.formOptions = {
+                    "uniqueFormId": "settings_" + $scope.widgetData.hashkey,
+                    "submitCopy": "Save"
+                };
+
+                $scope.updateFields = function(settings){
+                    sync.views('readList', {scope: 'user', scopeHash: user.getProp('hashkey')}).then(function(viewData){
+                        var formFields = [];
+                        for(var i = 0; i < Object.keys(settings).length; i++){
+                            var key = Object.keys(settings)[i];
+                            var field = settings[key];
+
+                            var formField = {
+                                type: field.type,
+                                label: field.description,
+                                name: key,
+                                key: key
+                            };
+
+                            switch(field.type){
+                                case "endpoint":
+                                    var options = [];
+                                    for(var j = 0; j < field.meta.tags.length; j++){
+                                        for(var m = 0; m < viewData.length; m++){
+                                            if(viewData[m].tags.indexOf(field.meta.tags[j]) !== -1){
+                                                options.push({
+                                                    name: viewData[m].name,
+                                                    value: viewData[m].hashkey
+                                                });
+                                            }
+                                        }
+                                    }
+                                    formField.type = "select";
+                                    formField.options = options;
+                                    break;
+                                default:
+                                    break;
+                            }
+
+                            formFields.push(formField);
+                        }
+
+                        $scope.fields = formFields;
+                    });
+                };
+
+                $scope.showSettings = function(){
+                  $scope.collapseSettings = !$scope.collapseSettings;
+                };
+
+                $scope.save = function(){
+                    console.log("Saving settings with data", $scope.formData);
+                    var views = $scope.widgetData.endpoints;
+                    var patchData = {};
+                    for(var i = 0; i < Object.keys($scope.formData).length; i++){
+                        var key = Object.keys($scope.formData)[i];
+                        if($scope.formData[key].value !== undefined){
+                            patchData[key] = $scope.formData[key].value;
+                        } else {
+                            patchData[key] = $scope.formData[key];
+                        }
+
+                        $scope.widgetData.settings[key] = $scope.widgetData.settings[key] || {};
+                        $scope.widgetData.settings[key].value = patchData[key];
+                        if($scope.widgetData.settings[key].type === "endpoint"){
+                            views.push(patchData[key]);
+                        }
+                    }
+                    widget.saveSettings($scope.hashkey, patchData, views).then(function(){
+                        $root.$emit(EVENTS.widgetSettingsChange, $scope.hashkey);
+                    });
+                };
+
+                $scope.updateFields($scope.settings);
+            }
     }]);
 });
 

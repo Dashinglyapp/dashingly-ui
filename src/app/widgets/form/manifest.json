@@ -4,11 +4,20 @@
     "type": "form",
     "version": ".1",
     "authors": ["Realize"],
-    "tags": ["dashboard-item", "form"],
+    "tags": ["dashboard-item"],
     "plugin": "",
-    "endpointRegistration": "dynamic",
-    "endpoints": [],
     "javascripts": ["form.js"],
     "templates": ["form.tpl.html"],
-    "css": []
+    "css": [],
+    "settings":{
+        "source": {
+            "type": "endpoint",
+            "description": "Data to enter",
+            "meta": {
+                "tags": ["form"]
+            },
+            "required": true,
+            "default": "482b2228e1992df89d1c69b7913ee03d"
+        }
+    }
 }

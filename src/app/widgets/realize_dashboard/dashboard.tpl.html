@@ -11,12 +11,6 @@
         </ul>
     </div>
     <div ng-repeat="widgetData in loadedWidgets">
-        <div class="panel panel-default">
-            <div class="panel-heading">{{widgetData.name}}</div>
-                <div class="panel-body widget-content">
-                    <ng-include src="widgetData.template" ng-show="widgetData.template !== undefined"></ng-include>
-                </div>
-            </div>
-        </div>
+        <top-level-widget widgetData="widgetData"></top-level-widget>
     </div>
 </div>

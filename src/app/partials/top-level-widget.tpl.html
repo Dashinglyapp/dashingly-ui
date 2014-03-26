@@ -1,5 +1,12 @@
 <div class="panel panel-default">
-    <div class="panel-heading">{{widgetData.name}}</div>
+    <div class="panel-heading" ng-controller="WidgetSettingsCtrl">
+        {{widgetData.name}}
+        <a class="btn btn-default" ng-click="showSettings()" ng-if="widgetData !== undefined"><span class="fa fa-gear"></span> </a>
+        <div collapse="collapseSettings">
+           <formly-form result="formData" fields="fields" options="formOptions" ng-submit="save()">
+           </formly-form>
+        </div>
+	</div>
     <div class="panel-body widget-content">
         <ng-include src="widgetData.template" ng-if="widgetData.template !== undefined"></ng-include>
     </div>

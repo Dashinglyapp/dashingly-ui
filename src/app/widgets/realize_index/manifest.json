@@ -6,8 +6,6 @@
     "authors": ["Realize"],
     "tags": ["core"],
     "plugin": "",
-    "endpointRegistration": "static",
-    "endpoints": [],
     "javascripts": ["index.js"],
     "templates": ["index.tpl.html"],
     "css": []

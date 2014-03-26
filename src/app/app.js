@@ -26,7 +26,8 @@ define([
         tokenExpired: 'event:auth-token-expired',
         notAuthenticated: 'event:auth-loginRequired',
         notAuthorized: 'event:auth-not-authorized',
-        switchWidgetTree: 'event:widget-replace-tree'
+        switchWidgetTree: 'event:widget-replace-tree',
+        widgetSettingsChange: 'event:change-settings'
     })
 
     .constant('USER_ROLES', {

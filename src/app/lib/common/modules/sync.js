@@ -81,6 +81,7 @@ define(['angularAMD', 'http-auth-interceptor'],
                     promise = normalizeResponseData($http.get(route + "/" + options.resourceHash + "/tree"));
                     return promise;
                 case 'update':
+                    promise = normalizeResponseData($http({method: 'PATCH', url: route + "/" + options.resourceHash, data: options.data}));
                     break;
                 case 'delete':
                     break;
