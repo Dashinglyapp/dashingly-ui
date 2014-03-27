@@ -1,4 +1,5 @@
 <div ng-controller="FormCtrl">
-    <formly-form result="formData" fields="formFields" options="formOptions" ng-submit="save()">
-    </formly-form>
+    <div ng-if="formData">
+        <widget-content></widget-content>
+    </div>
 </div>

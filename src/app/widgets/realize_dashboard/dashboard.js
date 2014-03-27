@@ -1,5 +1,5 @@
 define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'realize-sync'], function(app, angularAMD, angular, $){
-        app.register.controller('WidgetDashboardCtrl', ['$scope', 'widget', 'widgetMeta', '$element', '$rootScope', 'sync', 'user', 'EVENTS', function($scope, widget, widgetMeta, $element, $root, sync, user, EVENTS){
+        app.register.controller('WidgetDashboardCtrl', ['$scope', 'widget', 'widgetMeta', '$element', '$rootScope', 'sync', 'user', 'EVENTS', 'screen', function($scope, widget, widgetMeta, $element, $root, sync, user, EVENTS, screen){
             $scope.hashkey = $scope.widgetData.hashkey;
             console.log("Loaded dashboard widget", $scope.hashkey);
             $scope.data = widget.detail($scope.hashkey).then(function(data){
@@ -30,6 +30,8 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
                     }
                 }
                 widgetObj.defaultSettings = widgetSettings;
+                var screenFormat = screen.getFormat();
+                widgetObj.currentView = widgetObj.display.defaults[screenFormat];
                 console.log("Adding a widget to the dashboard: ", widgetObj);
                 widget.create(widgetObj).then(function(data){
                     data.rendered = true;
@@ -61,6 +63,7 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
                     console.log("Rendering widget: ", widgetData, data);
                     data.hashkey = widgetData.hashkey;
                     data.endpoints = widgetData.views;
+                    data.currentView = widgetObj.current_view;
                     for(var i = 0; i < Object.keys(data.settings).length; i++){
                         var key = Object.keys(data.settings)[i];
                         var setting = data.settings[key];

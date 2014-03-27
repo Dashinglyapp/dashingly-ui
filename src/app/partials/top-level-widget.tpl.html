@@ -1,11 +1,33 @@
 <div class="panel panel-default">
     <div class="panel-heading" ng-controller="WidgetSettingsCtrl">
         {{widgetData.name}}
-        <a class="btn btn-default" ng-click="showSettings()" ng-if="widgetData !== undefined"><span class="fa fa-gear"></span> </a>
-        <div collapse="collapseSettings">
+        <div class="widget-actions" ng-if="widgetData !== undefined">
+            <div ng-if="widgetData.display !== undefined && widgetData.display.views !== undefined" class="widget-action dropdown">
+                <a class="btn btn-default dropdown-toggle">
+                    <span class="fa fa-caret-down"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="(key, value) in widgetData.display.views">
+                      <a ng-click="changeView(key)">{{key}}</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="widget-action" ng-if="widgetData.settings !== undefined">
+                  <a class="btn btn-default" ng-click="showSettings()"><span class="fa fa-gear" ></span> </a>
+            </div>
+
+            <div class="widget-action" ng-if="widgetData.settings !== undefined">
+                  <a class="btn btn-default" ng-click="refreshWidget()"><span class="fa fa-refresh" ></span> </a>
+            </div>
+
+        </div>
+
+         <div collapse="collapseSettings">
            <formly-form result="formData" fields="fields" options="formOptions" ng-submit="save()">
            </formly-form>
-        </div>
+         </div>
+
 	</div>
     <div class="panel-body widget-content">
         <ng-include src="widgetData.template" ng-if="widgetData.template !== undefined"></ng-include>

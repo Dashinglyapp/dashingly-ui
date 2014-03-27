@@ -35,7 +35,8 @@ var config = {
 
         // Common app models
         'widget': 'lib/common/models/widget',
-        'user': 'lib/common/models/user'
+        'user': 'lib/common/models/user',
+        'screen': 'lib/common/models/screen'
     },
     shim: {
         'angular' : {'deps': ['jquery'], 'exports' : 'angular'},

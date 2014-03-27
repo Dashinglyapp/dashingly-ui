@@ -146,7 +146,8 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                             parent: data.parent,
                             name: data.name,
                             type: data.type,
-                            settings: data.defaultSettings || {}
+                            settings: data.defaultSettings || {},
+                            current_view: data.currentView
                         };
                         sync.resource("create", {scope: "user", scopeHash: user.getProp('hashkey'), data: postData})
                             .then(function(data){
@@ -173,6 +174,16 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                          sync.resource("update", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: hashkey, data: data})
                             .then(function(data){
                                 console.log("Updated settings for widget: ", data);
+                                d.resolve(data);
+                            });
+                        return d.promise;
+                    },
+                    saveView: function(hashkey, viewName){
+                        var d = $q.defer();
+                        var data = {current_view: viewName};
+                         sync.resource("update", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: hashkey, data: data})
+                            .then(function(data){
+                                console.log("Updated view for widget: ", data);
                                 d.resolve(data);
                             });
                         return d.promise;

@@ -227,6 +227,13 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                     "submitCopy": "Save"
                 };
 
+                $scope.changeView = function(viewName){
+                  widget.saveView($scope.hashkey, viewName).then(function(){
+                        $root.$emit(EVENTS.widgetViewChange, $scope.hashkey, viewName);
+                        $scope.widgetData.currentView = viewName;
+                    });
+                };
+
                 $scope.updateFields = function(settings){
                     sync.views('readList', {scope: 'user', scopeHash: user.getProp('hashkey')}).then(function(viewData){
                         var formFields = [];
@@ -270,6 +277,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
                 $scope.showSettings = function(){
                   $scope.collapseSettings = !$scope.collapseSettings;
+                };
+
+                $scope.refreshWidget = function(){
+                    $root.$emit(EVENTS.widgetSettingsChange, $scope.hashkey);
                 };
 
                 $scope.save = function(){

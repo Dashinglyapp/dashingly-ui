@@ -23,6 +23,14 @@ define(['app', 'angular', 'moment'], function(app, angular, moment){
                     formFields.push(formField);
                 }
                 $scope.formFields = formFields;
+
+              $scope.viewData = {
+                form: {
+                    formData: $scope.formData,
+                    formFields: $scope.formFields,
+                    formOptions: $scope.formOptions
+                }
+              };
             });
         };
 

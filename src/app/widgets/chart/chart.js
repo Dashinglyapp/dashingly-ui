@@ -1,6 +1,7 @@
 define(['app', 'angular', 'moment', 'angular-charts'], function(app, angular, moment){
     app.register.controller('ChartCtrl', ['$scope', 'sync', 'user', 'EVENTS', function($scope, sync, user, EVENTS){
         $scope.hashkey = $scope.widgetData.hashkey;
+        $scope.chartType = "line";
 
         $scope.render = function(){
             sync.views('readOne', {scope: 'user', scopeHash: user.getProp('hashkey'), resourceHash: $scope.widgetData.settings.source.value}).then(function(data){
@@ -40,6 +41,23 @@ define(['app', 'angular', 'moment', 'angular-charts'], function(app, angular, mo
                 $scope.chartData = {
                     series: series,
                     data: chartData
+                };
+
+                if(chartData.length > 0){
+                    $scope.number = chartData[chartData.length - 1].y[0];
+                } else {
+                    $scope.number = 0;
+                }
+
+                $scope.viewData = {
+                    "chart": {
+                        "chartData": $scope.chartData,
+                        "chartType": $scope.chartType,
+                        "chartConfig": $scope.chartConfig
+                    },
+                    "number": {
+                        "number": $scope.number
+                    }
                 };
             });
         };
