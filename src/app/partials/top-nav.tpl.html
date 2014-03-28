@@ -11,16 +11,19 @@
       </button>
       <a href="/" class="navbar-brand">Realize</a>
     </div>
-    <div class="navbar-collapse" collapse="isCollapsed">
+    <div class="navbar-collapse navbar-right" collapse="isCollapsed">
       <ul class="nav navbar-nav">
         <li ng-if="authed">
-          <a class="plugins-dropdown fa fa-gear"
+          <a class="plugins-dropdown"
              ng-click="$root.showleftmenu=1;$event.stopPropagation();">
+              <span class="fa fa-gear"></span>
+              Settings
           </a>
         </li>
         <li class="dashboard-dropdown dropdown" ng-controller="DashboardsCtrl" ng-if="authed">
           <a class="dropdown-toggle">
             <span class="fa fa-dashboard"></span>
+            Dashboards
           </a>
           <ul class="dropdown-menu">
             <li ng-repeat="dash in dashboards" ng-click="switchDashboard(dash.name)">
@@ -30,18 +33,32 @@
             </li>
           </ul>
         </li>
-          <li class="authorizations dropdown" ng-if="authed">
-              <a class="dropdown-toggle">
-                  <span class="fa fa-user"></span>
-              </a>
-              <ul class="dropdown-menu">
-                  <li ng-repeat="auth in authorizationList">
-                      <a ng-click="authRedirect(auth)"><span ng-class="(auth.active==true) ? 'fa fa-minus' : 'fa fa-plus'"></span> {{auth.name}}</a>
-                  </li>
-              </ul>
-          </li>
+      <li class="authorizations dropdown" ng-if="authed">
+          <a class="dropdown-toggle">
+              <span class="fa fa-user"></span>
+              Authorizations
+          </a>
+          <ul class="dropdown-menu">
+              <li ng-repeat="auth in authorizationList">
+                  <a ng-click="authRedirect(auth)"><span ng-class="(auth.active==true) ? 'fa fa-minus' : 'fa fa-plus'"></span> {{auth.name}}</a>
+              </li>
+          </ul>
+      </li>
         <li class="help" ng-if="authed">
-          <a class="fa fa-power-off" ng-click="logout()" >
+          <a ng-click="logout()" >
+              Logout
+          </a>
+        </li>
+
+        <li class="help" ng-if="!authed">
+          <a ng-click="login()" >
+              Login
+          </a>
+        </li>
+
+          <li class="help" ng-if="!authed">
+          <a ng-click="register()" >
+              Sign Up
           </a>
         </li>
       </ul>

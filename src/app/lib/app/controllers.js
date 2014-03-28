@@ -25,24 +25,34 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 });
             };
 
-            $scope.replace = function (widgetType, widgetName) {
-                console.log("Replacing content with widget with type", widgetType, "and name", widgetName);
-                user.checkAuth().then(function(profile){
-                    console.log("User is authenticated.");
-                    widget.listInstalledByTypeAndName(widgetType, widgetName).then(function(data){
-                        console.log("Listing widget by type", widgetType, "and name", widgetName, "got data", data);
-                        if(data.length === 0){
-                            widget.create({name: widgetName, type: widgetType}).then(function(data){
-                                $scope.setupWidget(data);
-                            });
-                        } else {
-                            $scope.setupWidget(data[0]);
-                        }
-                    });
-                }, function(reason){
-                    console.log("Unathenticated user.  Initializing default widget version.");
-                    $scope.setupWidget({type: widgetType, name: widgetName, hashkey: ""});
+            $scope.setupWidgetWithData = function(widgetType, widgetName){
+                widget.listInstalledByTypeAndName(widgetType, widgetName).then(function(data){
+                    console.log("Listing widget by type", widgetType, "and name", widgetName, "got data", data);
+                    if(data.length === 0){
+                        widget.create({name: widgetName, type: widgetType}).then(function(data){
+                            $scope.setupWidget(data);
+                        });
+                    } else {
+                        $scope.setupWidget(data[0]);
+                    }
                 });
+            };
+
+            $scope.replace = function (widgetType, widgetName) {
+                 widget.loadWidget(widgetType).then(function(widgetObj){
+                    console.log("Replacing content with widget with type", widgetType, "and name", widgetName);
+                    if(!widgetObj.noAuth){
+                        user.checkAuth().then(function(profile){
+                            console.log("User is authenticated.");
+                            $scope.setupWidgetWithData(widgetType, widgetName);
+                        }, function(reason){
+                            console.log("Unathenticated user.  Initializing default widget version.");
+                            $scope.setupWidget({type: widgetType, name: widgetName, hashkey: ""});
+                        });
+                    } else {
+                        $scope.setupWidget({type: widgetType, name: widgetName, hashkey: ""});
+                    }
+                 });
             };
 
             $scope.switchWidget = function(event, widgetType, widgetName){
@@ -54,16 +64,14 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
             $scope.$onRootScope(EVENTS.switchWidgetTree,function (event, widgetType, widgetName) {
                 console.log("WidgetCtrl widget change event", widgetType, widgetName);
-                if(widgetType !== "index"){
-                    $scope.switchWidget(event, widgetType, widgetName);
-                } else {
-                    $scope.setupWidget({type: 'index', name: 'default', hashkey: ""});
-                }
+                $scope.switchWidget(event, widgetType, widgetName);
             });
 
-            $scope.$onRootScope(EVENTS.notAuthenticated, function() {
-                $scope.setupWidget({type: 'login', name: 'default', hashkey: ""});
-                console.log('checkLogin: auth-needed');
+            $scope.$onRootScope(EVENTS.notAuthenticated, function(event) {
+                if($scope.currentWidget.type !== "index"){
+                    $scope.switchWidget(event, "index", "default");
+                    console.log('checkLogin: auth-needed');
+                }
             });
 
             $scope.$onRootScope(EVENTS.loginSuccess, function() {
@@ -71,9 +79,9 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 $scope.switchWidget(EVENTS.switchWidgetTree, "dashboard", "default");
             });
 
-             $scope.$onRootScope(EVENTS.logoutSuccess, function() {
+             $scope.$onRootScope(EVENTS.logoutSuccess, function(event) {
                  console.log("WidgetCtrl logout success");
-                $scope.setupWidget({type: 'index', name: 'default', hashkey: ""});
+                $scope.switchWidget(event, "index", "default");
             });
 
             $root.initialRenderDone = true;
@@ -144,6 +152,14 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                 console.log("Authorization list: ", data);
                 $scope.authorizationList = data;
             });
+        };
+
+        $scope.login = function(){
+            $root.$emit(EVENTS.switchWidgetTree, "login", "default");
+        };
+
+        $scope.register = function(){
+            $root.$emit(EVENTS.switchWidgetTree, "register", "default");
         };
 
         $scope.authed = false;
@@ -307,6 +323,15 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                     }
                     widget.saveSettings($scope.hashkey, patchData, views).then(function(){
                         $root.$emit(EVENTS.widgetSettingsChange, $scope.hashkey);
+                    });
+                };
+
+                $scope.deleteWidget = function(){
+                    console.log("Deleting widget with data", $scope.widgetData);
+                    widget.remove($scope.hashkey).then(function(data){
+                        for(var i = 0; i < $scope.widgetData.parents.length; i++){
+                            $root.$emit(EVENTS.widgetSettingsChange, $scope.widgetData.parents[i]);
+                        }
                     });
                 };
 

@@ -19,20 +19,18 @@
           ng-click="$root.closeMenus();"
             >
 
-      <div id="menus">
+      <div id="menus" class="container">
           <div ng-include="'partials/left-menu.tpl.html'"></div>
-          <div class="container">
+          <div class="row">
               <div class="col-md-12">
                 <div ng-include="'partials/top-nav.tpl.html'"></div>
               </div>
           </div>
       </div>
-      <div id="widget-container" ng-controller="WidgetCtrl">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <top-level-widget widgetData="widgetData"></top-level-widget>
-                </div>
+      <div id="widget-container" ng-controller="WidgetCtrl" class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <top-level-widget widgetData="widgetData"></top-level-widget>
             </div>
         </div>
       </div>

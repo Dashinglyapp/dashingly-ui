@@ -1,0 +1,13 @@
+define(['app', 'angular'], function(app, angular){
+    app.register.controller('RegisterCtrl', ['$scope','$q','$window', 'user', 'authService', 'sync', function($scope,$q,$window,user, authService, sync){
+        console.log('RegisterCtrl scope',$scope);
+        $scope.data = {};
+
+        $scope.register = function () {
+            user.loginOrRegister($scope.data, "register").then(function(){
+
+            });
+        };
+    }]);
+});
+

@@ -8,5 +8,6 @@
     "plugin": "",
     "javascripts": ["login.js"],
     "templates": ["login.tpl.html"],
-    "css": []
+    "css": [],
+    "noAuth": true
 }

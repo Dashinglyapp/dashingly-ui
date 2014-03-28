@@ -27,11 +27,12 @@ module.exports = function ( grunt ) {
   grunt.loadNpmTasks("grunt-shell");
   grunt.loadNpmTasks('grunt-connect-proxy');
   grunt.loadNpmTasks('grunt-protractor-runner');
+  grunt.loadNpmTasks('grunt-connect-rewrite');
 
   // require libs
   var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
   var pathLib = require('path');
-
+  var rewriteRulesSnippet = require('grunt-connect-rewrite/lib/utils').rewriteRequest;
 
   /**
    * directoryPaths provides shortcuts used in the rest of this file, to avoid path repetition
@@ -174,6 +175,10 @@ module.exports = function ( grunt ) {
         // change this to '0.0.0.0' to access the server from outside
         hostname: 'localhost'
       },
+      rules: [
+            {from: '^/$', to: '/app', redirect: 'permanent'},
+            {from: '^/app/([^\.]{5,})$', to: '/app/index.html'}
+      ],
       proxies: [
         {
           context: '/api/v1/',
@@ -196,6 +201,7 @@ module.exports = function ( grunt ) {
           middleware: function (connect) {
             return [
               proxySnippet,
+              rewriteRulesSnippet,
               connect.static(pathLib.resolve(grunt.config.get('build.dirs.root')))
             ];
           }
@@ -617,7 +623,7 @@ module.exports = function ( grunt ) {
   grunt.registerTask( 'unit', ['buildSpec', 'karma:unit:run']);
 
   // Initialize the dev setup - it does a clean build before watching for changes
-  grunt.registerTask( 'dev', ['build', 'configureProxies','connect:livereload', 'karma:unit', 'watch' ]);
+  grunt.registerTask( 'dev', ['build', 'configureProxies', 'configureRewriteRules', 'connect:livereload', 'karma:unit', 'watch' ]);
 
   grunt.registerTask( 'e2e',
     grunt.file.exists('./node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar') ? // is standalone server installed?
