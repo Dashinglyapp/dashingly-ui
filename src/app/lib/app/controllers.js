@@ -1,6 +1,6 @@
 define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(app, angular, $){
     app
-        .controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', function($root, $scope, user, widget, widgetMeta, EVENTS){
+        .controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', function($root, $scope, user, widget, widgetMeta, EVENTS, $location){
             $scope.widgetMeta = widgetMeta;
             $scope.widgetData = undefined;
             $scope.currentWidget = {
@@ -18,6 +18,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                     widgetMeta.setTopLevelWidget(widgetObj);
                     $scope.widgetData = widgetObj;
                     console.log("Top level widget: ", $scope.widgetMeta.getTopLevelWidget());
+                    $location.path(data.type + "/" + data.name);
+                    if(!$scope.$$phase) {
+                      $scope.apply();
+                    }
                 });
             };
 

@@ -192,11 +192,11 @@ module.exports = function ( grunt ) {
       ],
       livereload: {
         options: {
-          base: '<%= build.dirs.app %>',
+          base: '<%= build.dirs.root %>',
           middleware: function (connect) {
             return [
               proxySnippet,
-              connect.static(pathLib.resolve(grunt.config.get('build.dirs.app')))
+              connect.static(pathLib.resolve(grunt.config.get('build.dirs.root')))
             ];
           }
         }
@@ -245,7 +245,7 @@ module.exports = function ( grunt ) {
                 jsStr += '    <script type="text/javascript" src="' + newStr + '"></script>\n';
               } else {
                 // wrap the css with the appropriate tag
-                cssStr += '    <link rel="stylesheet" type="text/css" href="' + newStr + '" />\n';
+                cssStr += '    <link rel="stylesheet" type="text/css" href="/app/' + newStr + '" />\n';
               }
             });
             // expand the list of test files and append them to the karma files array

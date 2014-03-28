@@ -20,7 +20,7 @@ $ bower install    # installs js/css dependencies in your /bower_components/ dir
 $ grunt dev   # starts the dev environment
 ```
 After typing ```grunt dev```, you should see the unit test runner open a new Chrome browser window.
-Click [http://localhost:8000](http://localhost:8000) to open the application in your default browser.
+Click [http://localhost:8000/app](http://localhost:8000/app) to open the application in your default browser.
 
 And Boom!  You're set up to hack on any of the project's HTML/JavaScript/AngularJS code.  Making changes to those files in the src/ directory will also reload your page automatically.  Happy hacking!
 
@@ -218,7 +218,7 @@ $ grunt
 
 This will perform a build and then a compile. The compiled site - ready for
 uploading to the server! - is located in `dist/`. To test that your full site works as
-expected, open the same url as for build - ```http://localhost:8000``` in your browser. Voila!
+expected, open the same url as for build - ```http://localhost:8000/app``` in your browser. Voila!
 
 ### Continuous Integration
 

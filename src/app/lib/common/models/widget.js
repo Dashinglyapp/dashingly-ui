@@ -14,7 +14,7 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                             d.resolve(angular.copy(widgetTemplateList));
                             return d.promise;
                         }
-                        $http.get('/data/widgetList.json').then(function  (obj) {
+                        $http.get('data/widgetList.json').then(function  (obj) {
                             widgetTemplateList = obj.data;
                             d.resolve(widgetTemplateList);
                         });

@@ -1,4 +1,5 @@
 var config = {
+    baseUrl: "/app",
     paths: {
         // Third party
         'angular': 'thirdparty/angular/angular',
