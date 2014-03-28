@@ -35,8 +35,7 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                             console.log('$stateChangeStart to ' + toState.to + '- fired when the transition begins. toState,toParams : \n',toState, toParams);
                         });
                         $rootScope.$on('$stateChangeError',function(event, toState, toParams, fromState, fromParams){
-                            console.log('$stateChangeError - fired when an error occurs during transition.');
-                            console.log(arguments);
+                            console.log('$stateChangeError - fired when an error occurs during transition.', arguments);
                         });
                         $rootScope.$on('$stateChangeSuccess',function(event, toState, toParams, fromState, fromParams){
                             console.log('$stateChangeSuccess to ' + toState.name + '- fired once the state transition is complete.');

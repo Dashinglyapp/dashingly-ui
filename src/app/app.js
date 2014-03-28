@@ -13,11 +13,12 @@ define([
     'angular-charts',
     'moment',
     'ngRoute',
-    'angular-formly'
+    'angular-formly',
+    'screen'
 ], function (angular, angularAMD, $) {
     var DEBUG_MODE = false;
 
-    var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly'])
+    var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen'])
     .constant('EVENTS', {
         // auth
         loginSuccess: 'event:auth-loginConfirmed',
@@ -26,7 +27,9 @@ define([
         tokenExpired: 'event:auth-token-expired',
         notAuthenticated: 'event:auth-loginRequired',
         notAuthorized: 'event:auth-not-authorized',
-        switchWidgetTree: 'event:widget-replace-tree'
+        switchWidgetTree: 'event:widget-replace-tree',
+        widgetSettingsChange: 'event:change-settings',
+        widgetViewChange: 'event:widget-view-change'
     })
 
     .constant('USER_ROLES', {
