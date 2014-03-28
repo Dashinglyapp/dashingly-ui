@@ -1,5 +1,4 @@
-var config = {
-    baseUrl: "/app",
+require.config({
     paths: {
         // Third party
         'angular': 'thirdparty/angular/angular',
@@ -37,7 +36,10 @@ var config = {
         // Common app models
         'widget': 'lib/common/models/widget',
         'user': 'lib/common/models/user',
-        'screen': 'lib/common/models/screen'
+        'screen': 'lib/common/models/screen',
+
+        //Loader
+        'bootstrap': 'bootstrap'
     },
     shim: {
         'angular' : {'deps': ['jquery'], 'exports' : 'angular'},
@@ -67,21 +69,18 @@ var config = {
         },
         'ngload': {
             deps: ['angularAMD']
+        },
+        'angular-formly': {
+            deps: ['angular']
+        },
+        'ngRoute': {
+            deps: ['angular']
         }
     },
     priority: [
         "angular"
+    ],
+    deps: [
+        "bootstrap"
     ]
-};
-
-require.config(config);
-
-require(['angularAMD'], function(angularAMD) {
-
-    // require the application
-    require(['app', 'controllers', 'directives'], function(app) {
-
-        // bootstrap the application
-        angularAMD.bootstrap(app, true, document);
-    });
 });

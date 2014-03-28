@@ -1,5 +1,5 @@
-define([],
-    function() {
+define(['angular'],
+    function(angular) {
 
         var lodash = angular.module('realize-lodash', []);
         lodash.factory('_', function() {
