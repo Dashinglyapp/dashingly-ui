@@ -8,5 +8,6 @@
     "plugin": "",
     "javascripts": ["index.js"],
     "templates": ["index.tpl.html"],
-    "css": []
+    "css": [],
+    "noAuth": true
 }

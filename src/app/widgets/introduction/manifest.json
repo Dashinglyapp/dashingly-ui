@@ -1,0 +1,28 @@
+{
+    "title": "Introduction",
+    "controller": "IntroCtrl",
+    "type": "intro",
+    "version": ".1",
+    "authors": ["Realize"],
+    "tags": ["dashboard-item"],
+    "plugin": "",
+    "javascripts": ["introduction.js"],
+    "templates": ["introduction.tpl.html"],
+    "css": [],
+    "display": {
+        "views": {
+            "long": {
+                "type": "custom",
+                "formats": ["desktop"]
+            },
+            "short": {
+                "type": "custom",
+                "formats": ["mobile"]
+            }
+        },
+        "defaults": {
+            "desktop": "long",
+            "mobile": "short"
+        }
+    }
+}

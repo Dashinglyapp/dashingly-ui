@@ -9,9 +9,12 @@
     <!-- compiled CSS -->
     <!-- token_replace_css_here -->
 
-    <script data-main="require-config" src="thirdparty/requirejs/require.js"></script>
+    <!-- token_replace_thirdparty_js_here -->
+    <!-- token_replace_js_here -->
 
-     <base href="/">
+    <script data-main="require-config" src="/app/thirdparty/requirejs/require.js"></script>
+
+    <base href="/app/">
   </head>
   <body ng-cloak>
     <div  class="root-container"
@@ -19,20 +22,18 @@
           ng-click="$root.closeMenus();"
             >
 
-      <div id="menus">
+      <div id="menus" class="container">
           <div ng-include="'partials/left-menu.tpl.html'"></div>
-          <div class="container">
+          <div class="row">
               <div class="col-md-12">
                 <div ng-include="'partials/top-nav.tpl.html'"></div>
               </div>
           </div>
       </div>
-      <div id="widget-container" ng-controller="WidgetCtrl">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <top-level-widget widgetData="widgetData"></top-level-widget>
-                </div>
+      <div id="widget-container" ng-controller="WidgetCtrl" class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <top-level-widget widgetData="widgetData"></top-level-widget>
             </div>
         </div>
       </div>

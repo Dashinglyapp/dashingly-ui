@@ -4,7 +4,6 @@ define([
     'jquery',
     'ngTouch',
     'angular-ui-bootstrap',
-    'html_templates_jsfied',
     'realize-debugging',
     'user',
     'widget',
@@ -14,7 +13,8 @@ define([
     'moment',
     'ngRoute',
     'angular-formly',
-    'screen'
+    'screen',
+    'ngload'
 ], function (angular, angularAMD, $) {
     var DEBUG_MODE = false;
 

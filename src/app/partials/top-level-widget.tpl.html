@@ -1,6 +1,5 @@
-<div class="panel panel-default">
-    <div class="panel-heading" ng-controller="WidgetSettingsCtrl">
-        {{widgetData.name}}
+<div class="widget" ng-class="(widgetData.name.substring(0, 8) === 'realize_') ? '' : 'widget-border'">
+    <div class="widget-heading" ng-controller="WidgetSettingsCtrl">
         <div class="widget-actions" ng-if="widgetData !== undefined">
             <div ng-if="widgetData.display !== undefined && widgetData.display.views !== undefined" class="widget-action dropdown">
                 <a class="btn btn-default dropdown-toggle">
@@ -14,13 +13,16 @@
             </div>
 
             <div class="widget-action" ng-if="widgetData.settings !== undefined">
+                  <a class="btn btn-default" ng-click="refreshWidget()"><span class="fa fa-refresh" ></span> </a>
+            </div>
+
+            <div class="widget-action" ng-if="widgetData.settings !== undefined">
                   <a class="btn btn-default" ng-click="showSettings()"><span class="fa fa-gear" ></span> </a>
             </div>
 
             <div class="widget-action" ng-if="widgetData.settings !== undefined">
-                  <a class="btn btn-default" ng-click="refreshWidget()"><span class="fa fa-refresh" ></span> </a>
+                  <a class="btn btn-default" ng-click="deleteWidget()"><span class="fa fa-trash-o" ></span> </a>
             </div>
-
         </div>
 
          <div collapse="collapseSettings">
@@ -29,7 +31,7 @@
          </div>
 
 	</div>
-    <div class="panel-body widget-content">
+    <div class="widget-body widget-content">
         <ng-include src="widgetData.template" ng-if="widgetData.template !== undefined"></ng-include>
     </div>
 </div>

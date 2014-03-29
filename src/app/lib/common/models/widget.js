@@ -14,7 +14,7 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                             d.resolve(angular.copy(widgetTemplateList));
                             return d.promise;
                         }
-                        $http.get('/data/widgetList.json').then(function  (obj) {
+                        $http.get('data/widgetList.json').then(function  (obj) {
                             widgetTemplateList = obj.data;
                             d.resolve(widgetTemplateList);
                         });
@@ -155,6 +155,14 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                                 d.resolve(data);
                             });
 
+                        return d.promise;
+                    },
+                    remove: function(hashkey){
+                        var d = $q.defer();
+                        sync.resource('remove', {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: hashkey}).then(function(data){
+                            console.log("Got widget detail: ", data);
+                            d.resolve(data);
+                        });
                         return d.promise;
                     },
                     detail:function(hashkey){

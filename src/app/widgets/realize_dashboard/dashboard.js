@@ -2,15 +2,17 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
         app.register.controller('WidgetDashboardCtrl', ['$scope', 'widget', 'widgetMeta', '$element', '$rootScope', 'sync', 'user', 'EVENTS', 'screen', function($scope, widget, widgetMeta, $element, $root, sync, user, EVENTS, screen){
             $scope.hashkey = $scope.widgetData.hashkey;
             console.log("Loaded dashboard widget", $scope.hashkey);
-            $scope.data = widget.detail($scope.hashkey).then(function(data){
-                $scope.widgets = data.related;
-                for(var i = 0; i < $scope.widgets.length; i++){
-                    $scope.widgets[i].rendered = false;
-                }
-                $scope.renderWidgets();
-            });
 
-            $scope.loadedWidgets = [];
+            $scope.setupDashboard = function(){
+                $scope.data = widget.detail($scope.hashkey).then(function(data){
+                    $scope.widgets = data.related;
+                    for(var i = 0; i < $scope.widgets.length; i++){
+                        $scope.widgets[i].rendered = false;
+                    }
+                    $scope.renderWidgets();
+                });
+                $scope.loadedWidgets = [];
+            };
 
             $scope.add = function(widgetObj){
                 var timestamp = new Date().getTime();
@@ -64,6 +66,7 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
                     data.hashkey = widgetData.hashkey;
                     data.endpoints = widgetData.views;
                     data.currentView = widgetObj.current_view;
+                    data.parents = widgetObj.parents;
                     for(var i = 0; i < Object.keys(data.settings).length; i++){
                         var key = Object.keys(data.settings)[i];
                         var setting = data.settings[key];
@@ -81,6 +84,15 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
                   }
               }
             };
+
+            $scope.$onRootScope(EVENTS.widgetSettingsChange, function(event, widgetKey) {
+                console.log("Dashboard received settings change event", widgetKey);
+                if(widgetKey === $scope.hashkey){
+                    $scope.setupDashboard();
+                }
+            });
+
+            $scope.setupDashboard();
 
             $scope.getAvailableTree();
 

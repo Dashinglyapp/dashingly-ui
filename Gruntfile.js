@@ -27,11 +27,14 @@ module.exports = function ( grunt ) {
   grunt.loadNpmTasks("grunt-shell");
   grunt.loadNpmTasks('grunt-connect-proxy');
   grunt.loadNpmTasks('grunt-protractor-runner');
+  grunt.loadNpmTasks('grunt-connect-rewrite');
+  grunt.loadNpmTasks('grunt-contrib-requirejs');
+  grunt.loadNpmTasks('grunt-contrib-copy');
 
   // require libs
   var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
   var pathLib = require('path');
-
+  var rewriteRulesSnippet = require('grunt-connect-rewrite/lib/utils').rewriteRequest;
 
   /**
    * directoryPaths provides shortcuts used in the rest of this file, to avoid path repetition
@@ -87,7 +90,10 @@ module.exports = function ( grunt ) {
       dirs:{
         root:'dist/',
         app:'<%= compile.dirs.root %>app/',
-        assets:'<%= compile.dirs.app %>assets/'
+        assets:'<%= compile.dirs.app %>assets/',
+        widgets: '<%= compile.dirs.app %>widgets/',
+        partials: '<%= compile.dirs.app %>partials/',
+        data:'<%= compile.dirs.app%>data/'
       }
     }
   };
@@ -174,6 +180,10 @@ module.exports = function ( grunt ) {
         // change this to '0.0.0.0' to access the server from outside
         hostname: 'localhost'
       },
+      rules: [
+            {from: '^/$', to: '/app', redirect: 'permanent'},
+            {from: '^/app/([^\.]{5,})$', to: '/app/index.html'}
+      ],
       proxies: [
         {
           context: '/api/v1/',
@@ -192,11 +202,12 @@ module.exports = function ( grunt ) {
       ],
       livereload: {
         options: {
-          base: '<%= build.dirs.app %>',
+          base: '<%= build.dirs.root %>',
           middleware: function (connect) {
             return [
               proxySnippet,
-              connect.static(pathLib.resolve(grunt.config.get('build.dirs.app')))
+              rewriteRulesSnippet,
+              connect.static(pathLib.resolve(grunt.config.get('build.dirs.root')))
             ];
           }
         }
@@ -245,7 +256,7 @@ module.exports = function ( grunt ) {
                 jsStr += '    <script type="text/javascript" src="' + newStr + '"></script>\n';
               } else {
                 // wrap the css with the appropriate tag
-                cssStr += '    <link rel="stylesheet" type="text/css" href="' + newStr + '" />\n';
+                cssStr += '    <link rel="stylesheet" type="text/css" href="/app/' + newStr + '" />\n';
               }
             });
             // expand the list of test files and append them to the karma files array
@@ -280,7 +291,7 @@ module.exports = function ( grunt ) {
       // compile_thirdparty_js combines all our dependencies in a single file in the compile dir
       compile_thirdparty_js: {
         process:true,
-        src:'<%= concat.build_thirdparty_js.dest %>',
+        src:'<%= src.requiredFiles %>',
         dest:'<%= compile.dirs.app %>thirdparty.js'
       },
       // adds our compiled css and js files to index
@@ -293,21 +304,40 @@ module.exports = function ( grunt ) {
             return content
             .replace(
               / {4}<\!-- token_replace_thirdparty_js_here -->/i,
-              '    <script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('concat.compile_thirdparty_js.dest'))[0].replace('dist/app/','') + '"></script>\n'
+              '    <script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('concat.compile_thirdparty_js.dest'))[0].replace('dist','') + '"></script>\n'
             )
             .replace(
               / {4}<\!-- token_replace_js_here -->/i,
-              '    <script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('concat.compile_js.dest'))[0].replace('dist/app/','') + '"></script>\n'
+              '    <script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('requirejs.compile.options.out'))[0].replace('dist','') + '"></script>\n'
             )
             .replace(
               / {4}<\!-- token_replace_css_here -->/i,
-              '    <link rel="stylesheet" type="text/css" href="' + grunt.file.expand(grunt.config.get('concat.compile_css.dest'))[0].replace('dist/app/','') + '" />\n'
-            );
+              '    <link rel="stylesheet" type="text/css" href="' + grunt.file.expand(grunt.config.get('concat.compile_css.dest'))[0].replace('dist','') + '" />\n'
+            )
+                .replace(
+                    '<script data-main="require-config" src="/app/thirdparty/requirejs/require.js"></script>',''
+                );
           }
         }
       }
     },
+    copy: {
+      compile_ngload: {
+        src: '<%= src.dirs.app %>thirdparty/angularAMD/ngload.js',
+        dest: '<%= compile.dirs.app %>ngload.js'
+      }
+    },
 
+    requirejs: {
+      compile: {
+        options: {
+          name : 'bootstrap',
+          baseUrl: 'src/app/',
+          mainConfigFile: 'src/app/require-config.js',
+          out: "dist/app/<%= pkg.name %>-<%= pkg.version %>-require.js"
+        }
+      }
+    },
 
     /**
      * ESLint - pluggable code linter that can takes the place of JSHint and JSBeautify.
@@ -533,6 +563,9 @@ module.exports = function ( grunt ) {
           debug:true,
           async: false
         }
+      },
+      'get-require-paths': {
+
       }
     },
 
@@ -550,6 +583,23 @@ module.exports = function ( grunt ) {
       },
       // copy over all js/css/html files except thirdparty and tests
       src_js_css_html_to_build:{cwd: '<%= src.dirs.app %>', src:['**/*.{js,css,html}', '!**/*.spec.js'], dest:'<%= build.dirs.app %>'},
+      src_js_css_html_to_dist:{
+          cwd: '<%= src.dirs.app %>',
+          src:[
+              'widgets/**/*.{js,css,html}',
+              'bootstrap.js',
+              'partials/**/*.{html, js}',
+              'partials/*.{html, js}'
+          ],
+          dest:'<%= compile.dirs.app %>'
+      },
+      data_from_build_to_dist:{
+          cwd: '<%= build.dirs.app %>',
+          src:[
+            'data/*.{json, html, js}'
+          ],
+          dest:'<%= compile.dirs.app %>'
+      },
       // assets from source to build
       assets:{cwd: '<%= src.dirs.assets %>', src:'**', dest:'<%= build.dirs.assets %>'},
       // assets from source to compile
@@ -617,7 +667,7 @@ module.exports = function ( grunt ) {
   grunt.registerTask( 'unit', ['buildSpec', 'karma:unit:run']);
 
   // Initialize the dev setup - it does a clean build before watching for changes
-  grunt.registerTask( 'dev', ['build', 'configureProxies','connect:livereload', 'karma:unit', 'watch' ]);
+  grunt.registerTask( 'dev', ['build', 'configureProxies', 'configureRewriteRules', 'connect:livereload', 'karma:unit', 'watch' ]);
 
   grunt.registerTask( 'e2e',
     grunt.file.exists('./node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar') ? // is standalone server installed?
@@ -653,7 +703,12 @@ module.exports = function ( grunt ) {
   // The `compile` task preps the app for production by concatenating, minifying, compressing the code.
   grunt.registerTask( 'compile', [
     'less:compile',
+    'buildWidgetListJSON',
     'sync:compile_assets',
+    'sync:src_js_css_html_to_dist',
+    'sync:data_from_build_to_dist',
+    'copy:compile_ngload',
+    'requirejs',
     'concat:compile_thirdparty_js',
     'concat:compile_js',
     'concat:compile_css',

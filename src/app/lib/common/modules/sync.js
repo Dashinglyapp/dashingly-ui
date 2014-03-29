@@ -83,7 +83,8 @@ define(['angularAMD', 'http-auth-interceptor'],
                 case 'update':
                     promise = normalizeResponseData($http({method: 'PATCH', url: route + "/" + options.resourceHash, data: options.data}));
                     break;
-                case 'delete':
+                case 'remove':
+                    promise = normalizeResponseData($http({method: 'DELETE', url: route + "/" + options.resourceHash}));
                     break;
                 default:
                     break;

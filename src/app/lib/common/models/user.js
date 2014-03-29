@@ -2,7 +2,7 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
     function(angularAMD) {
         var module = angular.module('user', ['ng', 'realize-sync', 'realize-lodash']);
             module
-            .factory("user", ['$rootScope','$q', '$window', 'sync', '_', 'EVENTS', function($root,  $q,$window, sync, _, EVENTS) {
+            .factory("user", ['$rootScope','$q', '$window', 'sync', '_', 'EVENTS', 'authService', function($root,  $q,$window, sync, _, EVENTS, authService) {
                 // console.log('$q.defer',$q.defer);
                 var authObj;
                 var authPromise;
@@ -109,6 +109,32 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                         api.setProp(angular.extend({authed:true},userObj));
                         api.setProp('authed', true);
                         return $root.user;
+                    },
+                    loginOrRegister: function(data, type){
+                        var options = {
+                            loginType: type,
+                            data: data
+                        };
+                        api.tryAuthorization(options).then(function () {
+                            // redirect to user's dashboard
+                            var token = api.getProp('token');
+                            var updater = function(config){
+                                if(config !== undefined){
+                                    if(config.data !== undefined){
+                                        config.data.token = token;
+                                    } else {
+                                        config.data = {token: token};
+                                    }
+                                    if(config.headers !== undefined){
+                                        config.headers['Authentication-Token'] = token;
+                                    }
+                                } else {
+                                    config = {data: {token: token}};
+                                }
+                                return config;
+                            };
+                            authService.loginConfirmed(data, updater);
+                        });
                     }
                 };
                 return api;
