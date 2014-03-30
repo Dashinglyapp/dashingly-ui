@@ -29,7 +29,8 @@ define([
         notAuthorized: 'event:auth-not-authorized',
         switchWidgetTree: 'event:widget-replace-tree',
         widgetSettingsChange: 'event:change-settings',
-        widgetViewChange: 'event:widget-view-change'
+        widgetViewChange: 'event:widget-view-change',
+        widgetAddToDash: 'event:widget-add-to-dash'
     })
 
     .constant('USER_ROLES', {
@@ -76,6 +77,16 @@ define([
           return open;
         };
       }
-    ]);
+    ])
+
+    .filter('capitalize', [function() {
+     return function(input, scope) {
+         if (input !== null){
+            input = input.toLowerCase();
+         }
+
+         return input.substring(0,1).toUpperCase() + input.substring(1);
+     };
+    }]);
     return module;
 });

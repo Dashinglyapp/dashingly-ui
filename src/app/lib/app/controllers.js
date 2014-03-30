@@ -1,4 +1,19 @@
 define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(app, angular, $){
+    function uniqueArray(a) {
+        var temp = {};
+        var i;
+        for (i = 0; i < a.length; i++) {
+            if(a[i] !== undefined){
+                temp[a[i]] = true;
+            }
+        }
+        var r = [];
+        for (i = 0; i < Object.keys(temp).length; i++) {
+            r.push(Object.keys(temp)[i]);
+        }
+        return r;
+    }
+
     app
         .controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', function($root, $scope, user, widget, widgetMeta, EVENTS, $location){
             $scope.widgetMeta = widgetMeta;
@@ -190,50 +205,6 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
     }])
 
-
-    .controller("LeftMenuCtrl", ['$scope', 'user', 'sync', 'EVENTS', function($scope, user, sync, EVENTS){
-        $scope.dashboardListSource = 'installed';
-        console.log('LeftMenuCtrl $scope',$scope);
-        var basePlugins;
-        $scope.updatePlugins = function(){
-            sync.plugins('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
-            .then(function (data) {
-                console.log("Plugin list: ", data);
-                $scope.pluginList = data;
-            });
-        };
-
-
-        $scope.addPlugin = function(pluginObj){
-            console.log("Adding a plugin");
-            sync.plugins("add", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
-            .then(function (data) {
-                console.log("Plugin added: ", data);
-                $scope.updatePlugins();
-            });
-        };
-        $scope.removePlugin = function(pluginObj){
-            console.log("Removing a plugin");
-            sync.plugins("remove", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
-            .then(function (data) {
-                console.log("Plugin added: ", data);
-                $scope.updatePlugins();
-            });
-        };
-
-
-        $scope.update = function(){
-          $scope.updatePlugins();
-        };
-
-        $scope.$on('$viewContentLoaded', function() {
-            $scope.update();
-        });
-
-        $scope.$watch(user.isAuthed, $scope.update);
-
-    }])
-
     .controller('WidgetSettingsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', function($scope, user, sync, EVENTS, widget, $root){
             $scope.collapseSettings = true;
             $scope.formData = {};
@@ -273,11 +244,13 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                                     var options = [];
                                     for(var j = 0; j < field.meta.tags.length; j++){
                                         for(var m = 0; m < viewData.length; m++){
-                                            if(viewData[m].tags.indexOf(field.meta.tags[j]) !== -1){
-                                                options.push({
-                                                    name: viewData[m].name,
-                                                    value: viewData[m].hashkey
-                                                });
+                                            if(viewData[m].installed === true){
+                                                if(viewData[m].tags.indexOf(field.meta.tags[j]) !== -1){
+                                                    options.push({
+                                                        name: viewData[m].name,
+                                                        value: viewData[m].hashkey
+                                                    });
+                                                }
                                             }
                                         }
                                     }
@@ -337,6 +310,188 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
                 $scope.updateFields($scope.settings);
             }
+    }])
+
+    .controller('ExtensionCtrl', ['$scope', 'sync', 'widget', 'user', '$q', '$rootScope', 'EVENTS', function($scope, sync, widget, user, $q, $root, EVENTS){
+        $scope.widgets = [];
+        $scope.plugins = [];
+        $scope.views = [];
+        $scope.currentItem = undefined;
+        $scope.type = $scope.type || "plugins";
+        $scope.items = [];
+
+        $scope.fetchWidgets = function(){
+            var d = $q.defer();
+            widget.listAll().then(function(data){
+                var availableWidgets = [];
+                var promises = [];
+                var i;
+
+                for(i = 0; i < Object.keys(data).length; i++){
+                    var key = Object.keys(data)[i];
+                    if(data[key].tags.indexOf('dashboard-item') !== -1){
+                        availableWidgets.push(data[key]);
+                    }
+                }
+
+                $scope.fetchViews().then(function(views){
+                    $scope.resolveAllWidgetDependencies(availableWidgets).then(function(data){
+                        $scope.widgets = data;
+                        d.resolve(data);
+                    });
+                });
+             });
+            return d.promise;
+        };
+
+        $scope.resolveAllWidgetDependencies = function(widgets){
+            var promises = [];
+            for(var i = 0; i < widgets.length; i++){
+                promises.push($scope.resolveWidgetDependencies(widgets[i]));
+            }
+            return $q.all(promises);
+        };
+
+        $scope.fetchPlugins = function(){
+            var d = $q.defer();
+            sync.plugins('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
+            .then(function (data) {
+                for(var i = 0; i < data.length; i++){
+                    data[i] = $scope.resolvePluginDependencies(data[i]);
+                }
+                $scope.plugins = data;
+                d.resolve(data);
+            });
+            return d.promise;
+        };
+
+        $scope.fetchViews = function(){
+            var d = $q.defer();
+            sync.views('readList', {scope: 'user', scopeHash: user.getProp('hashkey')}).then(function(views){
+              $scope.views = views;
+                d.resolve(views);
+            });
+            return d.promise;
+        };
+
+        $scope.resolveWidgetDependencies = function(item){
+            var d = $q.defer();
+            widget.loadWidget(item.type).then(function(data){
+                var compatiblePlugins = [];
+                if(data.settings !== undefined){
+                    for(var i = 0; i < Object.keys(data.settings).length; i++){
+                        var key = Object.keys(data.settings)[i];
+                        if(data.settings[key].type === "endpoint"){
+                            var widgetTags = data.settings[key].meta.tags;
+                            for(var j = 0; j < $scope.views.length; j++){
+                                var viewTags = $scope.views[j].tags;
+                                var intersection = widgetTags.filter(function(n) {
+                                    return viewTags.indexOf(n) !== -1;
+                                });
+                                if(intersection.length > 0){
+                                    compatiblePlugins.push($scope.views[j].plugin);
+                                }
+                            }
+                        }
+                    }
+                }
+                item.deps = {
+                    compatible: uniqueArray(compatiblePlugins),
+                    required: []
+                };
+                item.description = data.description;
+                item.title = data.title;
+                item.authors = data.authors;
+                item.tags = data.tags;
+                item.version = data.version;
+                item.type = data.type;
+
+                d.resolve(item);
+            });
+            return d.promise;
+        };
+
+        $scope.resolvePluginDependencies = function(item){
+          var compatibleWidgets = [];
+          for(var j = 0; j < $scope.widgets.length; j++){
+              var widgetPlugins = $scope.widgets[j].deps.compatible;
+              if (widgetPlugins.indexOf(item.hashkey) !== -1){
+                compatibleWidgets.push($scope.widgets[j].hashkey);
+              }
+          }
+
+          var authRequirements = item.permissions.authorizations.map(
+              function(val){
+                  return "Authorization: " + val;
+              }
+          );
+
+          item.deps = {
+              compatible: uniqueArray(compatibleWidgets),
+              required: uniqueArray(authRequirements)
+          };
+          return item;
+        };
+
+        $scope.setup = function(){
+            $scope.fetchWidgets().then(function(){
+                $scope.fetchPlugins().then(function(){
+                    if($scope.type === "plugins"){
+                        $scope.items = $scope.plugins;
+                    } else if ($scope.type === "widgets"){
+                        $scope.items = $scope.widgets;
+                    }
+                });
+            });
+        };
+
+         $scope.addPlugin = function(pluginObj){
+            console.log("Adding a plugin");
+            sync.plugins("add", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
+            .then(function (data) {
+                console.log("Plugin added: ", data);
+                $scope.update();
+            });
+        };
+        $scope.removePlugin = function(pluginObj){
+            console.log("Removing a plugin");
+            sync.plugins("remove", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
+            .then(function (data) {
+                console.log("Plugin removed: ", data);
+                $scope.update();
+            });
+        };
+
+        $scope.add = function(item){
+            if($scope.type === "plugins"){
+                $scope.addPlugin(item);
+            } else if($scope.type === "widgets"){
+                $root.$emit(EVENTS.widgetAddToDash, $scope.hashkey, item);
+            }
+        };
+
+        $scope.remove = function(item){
+            if($scope.type === "plugins"){
+                $scope.removePlugin(item);
+            }
+        };
+
+        $scope.info = function(item){
+            console.log("info");
+        };
+
+        $scope.update = function(){
+          $scope.setup();
+        };
+
+        $scope.$on('$viewContentLoaded', function() {
+            $scope.update();
+        });
+
+        $scope.$watch(user.isAuthed, $scope.update);
+
+        $scope.setup();
+
     }]);
 });
 

@@ -1,7 +1,21 @@
 define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'realize-sync'], function(app, angularAMD, angular, $){
-        app.register.controller('WidgetDashboardCtrl', ['$scope', 'widget', 'widgetMeta', '$element', '$rootScope', 'sync', 'user', 'EVENTS', 'screen', function($scope, widget, widgetMeta, $element, $root, sync, user, EVENTS, screen){
+        app.register.controller('WidgetDashboardCtrl', ['$scope', 'widget', 'widgetMeta', '$element', '$rootScope', 'sync', 'user', 'EVENTS', 'screen', '$modal', function($scope, widget, widgetMeta, $element, $root, sync, user, EVENTS, screen, $modal){
             $scope.hashkey = $scope.widgetData.hashkey;
             console.log("Loaded dashboard widget", $scope.hashkey);
+            $scope.type = "widgets";
+            var modalInstance;
+
+            $scope.open = function () {
+
+                modalInstance = $modal.open({
+                  templateUrl: 'widgetModal.tpl.html',
+                  scope: $scope
+                });
+            };
+
+            $scope.ok = function(){
+                $modal.$close();
+            };
 
             $scope.setupDashboard = function(){
                 $scope.data = widget.detail($scope.hashkey).then(function(data){
@@ -10,8 +24,19 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
                         $scope.widgets[i].rendered = false;
                     }
                     $scope.renderWidgets();
+                    if($scope.widgets.length === 0){
+                        $scope.addByType("intro");
+                    }
                 });
                 $scope.loadedWidgets = [];
+            };
+
+            $scope.addByType = function(type){
+                widget.listAll().then(function(data){
+                    if(data[type] !== undefined){
+                        $scope.add(data[type]);
+                    }
+                });
             };
 
             $scope.add = function(widgetObj){
@@ -39,23 +64,6 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
                     data.rendered = true;
                     $scope.widgets.push(data);
                     $scope.renderWidget(data);
-                });
-            };
-
-            $scope.getAvailableTree = function(){
-                widget.listAll().then(function(data){
-                    var availableWidgets = [];
-                    var i;
-
-                    for(i = 0; i < Object.keys(data).length; i++){
-                        var key = Object.keys(data)[i];
-                        if(data[key].tags.indexOf('dashboard-item') !== -1){
-                            availableWidgets.push(data[key]);
-                        }
-
-                    }
-
-                    $scope.items = availableWidgets;
                 });
             };
 
@@ -92,10 +100,14 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
                 }
             });
 
+            $scope.$onRootScope(EVENTS.widgetAddToDash, function(event, hashkey, widgetObj){
+                console.log("Dashboard received widget add event", hashkey);
+                if(hashkey === $scope.hashkey){
+                    $scope.add(widgetObj);
+                }
+            });
+
             $scope.setupDashboard();
-
-            $scope.getAvailableTree();
-
         }]);
 });
 

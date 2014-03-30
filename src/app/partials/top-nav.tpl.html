@@ -16,8 +16,8 @@
         <li ng-if="authed">
           <a class="plugins-dropdown"
              ng-click="$root.showleftmenu=1;$event.stopPropagation();">
-              <span class="fa fa-gear"></span>
-              Settings
+              <span class="fa fa-flask"></span>
+              Plugins
           </a>
         </li>
         <li class="dashboard-dropdown dropdown" ng-controller="DashboardsCtrl" ng-if="authed">
@@ -28,7 +28,7 @@
           <ul class="dropdown-menu">
             <li ng-repeat="dash in dashboards" ng-click="switchDashboard(dash.name)">
               <a>
-                <span class="dashboard-select-title">{{dash.name}}</span>
+                <span class="dashboard-select-title">{{dash.name | capitalize}}</span>
               </a>
             </li>
           </ul>
@@ -40,24 +40,27 @@
           </a>
           <ul class="dropdown-menu">
               <li ng-repeat="auth in authorizationList">
-                  <a ng-click="authRedirect(auth)"><span ng-class="(auth.active==true) ? 'fa fa-minus' : 'fa fa-plus'"></span> {{auth.name}}</a>
+                  <a ng-click="authRedirect(auth)"><span ng-class="(auth.active==true) ? 'fa fa-minus' : 'fa fa-plus'"></span> {{auth.name | capitalize}}</a>
               </li>
           </ul>
       </li>
         <li class="help" ng-if="authed">
           <a ng-click="logout()" >
+              <span class="fa fa-sign-out"></span>
               Logout
           </a>
         </li>
 
         <li class="help" ng-if="!authed">
           <a ng-click="login()" >
+              <span class="fa fa-sign-in"></span>
               Login
           </a>
         </li>
 
           <li class="help" ng-if="!authed">
           <a ng-click="register()" >
+              <span class="fa fa-user"></span>
               Sign Up
           </a>
         </li>

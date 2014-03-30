@@ -111,6 +111,7 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                         return $root.user;
                     },
                     loginOrRegister: function(data, type){
+                        var d = $q.defer();
                         var options = {
                             loginType: type,
                             data: data
@@ -134,7 +135,9 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                                 return config;
                             };
                             authService.loginConfirmed(data, updater);
+                            d.resolve(data);
                         });
+                        return d.promise;
                     }
                 };
                 return api;

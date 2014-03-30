@@ -3,13 +3,11 @@ define(['app', 'angular'], function(app, angular){
         $scope.hashkey = $scope.widgetData.hashkey;
 
         $scope.viewData = {
-            "chart": {
-                "chartData": $scope.chartData,
-                "chartType": $scope.chartType,
-                "chartConfig": $scope.chartConfig
+            "long": {
+                "text": "Welcome to your new dashboard!  Widgets are visual elements that can show you charts, text, maps, and anything else you could want (you can even make your own!).  Get started by clicking on 'add widget' above."
             },
-            "number": {
-                "number": $scope.number
+            "short": {
+                "text": "Welcome to your dashboard!  Click on 'add widgets' above to add a widget."
             }
         };
     }]);

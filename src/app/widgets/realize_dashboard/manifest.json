@@ -1,5 +1,6 @@
 {
     "title": "Dashboard",
+    "description": "Main realize dashboard.",
     "controller": "WidgetDashboardCtrl",
     "type": "dashboard",
     "version": ".1",

@@ -1,5 +1,6 @@
 {
     "title": "Form",
+    "description": "A basic form",
     "controller": "FormCtrl",
     "type": "form",
     "version": ".1",

@@ -8,6 +8,19 @@ define(['app', 'realize-debugging', 'screen'], function(app){
         };
      })
 
+        .directive('pluginListItem', [function(){
+            return {
+              restrict: 'E',
+              templateUrl: 'partials/plugin-list-item.tpl.html'
+            };
+        }])
+
+        .directive('pluginList', [function(){
+            return {
+              restrict: 'E',
+              templateUrl: 'partials/plugin-list.tpl.html'
+            };
+        }])
     .directive('widgetContent', ['screen', function(screen){
         return {
           restrict: 'E',
@@ -26,8 +39,10 @@ define(['app', 'realize-debugging', 'screen'], function(app){
                       currentView = data.display.defaults[screenFormat];
                     }
 
+                   var currentType = data.display.views[currentView].type;
+
                    var template;
-                    switch(currentView) {
+                    switch(currentType) {
                         case "chart":
                             template = "partials/views/chart.tpl.html";
                             break;
@@ -36,6 +51,9 @@ define(['app', 'realize-debugging', 'screen'], function(app){
                             break;
                         case "form":
                             template = "partials/views/form.tpl.html";
+                            break;
+                        case "text":
+                            template = "partials/views/text.tpl.html";
                             break;
                         default:
                             template = viewData[currentView].templateUrl;

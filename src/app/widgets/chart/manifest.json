@@ -1,5 +1,6 @@
 {
     "title": "Chart",
+    "description": "A basic chart",
     "controller": "ChartCtrl",
     "type": "chart",
     "version": ".1",

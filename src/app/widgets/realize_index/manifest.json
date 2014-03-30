@@ -1,5 +1,6 @@
 {
     "title": "Index",
+    "description": "Main realize index",
     "controller": "IndexCtrl",
     "type": "index",
     "version": ".1",

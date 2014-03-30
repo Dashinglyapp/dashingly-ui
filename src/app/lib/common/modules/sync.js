@@ -139,8 +139,8 @@ define(['angularAMD', 'http-auth-interceptor'],
                 case 'remove':
                     promise = normalizeResponseData($http.get(route + "/" + options.resourceHash + "/actions/remove", options.data));
                     break;
-                case 'readOne':
-                    promise = normalizeResponseData($http.get(route + "/" + options.resourceHash ));
+                case 'readViews':
+                    promise = normalizeResponseData($http.get(route + "/" + options.resourceHash + "/views" ));
                     break;
                 case 'readList':
                     promise = normalizeResponseData($http.get(route));

@@ -1,15 +1,6 @@
 <div class="menuleft"
       ng-class="{active:$root.showleftmenu}"
-      ng-click="$event.stopPropagation();" ng-controller="LeftMenuCtrl">
+      ng-click="$event.stopPropagation();">
 
-  <div class="plugin-list btn-group-vertical">
-    <button class="btn btn-default"
-        type="button"
-        ng-repeat="pluginObj in pluginList"
-        >
-      <span class="plugin-add" ng-click="(pluginObj.installed==true) ? removePlugin(pluginObj) : addPlugin(pluginObj)"><span ng-class="(pluginObj.installed==true) ? 'fa fa-minus' : 'fa fa-plus'"></span></span>
-      <span class="plugin-info"><span class="fa fa-question"></span></span>
-      <span class="plugin-name" ng-click="changeState(pluginObj.name);">{{pluginObj.name}}</span>
-    </button>
-  </div>
+    <plugin-list></plugin-list>
 </div>
