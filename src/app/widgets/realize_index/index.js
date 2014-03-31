@@ -1,17 +1,6 @@
 define(['app', 'angular'], function(app, angular){
     app.register.controller('IndexCtrl', ['$scope', 'user', 'EVENTS', function($scope, user, EVENTS){
-
-        $scope.data = {};
-        $scope.switch = function (type) {
-            console.log('switchToLogin.clicked!');
-            $scope.$emit(EVENTS.switchWidgetTree, type, 'default');
-        };
-
-        $scope.register = function(){
-             user.loginOrRegister($scope.data, "register").then(function(){
-
-            });
-        };
+        console.log('IndexCtrl running');
 
     }]);
 });

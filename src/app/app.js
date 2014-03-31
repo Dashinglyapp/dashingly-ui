@@ -24,6 +24,7 @@ define([
         loginSuccess: 'event:auth-loginConfirmed',
         loginFailed: 'event:auth-login-failed',
         logoutSuccess: 'event:auth-logout-success',
+        logoutAttempt: 'event:auth-logout-attempt',
         tokenExpired: 'event:auth-token-expired',
         notAuthenticated: 'event:auth-loginRequired',
         notAuthorized: 'event:auth-not-authorized',
@@ -40,7 +41,21 @@ define([
 
     .config( ['$locationProvider','$controllerProvider','$compileProvider', '$routeProvider', '$provide',
       function ($locationProvider, $controllerProvider, $compileProvider, $routeProvider, $provide) {
-        // enable pushstate so urls are / instead of /#/ as root
+          // for debugging purposes, log all events emitted to rootscope.
+          $provide.decorator('$rootScope', function ($delegate) {
+            var _emit = $delegate.$emit;
+
+            $delegate.$emit = function () {
+              console.log.apply(console, arguments);
+              _emit.apply(this, arguments);
+            };
+
+            return $delegate;
+          });
+          // enable pushstate so urls are / instead of /#/ as root
+          $locationProvider.html5Mode(true);
+
+
           $routeProvider
               .when('/', { template: '', controller: 'WidgetRouteCtrl'})
               .when('/:type', { template: '', controller: 'WidgetRouteCtrl'})
@@ -48,7 +63,6 @@ define([
               .otherwise({
                   redirectTo: '/'
               });
-          $locationProvider.html5Mode(true);
 
            $provide.decorator('$rootScope', ['$delegate', function($delegate){
 
@@ -68,8 +82,21 @@ define([
 
 
     // run is where we set initial rootscope properties
-    .run(['$rootScope', 'debugging', 'EVENTS', function ($root, debugging, EVENTS) {
-        debugging.enableDebugging();
+    .run(['$rootScope', 'user', 'EVENTS', function ($root, user, EVENTS) {
+        // debugging.enableDebugging();
+        // set userprops
+        // check user auth status on initial pageload
+        $root.authed = user.isAuthed();
+        // change authed on login
+        $root.$on(EVENTS.loginSuccess, function() {
+            $root.authed = true;
+        });
+        $root.$on(EVENTS.loginFailed, function() {
+            $root.authed = false;
+        });
+        $root.$on(EVENTS.logoutSuccess, function() {
+            $root.authed = false;
+        });
         $root.closeMenus = function(){
           var open = false;
           if($root.showleftmenu){open = true;$root.showleftmenu = 0;}

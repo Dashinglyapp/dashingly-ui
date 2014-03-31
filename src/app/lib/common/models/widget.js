@@ -126,9 +126,9 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                     loadHtml:function(widgetObj){
                         var d = $q.defer();
                         if(widgetObj.template){
-                            console.log('widgetObj',widgetObj);
                             $http.get(widgetObj.template)
                                 .then(function (obj) {
+                                    console.log('widgetObj in widget.loadHtml()',widgetObj);
                                     d.resolve(obj.data);
                                 })
                                 .catch(function () {

@@ -1,108 +1,109 @@
 define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(app, angular, $){
     app
-        .controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', function($root, $scope, user, widget, widgetMeta, EVENTS, $location){
-            $scope.widgetMeta = widgetMeta;
-            $scope.widgetData = undefined;
-            $scope.currentWidget = {
-                name: undefined,
-                type: undefined
-            };
+    .controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', function($root, $scope, user, widget, widgetMeta, EVENTS, $location){
+        $scope.widgetMeta = widgetMeta;
+        $scope.widgetData = undefined;
+        $scope.currentWidget = {
+            name: undefined,
+            type: undefined
+        };
 
-            console.log('WidgetCtrl $scope',$scope);
-            $scope.setupWidget = function(data){
-                console.log("Setting up widget: ", data);
-                 $scope.currentWidget.type = data.type;
-                 $scope.currentWidget.name = data.name;
-                widget.loadWidget(data.type).then(function(widgetObj){
-                    widgetObj.hashkey = data.hashkey;
-                    widgetMeta.setTopLevelWidget(widgetObj);
-                    $scope.widgetData = widgetObj;
-                    console.log("Top level widget: ", $scope.widgetMeta.getTopLevelWidget());
-                    $location.path(data.type + "/" + data.name);
-                    if(!$scope.$$phase) {
-                      $scope.apply();
-                    }
-                });
-            };
+        console.log('WidgetCtrl $scope',$scope);
+        $scope.setupWidget = function(data){
+            console.log("Setting up widget: ", data);
+             $scope.currentWidget.type = data.type;
+             $scope.currentWidget.name = data.name;
+            widget.loadWidget(data.type).then(function(widgetObj){
+                widgetObj.hashkey = data.hashkey;
+                widgetMeta.setTopLevelWidget(widgetObj);
+                $scope.widgetData = widgetObj;
+                console.log("Top level widget: ", $scope.widgetMeta.getTopLevelWidget());
+                $location.path(data.type + "/" + data.name);
+                if(!$scope.$$phase) {
+                  $scope.apply();
+                }
+            });
+        };
 
-            $scope.setupWidgetWithData = function(widgetType, widgetName){
-                widget.listInstalledByTypeAndName(widgetType, widgetName).then(function(data){
-                    console.log("Listing widget by type", widgetType, "and name", widgetName, "got data", data);
-                    if(data.length === 0){
-                        widget.create({name: widgetName, type: widgetType}).then(function(data){
-                            $scope.setupWidget(data);
-                        });
-                    } else {
-                        $scope.setupWidget(data[0]);
-                    }
-                });
-            };
+        $scope.setupWidgetWithData = function(widgetType, widgetName){
+            widget.listInstalledByTypeAndName(widgetType, widgetName).then(function(data){
+                console.log("Listing widget by type", widgetType, "and name", widgetName, "got data", data);
+                if(data.length === 0){
+                    widget.create({name: widgetName, type: widgetType}).then(function(data){
+                        $scope.setupWidget(data);
+                    });
+                } else {
+                    $scope.setupWidget(data[0]);
+                }
+            });
+        };
 
-            $scope.replace = function (widgetType, widgetName) {
-                 widget.loadWidget(widgetType).then(function(widgetObj){
-                    console.log("Replacing content with widget with type", widgetType, "and name", widgetName);
-                    if(!widgetObj.noAuth){
-                        user.checkAuth().then(function(profile){
-                            console.log("User is authenticated.");
-                            $scope.setupWidgetWithData(widgetType, widgetName);
-                        }, function(reason){
-                            console.log("Unathenticated user.  Initializing default widget version.");
-                            $scope.setupWidget({type: widgetType, name: widgetName, hashkey: ""});
-                        });
-                    } else {
+        $scope.replace = function (widgetType, widgetName) {
+             widget.loadWidget(widgetType).then(function(widgetObj){
+                console.log("Replacing content with widget with type", widgetType, "and name", widgetName);
+                if(!widgetObj.noAuth){
+                    user.checkAuth().then(function(profile){
+                        console.log("User is authenticated.");
+                        $scope.setupWidgetWithData(widgetType, widgetName);
+                    }, function(reason){
+                        console.log("Unathenticated user.  Initializing default widget version.");
                         $scope.setupWidget({type: widgetType, name: widgetName, hashkey: ""});
-                    }
-                 });
-            };
-
-            $scope.switchWidget = function(event, widgetType, widgetName){
-                if($scope.currentWidget.type !== widgetType || $scope.currentWidget.name !== widgetName){
-                    console.log('EVENTS.switchWidgetTree called with arg: ', widgetType, widgetName);
-                    return $scope.replace(widgetType, widgetName);
+                    });
+                } else {
+                    $scope.setupWidget({type: widgetType, name: widgetName, hashkey: ""});
                 }
-            };
+             });
+        };
 
-            $scope.$onRootScope(EVENTS.switchWidgetTree,function (event, widgetType, widgetName) {
-                console.log("WidgetCtrl widget change event", widgetType, widgetName);
-                $scope.switchWidget(event, widgetType, widgetName);
-            });
-
-            $scope.$onRootScope(EVENTS.notAuthenticated, function(event) {
-                if($scope.currentWidget.type !== "index"){
-                    $scope.switchWidget(event, "index", "default");
-                    console.log('checkLogin: auth-needed');
-                }
-            });
-
-            $scope.$onRootScope(EVENTS.loginSuccess, function() {
-                console.log("WidgetCtrl login success");
-                $scope.switchWidget(EVENTS.switchWidgetTree, "dashboard", "default");
-            });
-
-             $scope.$onRootScope(EVENTS.logoutSuccess, function(event) {
-                 console.log("WidgetCtrl logout success");
-                $scope.switchWidget(event, "index", "default");
-            });
-
-            $root.initialRenderDone = true;
-        }])
-
-        .controller('WidgetRouteCtrl', ["$rootScope", "$scope", '$routeParams', "user", 'widget', 'widgetMeta', 'EVENTS', function($root, $scope, $routeParams, user, widget, widgetMeta, EVENTS){
-
-            var name = $routeParams.name;
-            var type = $routeParams.type;
-
-            if(name === undefined){
-                name = "default";
+        /**
+         * switchWidget: Makes the widget to switch itself to a different widget
+         * @param {string} widgetType A unique Identifier for each widget in the widget list. Corresponds to directory names and widgetlist.json keys.
+         * @param {string} widgetName (optional) :  Desc?
+         * @return {undefined} undefined
+         */
+        $scope.switchWidget = function(widgetType, widgetName){
+            if($scope.currentWidget.type !== widgetType || $scope.currentWidget.name !== widgetName){
+                console.log('EVENTS.switchWidget called with args: ', widgetType, widgetName);
+                $scope.replace(widgetType, widgetName || 'default');
             }
+        };
 
-            if(type === undefined){
-                type = "index";
+        $scope.$onRootScope(EVENTS.switchWidgetTree,function (event, widgetType, widgetName) {
+            // console.log('EVENTS.switchWidgetTree called with arg: ', widgetType, widgetName);
+            console.log("WidgetCtrl widget change event", widgetType, widgetName);
+            // set default widget if no widget specified
+
+            $scope.switchWidget(widgetType, widgetName);
+        });
+
+        $scope.$onRootScope(EVENTS.notAuthenticated, function(event) {
+            if($scope.currentWidget.type !== "index"){
+                $scope.switchWidget("index");
+                console.log('checkLogin: auth-needed');
             }
+        });
 
-            console.log("WidgetRouteCtrl name", name, "type", type);
-            $root.$emit(EVENTS.switchWidgetTree, type, name);
-        }])
+        $scope.$onRootScope(EVENTS.loginSuccess, function() {
+            console.log("WidgetCtrl login success");
+            $scope.switchWidget("dashboard");
+        });
+
+         $scope.$onRootScope(EVENTS.logoutSuccess, function(event) {
+             console.log("WidgetCtrl logout success");
+            $scope.switchWidget("index");
+        });
+
+        $root.initialRenderDone = true;
+    }])
+
+    .controller('WidgetRouteCtrl', ["$rootScope", "$scope", '$routeParams', "user", 'widget', 'sync', 'EVENTS', function($root, $scope, $routeParams, user, widget, sync, EVENTS){
+
+        var name = $routeParams.name || 'default';
+        var type = $routeParams.type || 'index';
+
+        console.log("WidgetRouteCtrl name", name, "type", type);
+        // $root.$emit(EVENTS.switchWidgetTree, type, name);
+    }])
 
     .controller("DashboardsCtrl", ["$scope", "$window", "user", 'widget', '$rootScope', '$document', 'EVENTS', function($scope, $window, user, widget, $root, $document, EVENTS){
         console.log('DashboardsCtrl $scope',$scope);
@@ -135,7 +136,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
             $scope.update();
         });
 
-        $scope.$watch(user.isAuthed, $scope.update);
+        // $scope.$watch(user.isAuthed, $scope.update);
 
     }])
 
@@ -145,48 +146,22 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
     .controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', 'EVENTS', '$rootScope', function($scope, $window, user, sync, EVENTS, $root){
         console.log('TopNavCtrl $scope',$scope);
-        $scope.isCollapsed = true;
-        $scope.updateAuthorizations = function(){
-            sync.authorizations('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
-            .then(function (data){
-                console.log("Authorization list: ", data);
-                $scope.authorizationList = data;
-            });
-        };
-
-        $scope.login = function(){
-            $root.$emit(EVENTS.switchWidgetTree, "login", "default");
-        };
-
-        $scope.register = function(){
-            $root.$emit(EVENTS.switchWidgetTree, "register", "default");
-        };
-
-        $scope.authed = false;
-
-        $scope.authRedirect = function(auth){
-            var query_url = auth.url + "?token=" + user.getProp('token');
-            $window.location.href = query_url;
-        };
-
         $scope.logout = function(){
+            $root.$emit(EVENTS.logoutSuccess);
             sync.logout()
                 .finally(function () {
                     user.deAuthorize();
-                    $root.$emit(EVENTS.logoutSuccess);
                 });
         };
 
-        $scope.update = function(){
-             $scope.updateAuthorizations();
-             $scope.authed = user.isAuthed();
+        $scope.login = function(){
+            $root.$emit(EVENTS.switchWidgetTree, "login");
         };
 
-        $scope.$on('$viewContentLoaded', function() {
-            $scope.update();
-        });
+        $scope.register = function(){
+            $root.$emit(EVENTS.switchWidgetTree, "register");
+        };
 
-        $scope.$watch(user.isAuthed, $scope.update);
 
     }])
 
@@ -230,7 +205,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
             $scope.update();
         });
 
-        $scope.$watch(user.isAuthed, $scope.update);
+        // $scope.$watch(user.isAuthed, $scope.update);
 
     }])
 
