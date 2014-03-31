@@ -208,37 +208,6 @@ a,a:link,a:visited,a:hover,a:active, {
 
 }
 
-.plugin-list{
-    display:block;
-    color:@white;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-
-  .plugin-list-item{
-        background-color: @medgrey;
-        min-height: 50px;
-        padding: 10px;
-        margin: 10px;
-
-        .plugin-body{
-            .dependency{
-                display: inline-block;
-                margin-right: 20px;
-            }
-        }
-
-      .plugin-actions{
-        float: right;
-        display: inline;
-      }
-    }
-
-    .search-box{
-        color: @black;
-    }
-}
-
 .menuright{
   left:100%;
   color:@white;
@@ -293,10 +262,6 @@ a,a:link,a:visited,a:hover,a:active, {
   }
 }
 
-.chart{
-    height: 300px;
-}
-
 .navbar{
   .navbar-toggle {
     .icon-bar {
@@ -321,11 +286,52 @@ a,a:link,a:visited,a:hover,a:active, {
 
 .widget{
     padding: 5px;
+    height: 250px;
 
     &.widget-border{
         border-top: 1px solid #ccc;
         margin-top: 15px;
         padding-top: 15px;
+    }
+}
+
+.chart{
+    height: 225px;
+}
+
+/**
+*
+* Plugins
+*/
+
+.plugin-list{
+    display:block;
+    color:@white;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .plugin-list-item{
+        background-color: @medgrey;
+        min-height: 50px;
+        padding: 10px;
+        margin: 10px;
+
+        .plugin-body{
+            .dependency{
+                display: inline-block;
+                margin-right: 20px;
+            }
+        }
+
+      .plugin-actions{
+        float: right;
+        display: inline;
+      }
+    }
+
+    .search-box{
+        color: @black;
     }
 }
 

@@ -4,8 +4,18 @@
         <p class="lead">Realize is the health tracking tool we have all been waiting for.</p>
 
          <form>
-            <p class="form-group"><label for='email'>Email</label><input type='email' ng-model="data.email"></input></p>
-            <p class="form-group"><label for='password'>Password</label><input type='password' ng-model="data.password"></input></p>
+            <p class="form-group">
+                <p class="help-block" ng-repeat="e in emailError">{{e}}</p>
+                <label>Email
+                    <input type='email' ng-model="data.email">
+                </label>
+            </p>
+            <p class="form-group">
+                <p class="help-block" ng-repeat="p in passwordError">{{p}}</p>
+                <label>Password
+                    <input type='password' ng-model="data.password">
+                </label>
+            </p>
 
             <div class="btn-group">
                 <button

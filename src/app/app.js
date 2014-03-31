@@ -14,11 +14,15 @@ define([
     'ngRoute',
     'angular-formly',
     'screen',
-    'ngload'
+    'ngload',
+    'view',
+    'context',
+    'plugin',
+    'util'
 ], function (angular, angularAMD, $) {
     var DEBUG_MODE = false;
 
-    var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen'])
+    var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen', 'view', 'context', 'plugin', 'util'])
     .constant('EVENTS', {
         // auth
         loginSuccess: 'event:auth-loginConfirmed',

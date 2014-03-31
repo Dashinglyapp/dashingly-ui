@@ -6,7 +6,10 @@ define(['app', 'angular'], function(app, angular){
         $scope.register = function () {
             user.loginOrRegister($scope.data, "register").then(function(){
 
-            });
+            }).catch(function(err){
+                 $scope.emailError = err.email;
+                  $scope.passwordError = err.password;
+              });
         };
     }]);
 });

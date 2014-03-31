@@ -1,21 +1,6 @@
-define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(app, angular, $){
-    function uniqueArray(a) {
-        var temp = {};
-        var i;
-        for (i = 0; i < a.length; i++) {
-            if(a[i] !== undefined){
-                temp[a[i]] = true;
-            }
-        }
-        var r = [];
-        for (i = 0; i < Object.keys(temp).length; i++) {
-            r.push(Object.keys(temp)[i]);
-        }
-        return r;
-    }
-
+define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'], function(app, angular, $){
     app
-        .controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', function($root, $scope, user, widget, widgetMeta, EVENTS, $location){
+        .controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', 'plugin', function($root, $scope, user, widget, widgetMeta, EVENTS, $location, plugin){
             $scope.widgetMeta = widgetMeta;
             $scope.widgetData = undefined;
             $scope.currentWidget = {
@@ -158,11 +143,11 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
      * Controllers
      */
 
-    .controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', 'EVENTS', '$rootScope', function($scope, $window, user, sync, EVENTS, $root){
+    .controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', 'EVENTS', '$rootScope', 'context', function($scope, $window, user, sync, EVENTS, $root, context){
         console.log('TopNavCtrl $scope',$scope);
         $scope.isCollapsed = true;
         $scope.updateAuthorizations = function(){
-            sync.authorizations('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
+            sync.authorizations('readList', {scope: context.getScopeName(), scopeHash: context.getScopeHash()})
             .then(function (data){
                 console.log("Authorization list: ", data);
                 $scope.authorizationList = data;
@@ -205,11 +190,46 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
     }])
 
-    .controller('WidgetSettingsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', function($scope, user, sync, EVENTS, widget, $root){
+    .controller('WidgetActionsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', function($scope, user, sync, EVENTS, widget, $root, view, context, widgetSettings){
             $scope.collapseSettings = true;
             $scope.formData = {};
+
+            $scope.changeView = function(viewName){
+              widget.saveView($scope.hashkey, viewName).then(function(){
+                    $root.$emit(EVENTS.widgetViewChange, $scope.hashkey, viewName);
+                    $scope.widgetData.currentView = viewName;
+                });
+            };
+
+            $scope.updateFields = function(widgetObj){
+                widgetSettings.getSettingsForm(widgetObj).then(function(fields){
+                    $scope.fields = fields;
+                });
+            };
+
+            $scope.showSettings = function(){
+              $scope.collapseSettings = !$scope.collapseSettings;
+            };
+
+            $scope.refreshWidget = function(){
+                $root.$emit(EVENTS.widgetSettingsChange, $scope.hashkey);
+            };
+
+            $scope.save = function(){
+                console.log("Saving settings with data", $scope.formData);
+                widgetSettings.saveSettingsForm($scope.widgetData, $scope.formData);
+            };
+
+            $scope.deleteWidget = function(){
+                console.log("Deleting widget with data", $scope.widgetData);
+                widget.remove($scope.hashkey).then(function(data){
+                    for(var i = 0; i < $scope.widgetData.parents.length; i++){
+                        $root.$emit(EVENTS.widgetSettingsChange, $scope.widgetData.parents[i]);
+                    }
+                });
+            };
+
             if($scope.widgetData !== undefined){
-                $scope.settings = $scope.widgetData.settings;
                 $scope.hashkey = $scope.widgetData.hashkey;
                 $scope.tags = $scope.widgetData.tags;
 
@@ -218,101 +238,11 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
                     "submitCopy": "Save"
                 };
 
-                $scope.changeView = function(viewName){
-                  widget.saveView($scope.hashkey, viewName).then(function(){
-                        $root.$emit(EVENTS.widgetViewChange, $scope.hashkey, viewName);
-                        $scope.widgetData.currentView = viewName;
-                    });
-                };
-
-                $scope.updateFields = function(settings){
-                    sync.views('readList', {scope: 'user', scopeHash: user.getProp('hashkey')}).then(function(viewData){
-                        var formFields = [];
-                        for(var i = 0; i < Object.keys(settings).length; i++){
-                            var key = Object.keys(settings)[i];
-                            var field = settings[key];
-
-                            var formField = {
-                                type: field.type,
-                                label: field.description,
-                                name: key,
-                                key: key
-                            };
-
-                            switch(field.type){
-                                case "endpoint":
-                                    var options = [];
-                                    for(var j = 0; j < field.meta.tags.length; j++){
-                                        for(var m = 0; m < viewData.length; m++){
-                                            if(viewData[m].installed === true){
-                                                if(viewData[m].tags.indexOf(field.meta.tags[j]) !== -1){
-                                                    options.push({
-                                                        name: viewData[m].name,
-                                                        value: viewData[m].hashkey
-                                                    });
-                                                }
-                                            }
-                                        }
-                                    }
-                                    formField.type = "select";
-                                    formField.options = options;
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            formFields.push(formField);
-                        }
-
-                        $scope.fields = formFields;
-                    });
-                };
-
-                $scope.showSettings = function(){
-                  $scope.collapseSettings = !$scope.collapseSettings;
-                };
-
-                $scope.refreshWidget = function(){
-                    $root.$emit(EVENTS.widgetSettingsChange, $scope.hashkey);
-                };
-
-                $scope.save = function(){
-                    console.log("Saving settings with data", $scope.formData);
-                    var views = $scope.widgetData.endpoints;
-                    var patchData = {};
-                    for(var i = 0; i < Object.keys($scope.formData).length; i++){
-                        var key = Object.keys($scope.formData)[i];
-                        if($scope.formData[key].value !== undefined){
-                            patchData[key] = $scope.formData[key].value;
-                        } else {
-                            patchData[key] = $scope.formData[key];
-                        }
-
-                        $scope.widgetData.settings[key] = $scope.widgetData.settings[key] || {};
-                        $scope.widgetData.settings[key].value = patchData[key];
-                        if($scope.widgetData.settings[key].type === "endpoint"){
-                            views.push(patchData[key]);
-                        }
-                    }
-                    widget.saveSettings($scope.hashkey, patchData, views).then(function(){
-                        $root.$emit(EVENTS.widgetSettingsChange, $scope.hashkey);
-                    });
-                };
-
-                $scope.deleteWidget = function(){
-                    console.log("Deleting widget with data", $scope.widgetData);
-                    widget.remove($scope.hashkey).then(function(data){
-                        for(var i = 0; i < $scope.widgetData.parents.length; i++){
-                            $root.$emit(EVENTS.widgetSettingsChange, $scope.widgetData.parents[i]);
-                        }
-                    });
-                };
-
-                $scope.updateFields($scope.settings);
+                $scope.updateFields($scope.widgetData);
             }
     }])
 
-    .controller('ExtensionCtrl', ['$scope', 'sync', 'widget', 'user', '$q', '$rootScope', 'EVENTS', function($scope, sync, widget, user, $q, $root, EVENTS){
+    .controller('ExtensionCtrl', ['$scope', 'sync', 'widget', 'user', '$q', '$rootScope', 'EVENTS', 'view', 'context', 'plugin', function($scope, sync, widget, user, $q, $root, EVENTS, view, context, plugin){
         $scope.widgets = [];
         $scope.plugins = [];
         $scope.views = [];
@@ -322,115 +252,24 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
         $scope.fetchWidgets = function(){
             var d = $q.defer();
-            widget.listAll().then(function(data){
-                var availableWidgets = [];
+            widget.listAvailableByTag('dashboard-item').then(function(data){
                 var promises = [];
-                var i;
-
-                for(i = 0; i < Object.keys(data).length; i++){
-                    var key = Object.keys(data)[i];
-                    if(data[key].tags.indexOf('dashboard-item') !== -1){
-                        availableWidgets.push(data[key]);
-                    }
-                }
-
-                $scope.fetchViews().then(function(views){
-                    $scope.resolveAllWidgetDependencies(availableWidgets).then(function(data){
-                        $scope.widgets = data;
-                        d.resolve(data);
-                    });
+                widget.loadWidgets(data).then(function(data){
+                    $scope.widgets = data;
+                    d.resolve(data);
                 });
              });
             return d.promise;
         };
 
-        $scope.resolveAllWidgetDependencies = function(widgets){
-            var promises = [];
-            for(var i = 0; i < widgets.length; i++){
-                promises.push($scope.resolveWidgetDependencies(widgets[i]));
-            }
-            return $q.all(promises);
-        };
-
         $scope.fetchPlugins = function(){
             var d = $q.defer();
-            sync.plugins('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
+            plugin.listAllAvailable()
             .then(function (data) {
-                for(var i = 0; i < data.length; i++){
-                    data[i] = $scope.resolvePluginDependencies(data[i]);
-                }
                 $scope.plugins = data;
                 d.resolve(data);
             });
             return d.promise;
-        };
-
-        $scope.fetchViews = function(){
-            var d = $q.defer();
-            sync.views('readList', {scope: 'user', scopeHash: user.getProp('hashkey')}).then(function(views){
-              $scope.views = views;
-                d.resolve(views);
-            });
-            return d.promise;
-        };
-
-        $scope.resolveWidgetDependencies = function(item){
-            var d = $q.defer();
-            widget.loadWidget(item.type).then(function(data){
-                var compatiblePlugins = [];
-                if(data.settings !== undefined){
-                    for(var i = 0; i < Object.keys(data.settings).length; i++){
-                        var key = Object.keys(data.settings)[i];
-                        if(data.settings[key].type === "endpoint"){
-                            var widgetTags = data.settings[key].meta.tags;
-                            for(var j = 0; j < $scope.views.length; j++){
-                                var viewTags = $scope.views[j].tags;
-                                var intersection = widgetTags.filter(function(n) {
-                                    return viewTags.indexOf(n) !== -1;
-                                });
-                                if(intersection.length > 0){
-                                    compatiblePlugins.push($scope.views[j].plugin);
-                                }
-                            }
-                        }
-                    }
-                }
-                item.deps = {
-                    compatible: uniqueArray(compatiblePlugins),
-                    required: []
-                };
-                item.description = data.description;
-                item.title = data.title;
-                item.authors = data.authors;
-                item.tags = data.tags;
-                item.version = data.version;
-                item.type = data.type;
-
-                d.resolve(item);
-            });
-            return d.promise;
-        };
-
-        $scope.resolvePluginDependencies = function(item){
-          var compatibleWidgets = [];
-          for(var j = 0; j < $scope.widgets.length; j++){
-              var widgetPlugins = $scope.widgets[j].deps.compatible;
-              if (widgetPlugins.indexOf(item.hashkey) !== -1){
-                compatibleWidgets.push($scope.widgets[j].hashkey);
-              }
-          }
-
-          var authRequirements = item.permissions.authorizations.map(
-              function(val){
-                  return "Authorization: " + val;
-              }
-          );
-
-          item.deps = {
-              compatible: uniqueArray(compatibleWidgets),
-              required: uniqueArray(authRequirements)
-          };
-          return item;
         };
 
         $scope.setup = function(){
@@ -447,7 +286,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
          $scope.addPlugin = function(pluginObj){
             console.log("Adding a plugin");
-            sync.plugins("add", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
+            sync.plugins("add", {scope: context.getScopeName(), scopeHash: context.getScopeHash(), resourceHash: pluginObj.hashkey})
             .then(function (data) {
                 console.log("Plugin added: ", data);
                 $scope.update();
@@ -455,7 +294,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
         };
         $scope.removePlugin = function(pluginObj){
             console.log("Removing a plugin");
-            sync.plugins("remove", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
+            sync.plugins("remove", {scope: context.getScopeName(), scopeHash: context.getScopeHash(), resourceHash: pluginObj.hashkey})
             .then(function (data) {
                 console.log("Plugin removed: ", data);
                 $scope.update();

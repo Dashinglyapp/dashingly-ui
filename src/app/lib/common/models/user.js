@@ -1,8 +1,8 @@
-define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
+define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash', 'view'],
     function(angularAMD) {
-        var module = angular.module('user', ['ng', 'realize-sync', 'realize-lodash']);
+        var module = angular.module('user', ['ng', 'realize-sync', 'realize-lodash', 'view']);
             module
-            .factory("user", ['$rootScope','$q', '$window', 'sync', '_', 'EVENTS', 'authService', function($root,  $q,$window, sync, _, EVENTS, authService) {
+            .factory("user", ['$rootScope','$q', '$window', 'sync', '_', 'EVENTS', 'authService', 'view', function($root,  $q,$window, sync, _, EVENTS, authService) {
                 // console.log('$q.defer',$q.defer);
                 var authObj;
                 var authPromise;
@@ -136,6 +136,12 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash'],
                             };
                             authService.loginConfirmed(data, updater);
                             d.resolve(data);
+                        }).catch(function(err){
+                            var rejection = {};
+                            for(var i = 0; i < err.data.fields.length; i++){
+                                rejection[err.data.fields[i].name] = err.data.fields[i].errors;
+                            }
+                            d.reject(rejection);
                         });
                         return d.promise;
                     }

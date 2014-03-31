@@ -1,10 +1,10 @@
 define(['app', 'angular', 'moment', 'angular-charts'], function(app, angular, moment){
-    app.register.controller('ChartCtrl', ['$scope', 'sync', 'user', 'EVENTS', function($scope, sync, user, EVENTS){
+    app.register.controller('ChartCtrl', ['$scope', 'sync', 'user', 'EVENTS', 'view', 'context', function($scope, sync, user, EVENTS, view, context){
         $scope.hashkey = $scope.widgetData.hashkey;
         $scope.chartType = "line";
 
         $scope.render = function(){
-            sync.views('readOne', {scope: 'user', scopeHash: user.getProp('hashkey'), resourceHash: $scope.widgetData.settings.source.value}).then(function(data){
+            view.getDetail(context.getScopeName(), context.getScopeHash(), $scope.widgetData.settings.source.value).then(function(data){
                 $scope.allChartData = data;
                 $scope.chartConfig = {
                     title : data.name,

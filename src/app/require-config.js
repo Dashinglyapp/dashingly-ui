@@ -37,6 +37,10 @@ require.config({
         'widget': 'lib/common/models/widget',
         'user': 'lib/common/models/user',
         'screen': 'lib/common/models/screen',
+        'view': 'lib/common/models/view',
+        'context': 'lib/common/models/context',
+        'plugin': 'lib/common/models/plugin',
+        'util': 'lib/common/models/util',
 
         //Loader
         'bootstrap': 'bootstrap'

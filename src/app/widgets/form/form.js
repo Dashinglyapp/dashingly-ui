@@ -1,10 +1,10 @@
 define(['app', 'angular', 'moment'], function(app, angular, moment){
-    app.register.controller('FormCtrl', ['$scope', 'sync', 'user', 'EVENTS', function($scope, sync, user, EVENTS){
+    app.register.controller('FormCtrl', ['$scope', 'sync', 'user', 'EVENTS', 'view', 'context', function($scope, sync, user, EVENTS, view, context){
         $scope.hashkey = $scope.widgetData.hashkey;
         $scope.formData = {};
 
         $scope.render = function(){
-            sync.views('readOne', {scope: 'user', scopeHash: user.getProp('hashkey'), resourceHash: $scope.widgetData.settings.source.value}).then(function(data){
+            view.getDetail(context.getScopeName(), context.getScopeHash(), $scope.widgetData.settings.source.value).then(function(data){
                 var fields = data.data.fields;
                  $scope.formOptions = {
                     "uniqueFormId": $scope.hashkey,
@@ -41,7 +41,7 @@ define(['app', 'angular', 'moment'], function(app, angular, moment){
                 postData[$scope.formFields[i].name] = $scope.formData[i];
             }
 
-            sync.views('post', {scope: 'user', scopeHash: user.getProp('hashkey'), resourceHash: $scope.widgetData.settings.source.value, data: postData}).then(function(data){
+            view.saveData(context.getScopeName(), context.getScopeHash(), $scope.widgetData.settings.source.value, postData).then(function(data){
                 console.log("Form saved properly");
             });
         };

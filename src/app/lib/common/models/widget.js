@@ -1,28 +1,16 @@
-define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
+define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'context', 'screen', 'util'],
     function(angularAMD, $) {
-        var module = angular.module('widget', ['ng', 'realize-sync', 'user']);
+        var module = angular.module('widget', ['ng', 'realize-sync', 'user', 'context', 'screen', 'util']);
         module
-            .factory("widget", ['$rootScope','user','$q','$http','$window', '$templateCache', 'sync', function($rootScope, user,$q,$http,$window, $templateCache, sync) {
+            .factory("widget", ['$rootScope','user','$q','$http','$window', '$templateCache', 'sync', 'screen', 'context', 'view', 'util', function($rootScope, user,$q,$http,$window, $templateCache, sync, screen, context, view, util) {
                 var activeWidgets = {};
                 var widgetTemplateList;
                 var defaultName = "default";
 
                 var api = {
-                    listAll:function(){ // list all widgets
-                        var d = $q.defer();
-                        if(widgetTemplateList){
-                            d.resolve(angular.copy(widgetTemplateList));
-                            return d.promise;
-                        }
-                        $http.get('data/widgetList.json').then(function  (obj) {
-                            widgetTemplateList = obj.data;
-                            d.resolve(widgetTemplateList);
-                        });
-                        return d.promise;
-                    },
                     listInstalled: function(){
                         var d = $q.defer();
-                        sync.resource("readList", {scope: "user", scopeHash: user.getProp('hashkey')}).then(function  (data) {
+                        sync.resource("readList", {scope: context.getScopeName(), scopeHash: context.getScopeHash()}).then(function  (data) {
                             d.resolve(data);
                         });
                         return d.promise;
@@ -36,7 +24,9 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                                     widgets.push(data[i]);
                                 }
                             }
-                            d.resolve(widgets);
+                             api.initializeWidgets(widgets).then(function(widgets){
+                                d.resolve(widgets);
+                            });
                         });
                         return d.promise;
                     },
@@ -49,25 +39,94 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                                     widgets.push(data[i]);
                                 }
                             }
-                            d.resolve(widgets);
+                            api.initializeWidgets(widgets).then(function(widgets){
+                                d.resolve(widgets);
+                            });
                         });
                         return d.promise;
                     },
+                    listInstalledByParent: function(hashkey){
+                        var d = $q.defer();
+                        api.detail(hashkey).then(function(data){
+                            api.initializeWidgets(data.related).then(function(widgets){
+                                d.resolve(widgets);
+                            });
+                        });
+                        return d.promise;
+                    },
+                    listAllAvailable: function(){ // list all widgets
+                        var d = $q.defer();
+                        if(widgetTemplateList){
+                            d.resolve(angular.copy(widgetTemplateList));
+                            return d.promise;
+                        }
+                        $http.get('data/widgetList.json').then(function  (obj) {
+                            widgetTemplateList = obj.data;
+                            d.resolve(widgetTemplateList);
+                        });
+                        return d.promise;
+                    },
+                    listAvailableByTag: function(tag){
+                        var d = $q.defer();
+                        api.listAllAvailable().then(function(all){
+                            var available = [];
+                            for(var i = 0; i < Object.keys(all).length; i++){
+                                var key = Object.keys(all)[i];
+                                if(all[key].tags.indexOf('dashboard-item') !== -1){
+                                    available.push(all[key]);
+                                }
+                            }
+                            d.resolve(available);
+                        });
+                        return d.promise;
+                    },
+                    initializeWidgets: function(widgets){
+                      var d = $q.defer();
+                        var new_widgets = [];
+                        api.loadWidgets(widgets).then(function(data){
+                           for(var i = 0; i < widgets.length; i++){
+                                var widget = data[i];
+                                var widgetData = widgets[i];
+                                widget.hashkey = widgetData.hashkey;
+                                widget.endpoints = widgetData.views;
+                                widget.currentView = widgetData.current_view;
+                                widget.parents = widgetData.parents;
+                                widget.name = widgetData.name;
+                                if(widget.settings !== undefined){
+                                    for(var j = 0; j < Object.keys(widget.settings).length; j++){
+                                        var key = Object.keys(widget.settings)[j];
+                                        var setting = widget.settings[key];
+                                        setting.value = widgetData.settings[key];
+                                    }
+                                } else {
+                                    widget.settings = {};
+                                }
+                               new_widgets.push(widget);
+                           }
+                           d.resolve(new_widgets);
+                       });
+                        return d.promise;
+                    },
+                    loadWidgets: function(widgets){
+                        var d = $q.defer();
+                        var promises = [];
+                        for(var i = 0; i < widgets.length; i++){
+                            promises.push(api.loadWidget(widgets[i].type));
+                        }
+                        return $q.all(promises);
+                    },
                     loadWidget:function(widgetType){
+                        /*eslint max-nested-callbacks:1*/
                         var d = $q.defer();
 
-                        // In theory, this should cache results and serve a deep copy of them up when needed.
-                        // In practice, it returns the same object that exists in the cache, without doing a copy.
-                        // You can probably see why this is a problem.
-                        /** if(activeWidgets[widgetType]){
+                        if(activeWidgets[widgetType]){
                             console.log("Found widget in cache: ", widgetType);
                             var data = activeWidgets[widgetType];
-                            var newData = angular.copy(data);
-                            d.resolve(newData);
+                            d.resolve(angular.copy(data));
                             return d.promise;
-                        } **/
+                        }
 
-                        api.listAll()
+                        api.listAllAvailable()
                             .then(function (list) { // wrap the loaded widget object in a promise
                                 var i;
                                 var widgetObj = list[widgetType];
@@ -99,16 +158,54 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                                 }
 
                                 require(deps, function (angularAMD) {
-                                    api.getTemplate(load_data).then(function(template_html){
-                                        console.log('Done loading: ' + widgetType + " :", widgetObj, "Controller is: ", widgetObj.controller);
-                                        widgetObj.template_html = template_html;
-                                        widgetObj.template = load_data.template;
-                                        $templateCache.put(widgetObj.template, widgetObj.template_html);
-                                        activeWidgets[widgetType] = d.promise;
-                                        d.resolve(widgetObj);
+                                    api.getDependencies(widgetObj).then(function(dependencies){
+                                        widgetObj.deps = dependencies;
+                                        api.getTemplate(load_data).then(function(template_html){
+                                            console.log('Done loading: ' + widgetType + " :", widgetObj, "Controller is: ", widgetObj.controller);
+                                            widgetObj.template_html = template_html;
+                                            widgetObj.template = load_data.template;
+                                            $templateCache.put(widgetObj.template, widgetObj.template_html);
+                                            activeWidgets[widgetType] = widgetObj;
+                                            d.resolve(widgetObj);
+                                        });
                                     });
                                 });
                             });
+                        return d.promise;
+                    },
+                    getDependencies: function(widgetObj){
+                        var d = $q.defer();
+                        if(!widgetObj.noAuth){
+                            view.listAvailableForScope(context.getScopeName(), context.getScopeHash()).then(function(views){
+                                  var compatiblePlugins = [];
+                                  if(widgetObj.settings !== undefined){
+                                    for(var i = 0; i < Object.keys(widgetObj.settings).length; i++){
+                                        var key = Object.keys(widgetObj.settings)[i];
+                                        if(widgetObj.settings[key].type === "endpoint"){
+                                            var widgetTags = widgetObj.settings[key].meta.tags;
+                                            for(var j = 0; j < views.length; j++){
+                                                var viewTags = views[j].tags;
+                                                var intersection = widgetTags.filter(function(n) {
+                                                    return viewTags.indexOf(n) !== -1;
+                                                });
+                                                if(intersection.length > 0){
+                                                    compatiblePlugins.push(views[j].plugin);
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                                var deps = {
+                                    compatible: util.uniqueArray(compatiblePlugins),
+                                    required: []
+                                };
+                                d.resolve(deps);
+
+                            });
+                        } else {
+                            d.resolve({compatible: [], required: []});
+                        }
                         return d.promise;
                     },
                     getTemplate:function(widgetObj){
@@ -141,25 +238,49 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                     },
                     create: function(data){
                         var d = $q.defer();
+                        var settings = {};
+                        var endpoints = [];
+                        if(data.settings !== undefined){
+                            for(var i = 0; i < Object.keys(data.settings).length; i++){
+                                var key = Object.keys(data.settings)[i];
+                                var setting = data.settings[key];
+                                if(setting.default !== undefined){
+                                    settings[key] = setting.default;
+                                    if(setting.type === "endpoint"){
+                                        endpoints.push(setting.default);
+                                    }
+                                }
+                            }
+                        }
+
+                        var currentView;
+                        if(data.display !== undefined && data.display.defaults !== undefined){
+                            var screenFormat = screen.getFormat();
+                            currentView = data.display.defaults[screenFormat];
+                        }
+
                         var postData = {
-                            views: data.endpoints,
+                            views: endpoints,
                             parent: data.parent,
                             name: data.name,
                             type: data.type,
-                            settings: data.defaultSettings || {},
-                            current_view: data.currentView
+                            settings: settings,
+                            current_view: currentView
                         };
-                        sync.resource("create", {scope: "user", scopeHash: user.getProp('hashkey'), data: postData})
+
+                        sync.resource("create", {scope: context.getScopeName(), scopeHash: context.getScopeHash(), data: postData})
                             .then(function(data){
                                 console.log("Added widget to dashboard: ", data);
-                                d.resolve(data);
+                                api.initializeWidgets([data]).then(function(widgets){
+                                    d.resolve(widgets[0]);
+                                });
                             });
 
                         return d.promise;
                     },
                     remove: function(hashkey){
                         var d = $q.defer();
-                        sync.resource('remove', {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: hashkey}).then(function(data){
+                        sync.resource('remove', {scope: context.getScopeName(), scopeHash: context.getScopeHash(), resourceHash: hashkey}).then(function(data){
                             console.log("Got widget detail: ", data);
                             d.resolve(data);
                         });
@@ -167,7 +288,7 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                     },
                     detail:function(hashkey){
                         var d = $q.defer();
-                        sync.resource('readTree', {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: hashkey}).then(function(data){
+                        sync.resource('readTree', {scope: context.getScopeName(), scopeHash: context.getScopeHash(), resourceHash: hashkey}).then(function(data){
                             console.log("Got widget detail: ", data);
                             d.resolve(data);
                         });
@@ -179,7 +300,7 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                         if(views !== undefined){
                             data.views = views;
                         }
-                         sync.resource("update", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: hashkey, data: data})
+                         sync.resource("update", {scope: context.getScopeName(), scopeHash: context.getScopeHash(), resourceHash: hashkey, data: data})
                             .then(function(data){
                                 console.log("Updated settings for widget: ", data);
                                 d.resolve(data);
@@ -189,7 +310,7 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                     saveView: function(hashkey, viewName){
                         var d = $q.defer();
                         var data = {current_view: viewName};
-                         sync.resource("update", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: hashkey, data: data})
+                         sync.resource("update", {scope: context.getScopeName(), scopeHash: context.getScopeHash(), resourceHash: hashkey, data: data})
                             .then(function(data){
                                 console.log("Updated view for widget: ", data);
                                 d.resolve(data);
@@ -208,6 +329,77 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular'],
                     },
                     getTopLevelWidget: function(){
                         return topLevelWidget;
+                    }
+                };
+                return api;
+            }])
+
+            .factory('widgetSettings', ['user','$q','$http', 'sync', 'view', 'context', 'widget', '$rootScope', 'EVENTS', function(user, $q, $http, sync, view, context, widget, $root, EVENTS) {
+                var api = {
+                    getSettingsForm: function(widgetObj){
+                        var d = $q.defer();
+                        var settings = widgetObj.settings;
+                         view.listAvailableForScope(context.getScopeName(), context.getScopeHash()).then(function(viewData){
+                            var formFields = [];
+                            for(var i = 0; i < Object.keys(settings).length; i++){
+                                var key = Object.keys(settings)[i];
+                                var field = settings[key];
+
+                                var formField = {
+                                    type: field.type,
+                                    label: field.description,
+                                    name: key,
+                                    key: key
+                                };
+
+                                switch(field.type){
+                                    case "endpoint":
+                                        var options = [];
+                                        for(var j = 0; j < field.meta.tags.length; j++){
+                                            for(var m = 0; m < viewData.length; m++){
+                                                if(viewData[m].installed === true){
+                                                    if(viewData[m].tags.indexOf(field.meta.tags[j]) !== -1){
+                                                        options.push({
+                                                            name: viewData[m].name,
+                                                            value: viewData[m].hashkey
+                                                        });
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        formField.type = "select";
+                                        formField.options = options;
+                                        break;
+                                    default:
+                                        break;
+                                }
+
+                                formFields.push(formField);
+                            }
+                             d.resolve(formFields);
+                         });
+                        return d.promise;
+                    },
+                    saveSettingsForm: function(widgetData, formData){
+                        var views = widgetData.endpoints;
+                        var patchData = {};
+                        for(var i = 0; i < Object.keys(formData).length; i++){
+                            var key = Object.keys(formData)[i];
+                            if(formData[key].value !== undefined){
+                                patchData[key] = formData[key].value;
+                            } else {
+                                patchData[key] = formData[key];
+                            }
+
+                            widgetData.settings[key] = widgetData.settings[key] || {};
+                            widgetData.settings[key].value = patchData[key];
+                            if(widgetData.settings[key].type === "endpoint"){
+                                views.push(patchData[key]);
+                            }
+                        }
+                        widget.saveSettings(widgetData.hashkey, patchData, views).then(function(){
+                            $root.$emit(EVENTS.widgetSettingsChange, widgetData.hashkey);
+                        });
                     }
                 };
                 return api;
