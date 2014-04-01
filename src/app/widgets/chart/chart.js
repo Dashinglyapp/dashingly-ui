@@ -1,4 +1,4 @@
-define(['app', 'angular', 'moment', 'angular-charts'], function(app, angular, moment){
+define(['app', 'angular', 'moment', 'angular-charts', 'view', 'context', 'realize-sync'], function(app, angular, moment){
     app.register.controller('ChartCtrl', ['$scope', 'sync', 'user', 'EVENTS', 'view', 'context', function($scope, sync, user, EVENTS, view, context){
         $scope.hashkey = $scope.widgetData.hashkey;
         $scope.chartType = "line";

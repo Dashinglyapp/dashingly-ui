@@ -1,4 +1,4 @@
-define(['app', 'angular'], function(app, angular){
+define(['app', 'angular', 'user'], function(app, angular){
     app.register.controller('IndexCtrl', ['$scope', 'user', 'EVENTS', function($scope, user, EVENTS){
 
         $scope.data = {};

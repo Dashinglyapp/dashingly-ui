@@ -1,4 +1,4 @@
-define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'realize-sync'], function(app, angularAMD, angular, $){
+define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'realize-sync', 'widget', 'user', 'screen'], function(app, angularAMD, angular, $){
         app.register.controller('WidgetDashboardCtrl', ['$scope', 'widget', 'widgetMeta', '$element', '$rootScope', 'sync', 'user', 'EVENTS', 'screen', '$modal', function($scope, widget, widgetMeta, $element, $root, sync, user, EVENTS, screen, $modal){
             $scope.hashkey = $scope.widgetData.hashkey;
             console.log("Loaded dashboard widget", $scope.hashkey);

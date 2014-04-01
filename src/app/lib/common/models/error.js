@@ -15,7 +15,7 @@
                 $root.$watch(user.isAuthed, update);
 
                 var api = {
-                    
+
                 };
                 return api;
             }]);
