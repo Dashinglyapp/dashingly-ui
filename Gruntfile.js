@@ -242,22 +242,15 @@ module.exports = function ( grunt ) {
             // replace index tokens with appropriate css and js files
             grunt.file.expand(
               {nonull:false,debug:false},
-              grunt.config.get('build.dirs.app') + '**/*.{css,js}'
+              grunt.config.get('build.dirs.app') + '**/*.css'
             )
             .forEach(function(path) {
-              if(/thirdparty|widgets/.test(path)) {
+              if(/widgets/.test(path)) {
                 return;
               }
               var newStr = path.replace(/.*?\/app\//,'');
-              if(/js$/.test(path)){
-                // add each js file to our karma files
-                // karmaFiles.push('build/app/' + newStr);
-                // wrap the js with the appropriate tag
-                jsStr += '    <script type="text/javascript" src="' + newStr + '"></script>\n';
-              } else {
-                // wrap the css with the appropriate tag
-                cssStr += '    <link rel="stylesheet" type="text/css" href="/app/' + newStr + '" />\n';
-              }
+              // wrap the css with the appropriate tag
+              cssStr += '    <link rel="stylesheet" type="text/css" href="/app/' + newStr + '" />\n';
             });
             // expand the list of test files and append them to the karma files array
             // karmaFiles.push.apply(karmaFiles,grunt.file.expand('src/app/**/*spec.js'));
@@ -303,15 +296,15 @@ module.exports = function ( grunt ) {
             // since there are only three files now, insert them directly instead of looping like concat.build_index.
             return content
             .replace(
-              / {4}<\!-- token_replace_thirdparty_js_here -->/i,
-              '    <script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('concat.compile_thirdparty_js.dest'))[0].replace('dist','') + '"></script>\n'
+              '<\!-- token_replace_thirdparty_js_here -->',
+              '<script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('concat.compile_thirdparty_js.dest'))[0].replace('dist','') + '"></script>\n'
             )
             .replace(
-              / {4}<\!-- token_replace_js_here -->/i,
-              '    <script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('requirejs.compile.options.out'))[0].replace('dist','') + '"></script>\n'
+              '<\!-- token_replace_js_here -->',
+              '<script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('requirejs.compile.options.out'))[0].replace('dist','') + '"></script>\n'
             )
             .replace(
-              / {4}<\!-- token_replace_css_here -->/i,
+              '<\!-- token_replace_css_here -->',
               '    <link rel="stylesheet" type="text/css" href="' + grunt.file.expand(grunt.config.get('concat.compile_css.dest'))[0].replace('dist','') + '" />\n'
             )
                 .replace(

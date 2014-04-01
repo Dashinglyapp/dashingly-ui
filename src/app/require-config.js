@@ -4,6 +4,7 @@ require.config({
 		'angular': 'thirdparty/angular/angular',
 		'angular-ui-router': 'thirdparty/angular-ui-router/release/angular-ui-router',
 		'jquery': 'thirdparty/jquery/jquery',
+		'jquery-ui': 'thirdparty/jquery-ui/ui/minified/jquery-ui.min',
 		'lodash': 'thirdparty/lodash/dist/lodash',
 		'angular-ui-bootstrap': 'thirdparty/angular-bootstrap/ui-bootstrap-tpls',
 		'angularMocks': 'thirdparty/angular-mocks/angular-mocks',
@@ -21,6 +22,8 @@ require.config({
 		'angular-formly': 'thirdparty/angular-formly/dist/formly',
 		'angular-growl': 'thirdparty/angular-growl/build/angular-growl',
 		'angular-animate': 'thirdparty/angular-animate/angular-animate',
+		'angular-gridster': 'thirdparty/angular-gridster/dist/scripts/gridster.min',
+		'es5-shim': 'thirdparty/es5-shim/es5-shim',
 
 		// Templates
 		'html_templates_jsfied': 'html_templates_jsfied',
@@ -89,6 +92,9 @@ require.config({
 		},
 		'angular-animate': {
 			deps: ['angular']
+		},
+		'angular-gridster': {
+			deps: ['angular', 'jquery-ui', 'es5-shim']
 		}
 	},
 	priority: [

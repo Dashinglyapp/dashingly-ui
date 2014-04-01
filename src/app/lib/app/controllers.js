@@ -135,10 +135,6 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 
 	}])
 
-/**
- * Controllers
- */
-
 	.controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', 'EVENTS', '$rootScope', function ($scope, $window, user, sync, EVENTS, $root) {
 		console.log('TopNavCtrl $scope', $scope);
 
@@ -162,45 +158,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 	}])
 
 
-	.controller("LeftMenuCtrl", ['$scope', 'user', 'sync', 'EVENTS', function ($scope, user, sync, EVENTS) {
-		$scope.dashboardListSource = 'installed';
-		console.log('LeftMenuCtrl $scope', $scope);
-		var basePlugins;
-
-		$scope.updatePlugins = function () {
-			sync.plugins('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
-				.then(function (data) {
-					console.log("Plugin list: ", data);
-					$scope.pluginList = data;
-				});
+	.controller("LeftMenuCtrl", ['$scope', '$rootScope', 'EVENTS', function ($scope, $root, EVENTS) {
+		$scope.logout = function(){
+			$root.$emit(EVENTS.logoutAttempt);
 		};
-
-
-		$scope.addPlugin = function (pluginObj) {
-			console.log("Adding a plugin");
-			sync.plugins("add", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
-				.then(function (data) {
-					console.log("Plugin added: ", data);
-					$scope.updatePlugins();
-				});
-		};
-		$scope.removePlugin = function (pluginObj) {
-			console.log("Removing a plugin");
-			sync.plugins("remove", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
-				.then(function (data) {
-					console.log("Plugin added: ", data);
-					$scope.updatePlugins();
-				});
-		};
-
-
-		$scope.update = function () {
-			if(user.isAuthed()){
-				$scope.updatePlugins();
-			}
-		};
-
-		$scope.$watch(user.isAuthed, $scope.update);
 
 	}])
 

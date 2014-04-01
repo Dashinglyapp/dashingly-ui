@@ -103,6 +103,9 @@ define(['angularAMD', 'http-auth-interceptor', 'angular-growl'], function (angul
 				case 'remove':
 					promise = normalizeResponseData($http({method: 'DELETE', url: route + "/" + options.resourceHash}));
 					break;
+				case 'updateLayoutList':
+					promise = normalizeResponseData($http.post(route + '/layout', options.data));
+					break;
 				default:
 					break;
 			}
