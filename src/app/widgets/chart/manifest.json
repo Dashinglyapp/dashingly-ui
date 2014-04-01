@@ -1,40 +1,40 @@
 {
-    "title": "Chart",
-    "description": "A basic chart",
-    "controller": "ChartCtrl",
-    "type": "chart",
-    "version": ".1",
-    "authors": ["Realize"],
-    "tags": ["dashboard-item", "chart"],
-    "plugin": "",
-    "javascripts": ["chart.js"],
-    "templates": ["chart.tpl.html"],
-    "css": [],
-    "settings":{
-        "source": {
-            "type": "endpoint",
-            "description": "Data source",
-            "meta": {
-                "tags": ["chart"]
-            },
-            "required": true,
-            "default": "d9ec9527e5fc7c8a61d203ea97164466"
-        }
-    },
-    "display": {
-        "views": {
-            "chart": {
-                "type": "chart",
-                "formats": ["desktop", "mobile"]
-            },
-            "number": {
-                "type": "number",
-                "formats": ["mobile", "desktop"]
-            }
-        },
-        "defaults": {
-            "desktop": "chart",
-            "mobile": "number"
-        }
-    }
+	"title": "Chart",
+	"description": "A basic chart",
+	"controller": "ChartCtrl",
+	"type": "chart",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["dashboard-item", "chart"],
+	"plugin": "",
+	"javascripts": ["chart.js"],
+	"templates": ["chart.tpl.html"],
+	"css": [],
+	"settings": {
+		"source": {
+			"type": "endpoint",
+			"description": "Data source",
+			"meta": {
+				"tags": ["chart"]
+			},
+			"required": true,
+			"default": "d9ec9527e5fc7c8a61d203ea97164466"
+		}
+	},
+	"display": {
+		"views": {
+			"chart": {
+				"type": "chart",
+				"formats": ["desktop", "mobile"]
+			},
+			"number": {
+				"type": "number",
+				"formats": ["mobile", "desktop"]
+			}
+		},
+		"defaults": {
+			"desktop": "chart",
+			"mobile": "number"
+		}
+	}
 }

@@ -1,14 +1,14 @@
 {
-    "title": "Index",
-    "description": "Main realize index",
-    "controller": "IndexCtrl",
-    "type": "index",
-    "version": ".1",
-    "authors": ["Realize"],
-    "tags": ["core"],
-    "plugin": "",
-    "javascripts": ["index.js"],
-    "templates": ["index.tpl.html"],
-    "css": [],
-    "noAuth": true
+	"title": "Index",
+	"description": "Main realize index",
+	"controller": "IndexCtrl",
+	"type": "index",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["core"],
+	"plugin": "",
+	"javascripts": ["index.js"],
+	"templates": ["index.tpl.html"],
+	"css": [],
+	"noAuth": true
 }

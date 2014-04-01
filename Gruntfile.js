@@ -627,31 +627,30 @@ module.exports = function ( grunt ) {
 
       //  When a JavaScript unit test file changes, we only want to lint it and
       //  run the unit tests. We don't need to live reload
-      test: { files: '<%= src.dirs.app %>**/*.spec.js', tasks: [ 'eslint:test', 'karma:unit:run' ] },
+      // test: { files: '<%= src.dirs.app %>**/*.spec.js', tasks: [ 'eslint:test', 'karma:unit:run'] },
       // When the rootfiles change, lint them.
-      rootfiles:{files: ['Gruntfile.js','package.json','bower.json'],tasks:['eslint:rootfiles','build','configureProxies','unit'],options:{cwd:'.'}},
+      rootfiles:{files: ['Gruntfile.js','package.json','bower.json'],tasks:['eslint:rootfiles','build','configureProxies'],options:{cwd:'.'}},
       // compile app's angular dependencies on change
-      main_app_module: {files:'app.js', tasks: ['eslint:built_appjs','unit'] },
-      angular_modules: {files: ['**/*-module.js'], tasks: ['eslint:src_js','sync:src_js_css_html_to_build','unit'] },
-      static_files_excluding_angular_modules:{files: ['**/*.{css,js,html}','!**/*-module.js','!index.html'], tasks: ['sync:src_js_css_html_to_build','unit']},
+      main_app_module: {files:'app.js', tasks: ['eslint:built_appjs'] },
+      angular_modules: {files: ['**/*-module.js'], tasks: ['eslint:src_js','sync:src_js_css_html_to_build'] },
+      static_files_excluding_angular_modules:{files: ['**/*.{css,js,html}','!**/*-module.js','!index.html'], tasks: ['sync:src_js_css_html_to_build']},
       // compile index on change
-      index: {files: 'index.html', tasks: ['concat:build_index','unit'] },
+      index: {files: 'index.html', tasks: ['concat:build_index'] },
       // Recompile template cache on change
       compile_partials_to_tpls: {
         files: ['**/*.html'],
         tasks: [
           'html2js',
           'eslint:built_html_templates',
-          'concat:build_index',
-          'unit'
+          'concat:build_index'
         ]
       },
       // compile less on change
-      appless:{ files: 'css/app.less', tasks: ['less:build','unit']},
+      appless:{ files: 'css/app.less', tasks: ['less:build']},
       // add bootstrap less files
-      bootstrapless:{ files: 'thirdparty/bootstrap/**/*.less', tasks: ['less:build','unit']},
+      bootstrapless:{ files: 'thirdparty/bootstrap/**/*.less', tasks: ['less:build']},
       // Copy any changed assets
-      assets:{files:'assets/**', tasks:['sync:assets','unit']}
+      assets:{files:'assets/**', tasks:['sync:assets']}
 
     }
   };
@@ -664,10 +663,10 @@ module.exports = function ( grunt ) {
 
   // define a task for our unit tests.  Adding the "run" param since we only use this in watch
   // where karma is already started
-  grunt.registerTask( 'unit', ['buildSpec', 'karma:unit:run']);
+  // grunt.registerTask( 'unit', ['buildSpec', 'karma:unit:run']);
 
   // Initialize the dev setup - it does a clean build before watching for changes
-  grunt.registerTask( 'dev', ['build', 'configureProxies', 'configureRewriteRules', 'connect:livereload', 'karma:unit', 'watch' ]);
+  grunt.registerTask( 'dev', ['build', 'configureProxies', 'configureRewriteRules', 'connect:livereload',/* 'karma:unit',*/ 'watch' ]);
 
   grunt.registerTask( 'e2e',
     grunt.file.exists('./node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar') ? // is standalone server installed?

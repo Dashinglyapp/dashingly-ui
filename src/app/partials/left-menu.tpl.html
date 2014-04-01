@@ -1,6 +1,16 @@
 <div class="menuleft"
       ng-class="{active:$root.showleftmenu}"
-      ng-click="$event.stopPropagation();">
+      ng-click="$event.stopPropagation();" ng-controller="LeftMenuCtrl">
 
-    <plugin-list></plugin-list>
+  <div class="btn-group-vertical">
+    <ul class="nav nav-pils nav-stacked">
+      <li><a>Invite</a></li>
+      <li><a>Developers</a></li>
+      <li><a>Settings</a></li>
+      <li><a>Authorizations</a></li>
+      <li ng-click="$emit(EVENTS.logoutAttempt)"><a>Log Out</a></li>
+      <li><a>Contact Us</a></li>
+      <li><a>Feedback</a></li>
+    </ul>
+  </div>
 </div>
