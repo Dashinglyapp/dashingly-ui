@@ -49,6 +49,11 @@
 
 @white: #FFF;
 
+@black: #000;
+
+// make it so bootstrap never collapses the navbar on mobile
+@grid-float-breakpoint:0;
+
 .absolute-center(@margin: auto) {
   position:absolute;
   margin:@margin;
@@ -200,60 +205,12 @@ a,a:link,a:visited,a:hover,a:active, {
 }
 .menuleft{
   left:-90%;
-  .plugin-type-nav {
-    border-bottom-color: @medgrey;
-    // text-align:center;
-    li{
-      > a {
-        background-color: #555;
-        padding:5px 10px;
-        border-color:@medgrey;
-      }
-    }
-    li.active{
-      > a{
-        background-color:@darkgrey;
-        border-bottom-color:@darkgrey;
-      }
-    }
+  &::-webkit-scrollbar {
+    display: none;
   }
-  .plugin-nav{
-    margin: 0.5em 0;
-    .btn{
-      padding:0 0.5em;
-      line-height:2;
-    }
-    .icon-pencil{
-      padding:0 0.4em;
-    }
-    .btn.active,.btn:active{
-      color:@green;
-    }
-    .plugin-type-title{
-      color: @medgrey;
-      text-align: center;
-      font-size: 150%;
-      margin-right:0.5em;
-    }
-  }
-  .plugin-list{
-    display:block;
-    .btn{
-      background-color:@medgrey;
-      color:@white;
-    }
-    .btn.active,.btn:active{
-      color:@green;
-      background-color:@lightgrey;
-    }
-    .plugin-info,.plugin-settings{
-      float:right;
-      color:@darkgrey;
-      padding:0 0 0 0.5em;
-      vertical-align:middle;
-    }
-  }
+
 }
+
 .menuright{
   left:100%;
   color:@white;
@@ -308,10 +265,6 @@ a,a:link,a:visited,a:hover,a:active, {
   }
 }
 
-.chart{
-    height: 300px;
-}
-
 .navbar{
   .navbar-toggle {
     .icon-bar {
@@ -336,11 +289,52 @@ a,a:link,a:visited,a:hover,a:active, {
 
 .widget{
     padding: 5px;
+    height: 250px;
 
     &.widget-border{
         border-top: 1px solid #ccc;
         margin-top: 15px;
         padding-top: 15px;
+    }
+}
+
+.chart{
+    height: 225px;
+}
+
+/**
+*
+* Plugins
+*/
+
+.plugin-list{
+    display:block;
+    color:@white;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .plugin-list-item{
+        background-color: @medgrey;
+        min-height: 50px;
+        padding: 10px;
+        margin: 10px;
+
+        .plugin-body{
+            .dependency{
+                display: inline-block;
+                margin-right: 20px;
+            }
+        }
+
+      .plugin-actions{
+        float: right;
+        display: inline;
+      }
+    }
+
+    .search-box{
+        color: @black;
     }
 }
 

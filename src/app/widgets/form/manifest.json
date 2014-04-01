@@ -1,35 +1,36 @@
 {
-    "title": "Form",
-    "controller": "FormCtrl",
-    "type": "form",
-    "version": ".1",
-    "authors": ["Realize"],
-    "tags": ["dashboard-item"],
-    "plugin": "",
-    "javascripts": ["form.js"],
-    "templates": ["form.tpl.html"],
-    "css": [],
-    "settings":{
-        "source": {
-            "type": "endpoint",
-            "description": "Data to enter",
-            "meta": {
-                "tags": ["form"]
-            },
-            "required": true,
-            "default": "482b2228e1992df89d1c69b7913ee03d"
-        }
-    },
-    "display": {
-        "views": {
-            "form": {
-                "type": "form",
-                "formats": ["mobile", "desktop"]
-            }
-        },
-        "defaults": {
-            "desktop": "form",
-            "mobile": "form"
-        }
-    }
+	"title": "Form",
+	"description": "A basic form",
+	"controller": "FormCtrl",
+	"type": "form",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["dashboard-item"],
+	"plugin": "",
+	"javascripts": ["form.js"],
+	"templates": ["form.tpl.html"],
+	"css": [],
+	"settings": {
+		"source": {
+			"type": "endpoint",
+			"description": "Data to enter",
+			"meta": {
+				"tags": ["form"]
+			},
+			"required": true,
+			"default": "482b2228e1992df89d1c69b7913ee03d"
+		}
+	},
+	"display": {
+		"views": {
+			"form": {
+				"type": "form",
+				"formats": ["mobile", "desktop"]
+			}
+		},
+		"defaults": {
+			"desktop": "form",
+			"mobile": "form"
+		}
+	}
 }

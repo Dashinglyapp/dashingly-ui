@@ -1,13 +1,13 @@
 {
-    "title": "Login",
-    "controller": "LoginCtrl",
-    "type": "login",
-    "version": ".1",
-    "authors": ["Realize"],
-    "tags": ["core"],
-    "plugin": "",
-    "javascripts": ["login.js"],
-    "templates": ["login.tpl.html"],
-    "css": [],
-    "noAuth": true
+	"title": "Login",
+	"controller": "LoginCtrl",
+	"type": "login",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["core"],
+	"plugin": "",
+	"javascripts": ["login.js"],
+	"templates": ["login.tpl.html"],
+	"css": [],
+	"noAuth": true
 }

@@ -1,13 +1,13 @@
 {
-    "title": "Register",
-    "controller": "RegisterCtrl",
-    "type": "register",
-    "version": ".1",
-    "authors": ["Realize"],
-    "tags": ["core"],
-    "plugin": "",
-    "javascripts": ["register.js"],
-    "templates": ["register.tpl.html"],
-    "css": [],
-    "noAuth": true
+	"title": "Register",
+	"controller": "RegisterCtrl",
+	"type": "register",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["core"],
+	"plugin": "",
+	"javascripts": ["register.js"],
+	"templates": ["register.tpl.html"],
+	"css": [],
+	"noAuth": true
 }
