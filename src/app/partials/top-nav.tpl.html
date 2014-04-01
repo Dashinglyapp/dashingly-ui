@@ -1,9 +1,10 @@
 <div class="top-nav" ng-controller="TopNavCtrl">
   <nav class="navbar navbar-default navbar-static-top" role="navigation">
 
-    <!-- If User Authed -->
     <div class="container">
       <div class="navbar-header">
+
+        <!-- If User Authed -->
         <ul class="nav navbar-nav" ng-if="authed">
           <li class="navbar-link">
             <a ng-click="$root.showleftmenu=!$root.showleftmenu;$event.stopPropagation();"

@@ -98,11 +98,11 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
 
     .controller('WidgetRouteCtrl', ["$rootScope", "$scope", '$routeParams', "user", 'widget', 'sync', 'EVENTS', function($root, $scope, $routeParams, user, widget, sync, EVENTS){
 
+        console.log("running widgetRouteCtrl with name ", name, "type ", type);
         var name = $routeParams.name || 'default';
         var type = $routeParams.type || 'index';
 
-        console.log("WidgetRouteCtrl name", name, "type", type);
-        // $root.$emit(EVENTS.switchWidgetTree, type, name);
+        $root.$emit(EVENTS.switchWidgetTree, type, name);
     }])
 
     .controller("DashboardsCtrl", ["$scope", "$window", "user", 'widget', '$rootScope', '$document', 'EVENTS', function($scope, $window, user, widget, $root, $document, EVENTS){
@@ -147,9 +147,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget'], function(
     .controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', 'EVENTS', '$rootScope', function($scope, $window, user, sync, EVENTS, $root){
         console.log('TopNavCtrl $scope',$scope);
         $scope.logout = function(){
-            $root.$emit(EVENTS.logoutSuccess);
             sync.logout()
                 .finally(function () {
+                    // TODO this needs a logout spinner in case the login takes a while
+                    $root.$emit(EVENTS.logoutSuccess);
                     user.deAuthorize();
                 });
         };

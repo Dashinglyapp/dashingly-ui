@@ -1,47 +1,45 @@
 <div ng-controller="IndexCtrl">
-      <div ng-if="authed">
-        Great.  You're signed in.  Go to your default dashboard.
+      <div class="jumbotron">
+        <h1>Welcome to a new kind of home for your data.</h1>
+        <p class="lead">Realize is the health tracking tool we have all been waiting for.</p>
+
+         <form>
+            <p class="form-group"><label for='email'>Email</label><input type='email' ng-model="data.email"></input></p>
+            <p class="form-group"><label for='password'>Password</label><input type='password' ng-model="data.password"></input></p>
+
+            <div class="btn-group">
+                <button
+                        class="btn btn-success btn-lg"
+                        type="submit"
+                        ng-click="register()"
+                        >
+                    Sign up now!
+                </button>
+            </div>
+        </form>
       </div>
-      <div ng-if="!authed">
-        <div class="jumbotron">
-          <h1>Welcome to a new kind of home for your data.</h1>
-          <p class="lead">Realize is the health tracking tool we have all been waiting for.</p>
-           <form>
-              <p class="form-group"><label for='email'>Email</label><input type='email' ng-model="data.email"></input></p>
-              <p class="form-group"><label for='password'>Password</label><input type='password' ng-model="data.password"></input></p>
-              <div class="btn-group">
-                  <button
-                          class="btn btn-success btn-lg"
-                          type="submit"
-                          ng-click="register()">
-                      Sign up now!
-                  </button>
-              </div>
-          </form>
+
+      <div class="row marketing">
+        <div class="col-lg-6">
+          <h4>Get all of your data in one place</h4>
+          <p>The data we track is scattered across dozens of different tools right now. Realize lets you unify your data in one secure place.</p>
+
+          <h4>Set goals and run experiments</h4>
+          <p>Want to figure out if using facebook less will improve your mood? Realize can leverage cross-platform data to make it happen.</p>
+
+          <h4>Monitor your health</h4>
+          <p>Track your health over time using our analysis tools</p>
         </div>
 
-        <div class="row marketing">
-          <div class="col-lg-6">
-            <h4>Get all of your data in one place</h4>
-            <p>The data we track is scattered across dozens of different tools right now. Realize lets you unify your data in one secure place.</p>
+        <div class="col-lg-6">
+          <h4>Extend what it can do</h4>
+          <p>Realize is completely extensible.  Want to add a new type of analysis?  Go ahead and do it.</p>
 
-            <h4>Set goals and run experiments</h4>
-            <p>Want to figure out if using facebook less will improve your mood? Realize can leverage cross-platform data to make it happen.</p>
+          <h4>Run it on your own server</h4>
+          <p>Realize is open source, so you can just go ahead and run it on your own server. Get started <a href="https://github.com/realizeapp/realize-core">here.</a></p>
 
-            <h4>Monitor your health</h4>
-            <p>Track your health over time using our analysis tools</p>
-          </div>
-
-          <div class="col-lg-6">
-            <h4>Extend what it can do</h4>
-            <p>Realize is completely extensible.  Want to add a new type of analysis?  Go ahead and do it.</p>
-
-            <h4>Run it on your own server</h4>
-            <p>Realize is open source, so you can just go ahead and run it on your own server. Get started <a href="https://github.com/realizeapp/realize-core">here.</a></p>
-
-            <h4>Make mobile health apps more easily</h4>
-            <p>Let Realize take care of the backend and API integrations, and just focus on building your app.  <a href="mailto:hello@realize.pe" target="_top">Contact us to learn more!</a></p>
-          </div>
+          <h4>Make mobile health apps more easily</h4>
+          <p>Let Realize take care of the backend and API integrations, and just focus on building your app.  <a href="mailto:hello@realize.pe" target="_top">Contact us to learn more!</a></p>
         </div>
       </div>
 </div>

@@ -83,13 +83,12 @@ define([
 
     // run is where we set initial rootscope properties
     .run(['$rootScope', 'user', 'EVENTS', function ($root, user, EVENTS) {
-        // debugging.enableDebugging();
-        // set userprops
+
         // check user auth status on initial pageload
         $root.authed = user.isAuthed();
-        // change authed on login
         $root.$on(EVENTS.loginSuccess, function() {
-            $root.authed = true;
+          // change authed on login
+          $root.authed = true;
         });
         $root.$on(EVENTS.loginFailed, function() {
             $root.authed = false;
