@@ -19,6 +19,8 @@ require.config({
 		'moment': 'thirdparty/momentjs/min/moment.min',
 		'ngRoute': 'thirdparty/angular-route/angular-route',
 		'angular-formly': 'thirdparty/angular-formly/dist/formly',
+		'angular-growl': 'thirdparty/angular-growl/build/angular-growl',
+		'angular-animate': 'thirdparty/angular-animate/angular-animate',
 
 		// Templates
 		'html_templates_jsfied': 'html_templates_jsfied',
@@ -41,6 +43,8 @@ require.config({
 		'context': 'lib/common/models/context',
 		'plugin': 'lib/common/models/plugin',
 		'util': 'lib/common/models/util',
+		'notification': 'lib/common/models/notification',
+		'error': 'lib/common/models/error',
 
 		//Loader
 		'bootstrap': 'bootstrap'
@@ -78,6 +82,12 @@ require.config({
 			deps: ['angular']
 		},
 		'ngRoute': {
+			deps: ['angular']
+		},
+		'angular-growl': {
+			deps: ['angular']
+		},
+		'angular-animate': {
 			deps: ['angular']
 		}
 	},

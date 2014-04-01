@@ -1,5 +1,5 @@
-define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'], function (app, angular, $) {
-	app.controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', 'plugin', function ($root, $scope, user, widget, widgetMeta, EVENTS, $location, plugin) {
+define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 'notification'], function (app, angular, $) {
+	app.controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', 'plugin', 'notification', function ($root, $scope, user, widget, widgetMeta, EVENTS, $location, plugin, notification) {
 		$scope.widgetMeta = widgetMeta;
 		$scope.widgetData = undefined;
 		$scope.currentWidget = {
@@ -126,12 +126,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 		};
 
 		$scope.update = function () {
-			$scope.updateDashboards();
+			if(user.isAuthed()){
+				$scope.updateDashboards();
+			}
 		};
-
-		$scope.$on('$viewContentLoaded', function () {
-			$scope.update();
-		});
 
 		$scope.$watch(user.isAuthed, $scope.update);
 
@@ -197,18 +195,16 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 
 
 		$scope.update = function () {
-			$scope.updatePlugins();
+			if(user.isAuthed()){
+				$scope.updatePlugins();
+			}
 		};
-
-		$scope.$on('$viewContentLoaded', function () {
-			$scope.update();
-		});
 
 		$scope.$watch(user.isAuthed, $scope.update);
 
 	}])
 
-	.controller('WidgetActionsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', function ($scope, user, sync, EVENTS, widget, $root, view, context, widgetSettings) {
+	.controller('WidgetActionsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', 'notification', function ($scope, user, sync, EVENTS, widget, $root, view, context, widgetSettings, notification) {
 		$scope.collapseSettings = true;
 		$scope.formData = {};
 
@@ -235,7 +231,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 
 		$scope.save = function () {
 			console.log("Saving settings with data", $scope.formData);
-			widgetSettings.saveSettingsForm($scope.widgetData, $scope.formData);
+			widgetSettings.saveSettingsForm($scope.widgetData, $scope.formData).then(function(){
+			}).catch(function(err){
+				console.log(err);
+			});
 		};
 
 		$scope.deleteWidget = function () {
@@ -338,17 +337,12 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 		};
 
 		$scope.update = function () {
-			$scope.setup();
+			if(user.isAuthed()){
+				$scope.setup();
+			}
 		};
-
-		$scope.$on('$viewContentLoaded', function () {
-			$scope.update();
-		});
 
 		$scope.$watch(user.isAuthed, $scope.update);
 
-		$scope.setup();
-
 	}]);
 });
-
