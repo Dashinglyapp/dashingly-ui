@@ -191,6 +191,9 @@ a,a:link,a:visited,a:hover,a:active, {
 	display:block;
 	background-color: @white;
 	overflow-x:hidden;
+	&::-webkit-scrollbar {
+		display: none;
+	}
 }
 
 // adjust menu sizing based on screen size
@@ -202,7 +205,7 @@ a,a:link,a:visited,a:hover,a:active, {
 		left:-30%;
 	}
 	.menuright{
-		left:-100%;
+		left:100%;
 	}
 	.menuleft.active{left:0%;}
 	.menuright.active{left:70%;}
@@ -226,6 +229,7 @@ a,a:link,a:visited,a:hover,a:active, {
 	height:92%;
 	top:8%;
 }
+
 
 
 .menuleft,.menuright{
@@ -270,9 +274,6 @@ a,a:link,a:visited,a:hover,a:active, {
 		display:block;
 		width:100%;
 		height:100%;
-	}
-	&::-webkit-scrollbar {
-		display: none;
 	}
 
 }
@@ -333,10 +334,18 @@ a,a:link,a:visited,a:hover,a:active, {
  * Widgets
  */
 
+
+// .widgets-frame{
+
+// 	// top level widget actions
+// 	> .widget > .widget-actions{
+
+// 	}
+// }
 .widget-actions{
-		display: inline;
-		float: right;
-		margin-bottom: 10px;
+	display: inline;
+	float: right;
+	margin-bottom: 10px;
 }
 
 .widget-action{
@@ -344,22 +353,22 @@ a,a:link,a:visited,a:hover,a:active, {
 }
 
 .widget{
-		padding: 5px;
-		height: 250px;
+	padding: 5px;
+	height: 250px;
 
-		&.widget-border{
-				border-top: 1px solid #ccc;
-				margin-top: 15px;
-				padding-top: 15px;
-		}
+	&.widget-border{
+		border-top: 1px solid #ccc;
+		margin-top: 15px;
+		padding-top: 15px;
+	}
 }
 
 .chart{
-		height: 225px;
+	height: 225px;
 }
 
 .gridster{
-    background: inherit !important;
+		background: inherit !important;
 }
 
 /**
@@ -404,26 +413,63 @@ a,a:link,a:visited,a:hover,a:active, {
 */
 
 .notification-container{
-    position: absolute;
-    z-index: 10000;
+		position: absolute;
+		z-index: 10000;
 
-    &.bottom{
-        bottom: 20px;
-    }
+		&.bottom{
+				bottom: 20px;
+		}
 
-    &.right{
-        right: 20px;
-    }
+		&.right{
+				right: 20px;
+		}
 
-    .growl{
-      max-width: 350px;
-      position: relative;
-      margin: 10px 0;
-    }
+		.growl{
+			max-width: 350px;
+			position: relative;
+			margin: 10px 0;
+		}
 
 
 }
 
+
+
+.transition (@transition) {
+	-webkit-transition: @transition;
+	-moz-transition:    @transition;
+	-ms-transition:     @transition;
+	-o-transition:      @transition;
+}
+.opacity (@opacity: 0.5) {
+	-webkit-opacity: 	@opacity;
+	-moz-opacity: 		@opacity;
+	opacity: 		@opacity;
+}
+// can make fadeout more user friendly with animations
+// .animation (@name, @duration: 300ms, @delay: 0, @ease: ease) {
+// 	-webkit-animation: @name @duration @delay @ease;
+// 	-moz-animation:    @name @duration @delay @ease;
+// 	-ms-animation:     @name @duration @delay @ease;
+// }
+//
+
+/**
+ * Overrides
+ */
+// only show things with the auth class when the user is authed
+// fade them in and out when auth changes.
+.auth{
+	.transition(opacity 1s);
+}
+body.authed .auth{
+	.opacity(1) !important;
+	visibility:visible;
+}
+body .auth{
+	.opacity(0) !important;
+	visibility:hidden;
+}
 // # The `src/less` Directory
 
 // Note is that *only* `app.less` will be processed during the build, meaning that all
