@@ -33,7 +33,9 @@ define([
 			notAuthenticated: 'event:auth-loginRequired',
 			notAuthorized: 'event:auth-not-authorized',
 			switchWidgetTree: 'event:widget-replace-tree',
-			widgetSettingsChange: 'event:change-settings',
+			widgetSettingsChange: 'event:widget-change-settings',
+			widgetRefreshPressed: 'event:widget-refresh',
+			widgetRenderData: 'event:widget-render',
 			widgetViewChange: 'event:widget-view-change',
 			widgetAddToDash: 'event:widget-add-to-dash'
 		})
@@ -57,6 +59,7 @@ define([
 
 					return $delegate;
 				});
+
 				// enable pushstate so urls are / instead of /#/ as root
 				$locationProvider.html5Mode(true);
 

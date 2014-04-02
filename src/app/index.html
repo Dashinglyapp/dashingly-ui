@@ -1,38 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Realize</title>
-    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
-    <!-- font awesome from BootstrapCDN -->
-    <!--     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
-     -->
-    <!-- compiled CSS -->
-    <!-- token_replace_css_here -->
+	<title>Realize</title>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+	<!-- font awesome from BootstrapCDN -->
+	<!--     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
+	 -->
+	<!-- compiled CSS -->
+	<!-- token_replace_css_here -->
 
-    <base href="/app/">
+	<base href="/app/">
 </head>
 <body ng-cloak>
 <div class="root-container"
-     ng-swipe-left="$root.showleftmenu=0;"
-     ng-click="$root.closeMenus();"
-        >
+	 ng-swipe-left="$root.showleftmenu=0;"
+	 ng-swipe-right="$root.showrightmenu=0;"
+	 ng-click="$root.closeMenus();"
+		>
 
-    <div id="menus" class="container">
-        <div ng-include="'partials/left-menu.tpl.html'"></div>
-        <div class="row">
-            <div class="col-md-12">
-                <div ng-include="'partials/top-nav.tpl.html'"></div>
-            </div>
-        </div>
-    </div>
+	<div class="menus">
+		<div ng-include="'partials/left-menu.tpl.html'"></div>
+		<div ng-include="'partials/top-nav.tpl.html'"></div>
+	</div>
     <div id="widget-container" ng-controller="WidgetCtrl" class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <top-level-widget widgetData="widgetData"></top-level-widget>
-            </div>
-        </div>
+    	<widget-container widgetData="widgetData"></widget-container>
     </div>
-    <ng-view></ng-view>
+	<ng-view></ng-view>
 </div>
 
 <!-- token_replace_thirdparty_js_here -->
