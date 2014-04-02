@@ -2,7 +2,7 @@
  * The Gruntfile defines our build process
  */
 
-module.exports = function ( grunt ) {
+module.exports = function (grunt) {
 	/**
 	 * Load required Grunt tasks. These are installed based on the versions listed
 	 * in `package.json` when you do `npm install` in this directory.
@@ -30,6 +30,7 @@ module.exports = function ( grunt ) {
 	grunt.loadNpmTasks('grunt-connect-rewrite');
 	grunt.loadNpmTasks('grunt-contrib-requirejs');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-docular');
 
 	// require libs
 	var proxySnippet = require('grunt-connect-proxy/lib/utils').proxyRequest;
@@ -40,16 +41,16 @@ module.exports = function ( grunt ) {
 	 * directoryPaths provides shortcuts used in the rest of this file, to avoid path repetition
 	 */
 	var directoryPaths = {
-		src:{
-			dirs:{
-				bower:'bower_components/',
-				app:'src/app/',
-				assets:'<%= src.dirs.app %>assets/',
-				thirdparty:'<%= src.dirs.app %>thirdparty/',
-				widgets:'<%= src.dirs.app %>widgets/' // created by bowercopy
+		src: {
+			dirs: {
+				bower: 'bower_components/',
+				app: 'src/app/',
+				assets: '<%= src.dirs.app %>assets/',
+				thirdparty: '<%= src.dirs.app %>thirdparty/',
+				widgets: '<%= src.dirs.app %>widgets/' // created by bowercopy
 			},
 			// requiredFiles are the prerequisites for the app to run
-			requiredFiles:[
+			requiredFiles: [
 				// '<%= src.dirs.thirdparty %>jquery/jquery.min.js',
 				// '<%= src.dirs.thirdparty %>lodash/dist/lodash.min.js',
 				// '<%= src.dirs.thirdparty %>angular/angular.js',
@@ -71,29 +72,31 @@ module.exports = function ( grunt ) {
 		/**
 		 * The `build.dirs` is where file live during development.
 		 */
-		build:{
-			dirs:{
-				root:'build/',
-				app:'<%= build.dirs.root %>app/',
-				widgets:'<%= build.dirs.app %>widgets/',
+		build: {
+			dirs: {
+				root: 'build/',
+				app: '<%= build.dirs.root %>app/',
+				docs: '<%= build.dirs.root %>docs/',
+				widgets: '<%= build.dirs.app %>widgets/',
 				thirdparty: '<%= build.dirs.app %>thirdparty/',
-				assets:'<%= build.dirs.app %>assets/',
-				js:'<%= build.dirs.app %>js/',
-				css:'<%= build.dirs.app %>',
-				data:'<%= build.dirs.app%>data/'
+				assets: '<%= build.dirs.app %>assets/',
+				js: '<%= build.dirs.app %>js/',
+				css: '<%= build.dirs.app %>',
+				data: '<%= build.dirs.app%>data/'
 			}
 		},
 		/**
 		 * `compile.dirs` contains paths to production (i.e., concatenated, minified) files.
 		 */
-		compile:{
-			dirs:{
-				root:'dist/',
-				app:'<%= compile.dirs.root %>app/',
-				assets:'<%= compile.dirs.app %>assets/',
+		compile: {
+			dirs: {
+				root: 'dist/',
+				app: '<%= compile.dirs.root %>app/',
+				docs: '<%= compile.dirs.root %>docs/',
+				assets: '<%= compile.dirs.app %>assets/',
 				widgets: '<%= compile.dirs.app %>widgets/',
 				partials: '<%= compile.dirs.app %>partials/',
-				data:'<%= compile.dirs.app%>data/'
+				data: '<%= compile.dirs.app%>data/'
 			}
 		}
 	};
@@ -105,13 +108,12 @@ module.exports = function ( grunt ) {
 		// Get the app version from `package.json` to stay DRY
 		pkg: grunt.file.readJSON("package.json"),
 
-	/**
-	 * The banner is the comment that is placed at the top of our compiled
-	 * source files. It is first processed as a Grunt template, where the `<%=`
-	 * pairs are evaluated based on this very configuration object.
-	 */
-		banner:
-			'/**\n' +
+		/**
+		 * The banner is the comment that is placed at the top of our compiled
+		 * source files. It is first processed as a Grunt template, where the `<%=`
+		 * pairs are evaluated based on this very configuration object.
+		 */
+		banner: '/**\n' +
 			' * <%= pkg.name %> - v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>\n' +
 			' * <%= pkg.homepage %>\n' +
 			' *\n' +
@@ -147,24 +149,26 @@ module.exports = function ( grunt ) {
 		// },
 
 		// creates a manifest file for all widgets for the js to request them
-		buildWidgetListJSON:{ // adds all our app's css and js files to index.html
-			foo:{
-				files:[{
-					src:'<%= src.dirs.widgets %>*/manifest.json',
-					dest:'<%= build.dirs.data %>widgetList.json'
-				}]
+		buildWidgetListJSON: { // adds all our app's css and js files to index.html
+			foo: {
+				files: [
+					{
+						src: '<%= src.dirs.widgets %>*/manifest.json',
+						dest: '<%= build.dirs.data %>widgetList.json'
+					}
+				]
 			}
 		},
 
-		clean:{
-		/**
-		 * The directories to delete when `grunt clean` is executed.
-		 */
-			all:{
-				options:{
-					force:true
+		clean: {
+			/**
+			 * The directories to delete when `grunt clean` is executed.
+			 */
+			all: {
+				options: {
+					force: true
 				},
-				src:['<%= build.dirs.root %>','<%= compile.dirs.root %>']
+				src: ['<%= build.dirs.root %>', '<%= compile.dirs.root %>']
 			}
 		},
 
@@ -181,15 +185,16 @@ module.exports = function ( grunt ) {
 				hostname: 'localhost'
 			},
 			rules: [
-						{from: '^/$', to: '/app', redirect: 'permanent'},
-						{from: '^/app/([^\.]{5,})$', to: '/app/index.html'}
+				{from: '^/$', to: '/app', redirect: 'permanent'},
+				{from: '^/app/([^\.]{5,})$', to: '/app/index.html'},
+				{from: '^/docs/frontend/$', to: '/docs/frontend/index.html'}
 			],
 			proxies: [
 				{
 					context: '/api/v1/',
 					host: 'localhost',
 					port: 5000,
-					changeOrigin:true,
+					changeOrigin: true,
 					https: false
 				}
 				// ,{
@@ -220,111 +225,150 @@ module.exports = function ( grunt ) {
 		},
 
 
-    /**
-     * grunt-contrib-concat concatenates multiple source files into a single file.
-     */
-    concat: {
-      build_index:{ // adds all our app's css and js files to index.html
-        src:'<%= src.dirs.app %>index.html',
-        dest:'<%= build.dirs.app %>index.html',
-        options:{
-          process:function(content){ //content, srcpath
-            var cssStr = '\n';
-            var jsStr = '\n';
-            var thirdpartyStr = '    <script type = "text/javascript" src="thirdparty.js"></script>\n';
-            // need to think of way to intersperse our test files without mixing concerns, but here seems the most dry
-            // since we're already looping and reading each file
-            // var karmaFiles = [
-            //   'build/app/thirdparty.js',
-            //   'node_modules/chai/chai.js',
-            //   'src/app/thirdparty/angular-mocks/angular-mocks.js'
-            // ];
-            // replace index tokens with appropriate css and js files
-            grunt.file.expand(
-              {nonull:false,debug:false},
-              grunt.config.get('build.dirs.app') + '**/*.css'
-            )
-            .forEach(function(path) {
-              if(/widgets/.test(path)) {
-                return;
-              }
-              var newStr = path.replace(/.*?\/app\//,'');
-              // wrap the css with the appropriate tag
-              cssStr += '    <link rel="stylesheet" type="text/css" href="/app/' + newStr + '" />\n';
-            });
-            // expand the list of test files and append them to the karma files array
-            // karmaFiles.push.apply(karmaFiles,grunt.file.expand('src/app/**/*spec.js'));
-            // add the karmaFiles array to the Gruntfile karma config
-            // grunt.config.set('karma.options.files',karmaFiles);
-            // add all the js, css, and thirdparty code to index.html
-            var newContent = content.replace('<\!-- token_replace_css_here -->', cssStr);
-            return newContent;
-          }
-        }
-      },
+		/**
+		 * grunt-contrib-concat concatenates multiple source files into a single file.
+		 */
+		concat: {
+			build_index: { // adds all our app's css and js files to index.html
+				src: '<%= src.dirs.app %>index.html',
+				dest: '<%= build.dirs.app %>index.html',
+				options: {
+					process: function (content) { //content, srcpath
+						var cssStr = '\n';
+						var jsStr = '\n';
+						var thirdpartyStr = '    <script type = "text/javascript" src="thirdparty.js"></script>\n';
+						// need to think of way to intersperse our test files without mixing concerns, but here seems the most dry
+						// since we're already looping and reading each file
+						// var karmaFiles = [
+						//   'build/app/thirdparty.js',
+						//   'node_modules/chai/chai.js',
+						//   'src/app/thirdparty/angular-mocks/angular-mocks.js'
+						// ];
+						// replace index tokens with appropriate css and js files
+						grunt.file.expand(
+							{nonull: false, debug: false},
+							grunt.config.get('build.dirs.app') + '**/*.css'
+						)
+							.forEach(function (path) {
+								if (/widgets/.test(path)) {
+									return;
+								}
+								var newStr = path.replace(/.*?\/app\//, '');
+								// wrap the css with the appropriate tag
+								cssStr += '    <link rel="stylesheet" type="text/css" href="/app/' + newStr + '" />\n';
+							});
+						// expand the list of test files and append them to the karma files array
+						// karmaFiles.push.apply(karmaFiles,grunt.file.expand('src/app/**/*spec.js'));
+						// add the karmaFiles array to the Gruntfile karma config
+						// grunt.config.set('karma.options.files',karmaFiles);
+						// add all the js, css, and thirdparty code to index.html
+						var newContent = content.replace('<\!-- token_replace_css_here -->', cssStr);
+						return newContent;
+					}
+				}
+			},
 
+			//`compile_css` concatenates our app and thirdparty css in a single file.
+			compile_css: {
+				src: '<%= build.dirs.app %>**/*.css',
+				dest: '<%= compile.dirs.app %><%= pkg.name %>-<%= pkg.version %>.css'
+			},
+			//`compile_js` concatenates our app and thirdparty js in a single file.
+			compile_js: {
+				options: { banner: '<%= banner %>' },
+				src: ['module.prefix', '<%= build.dirs.app %>/*.js', '!<%= build.dirs.app %>/thirdparty.js', '<%= build.dirs.widgets %>**/*.js', 'module.suffix'],
+				dest: '<%= compile.dirs.app %><%= pkg.name %>-<%= pkg.version %>.js'
+			},
+			// build_thirdparty_js combines all our dependencies in a single file in the build dir
+			build_thirdparty_js: {
+				process: true,
+				src: '<%= src.requiredFiles %>',
+				dest: '<%= build.dirs.app %>thirdparty.js'
+			},
+			// compile_thirdparty_js combines all our dependencies in a single file in the compile dir
+			compile_thirdparty_js: {
+				process: true,
+				src: '<%= src.requiredFiles %>',
+				dest: '<%= compile.dirs.app %>thirdparty.js'
+			},
+			// adds our compiled css and js files to index
+			compile_index: {
+				src: '<%= src.dirs.app %>index.html',
+				dest: '<%= compile.dirs.app %>index.html',
+				options: {
+					process: function (content) { //content, srcpath
+						// since there are only three files now, insert them directly instead of looping like concat.build_index.
+						return content
+							.replace(
+								'<\!-- token_replace_thirdparty_js_here -->',
+								'<script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('concat.compile_thirdparty_js.dest'))[0].replace('dist', '') + '"></script>\n'
+							)
+							.replace(
+								'<\!-- token_replace_js_here -->',
+								'<script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('requirejs.compile.options.out'))[0].replace('dist', '') + '"></script>\n'
+							)
+							.replace(
+								'<\!-- token_replace_css_here -->',
+								'    <link rel="stylesheet" type="text/css" href="' + grunt.file.expand(grunt.config.get('concat.compile_css.dest'))[0].replace('dist', '') + '" />\n'
+							)
+							.replace(
+								'<script data-main="require-config" src="/app/thirdparty/requirejs/require.js"></script>', ''
+							);
+					}
+				}
+			}
+		},
 
-      //`compile_css` concatenates our app and thirdparty css in a single file.
-      compile_css: {
-        src: '<%= build.dirs.app %>**/*.css',
-        dest: '<%= compile.dirs.app %><%= pkg.name %>-<%= pkg.version %>.css'
-      },
-      //`compile_js` concatenates our app and thirdparty js in a single file.
-      compile_js: {
-        options: { banner: '<%= banner %>' },
-        src:['module.prefix','<%= build.dirs.app %>/*.js', '!<%= build.dirs.app %>/thirdparty.js', '<%= build.dirs.widgets %>**/*.js','module.suffix'],
-        dest: '<%= compile.dirs.app %><%= pkg.name %>-<%= pkg.version %>.js'
-      },
-      // build_thirdparty_js combines all our dependencies in a single file in the build dir
-      build_thirdparty_js: {
-        process:true,
-        src:'<%= src.requiredFiles %>',
-        dest:'<%= build.dirs.app %>thirdparty.js'
-      },
-      // compile_thirdparty_js combines all our dependencies in a single file in the compile dir
-      compile_thirdparty_js: {
-        process:true,
-        src:'<%= src.requiredFiles %>',
-        dest:'<%= compile.dirs.app %>thirdparty.js'
-      },
-      // adds our compiled css and js files to index
-      compile_index:{
-        src:'<%= src.dirs.app %>index.html',
-        dest:'<%= compile.dirs.app %>index.html',
-        options:{
-          process:function(content){ //content, srcpath
-            // since there are only three files now, insert them directly instead of looping like concat.build_index.
-            return content
-            .replace(
-              '<\!-- token_replace_thirdparty_js_here -->',
-              '<script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('concat.compile_thirdparty_js.dest'))[0].replace('dist','') + '"></script>\n'
-            )
-            .replace(
-              '<\!-- token_replace_js_here -->',
-              '<script type="text/javascript" src="' + grunt.file.expand(grunt.config.get('requirejs.compile.options.out'))[0].replace('dist','') + '"></script>\n'
-            )
-            .replace(
-              '<\!-- token_replace_css_here -->',
-              '    <link rel="stylesheet" type="text/css" href="' + grunt.file.expand(grunt.config.get('concat.compile_css.dest'))[0].replace('dist','') + '" />\n'
-            )
-                .replace(
-                    '<script data-main="require-config" src="/app/thirdparty/requirejs/require.js"></script>',''
-                );
-          }
-        }
-      }
-    },
-    copy: {
-      compile_ngload: {
-        src: '<%= src.dirs.app %>thirdparty/angularAMD/ngload.js',
-        dest: '<%= compile.dirs.app %>ngload.js'
-      }
-    },
+		/**
+		 * Docular generates documentation for angular projects.
+		 *
+		 */
+		docular: {
+			groups: [
+				{
+					groupTitle: 'Realize UI', //Title used in the UI
+					groupId: 'realize-ui-angular', //identifier and determines directory
+					groupIcon: 'icon-book', //Icon to use for this group
+					sections: [
+						{
+							id: "intro",
+							title: "Introduction",
+							docs: [
+								"src/app/docs/intro/overview.ngdoc"
+							],
+							rank: {'intromain': 1}
+						},
+						{
+							id: "widgets",
+							title: "Widgets",
+							docs: [
+								"src/app/docs/widgets/overview.ngdoc",
+								"src/app/docs/widgets/making-a-widget.ngdoc"
+							],
+							rank: {'widgetsOverview': 1, 'makeAWidget': 2}
+						}
+					]
+				}
+			],
+			showDocularDocs: false,
+			showAngularDocs: false,
+			baseUrl: '/docs/frontend/',
+			docular_webapp_target: "<%= build.dirs.root %>/docs/frontend",
+			docAPIOrder: ['realize-ui-angular', 'docular'],
+			docular_partial_home: 'src/app/docs/partials/home.html'
+		},
+
+		copy: {
+			compile_ngload: {
+				src: '<%= src.dirs.app %>thirdparty/angularAMD/ngload.js',
+				dest: '<%= compile.dirs.app %>ngload.js'
+			}
+		},
 
 		requirejs: {
 			compile: {
 				options: {
-					name : 'bootstrap',
+					name: 'bootstrap',
 					baseUrl: 'src/app/',
 					mainConfigFile: 'src/app/require-config.js',
 					out: "dist/app/<%= pkg.name %>-<%= pkg.version %>-require.js"
@@ -346,11 +390,11 @@ module.exports = function ( grunt ) {
 			//   src:'<%= src.dirs.app %>app.js'
 			// },
 			// gruntfile:'Gruntfile.js',
-			src_js:['<%= src.dirs.app %>**/*.js', '!<%= src.dirs.thirdparty %>**'],
+			src_js: ['<%= src.dirs.app %>**/*.js', '!<%= src.dirs.thirdparty %>**'],
 			built_appjs: '<%= build.dirs.js %>app.js',
 			built_html_templates: '<%= build.dirs.app %>html_templates_jsfied.js',
-			rootfiles: ['Gruntfile.js','karma.conf.js'], // lints the gruntfile.
-			test:['<%= src.dirs.app %>**/*spec.js']
+			rootfiles: ['Gruntfile.js', 'karma.conf.js'], // lints the gruntfile.
+			test: ['<%= src.dirs.app %>**/*spec.js']
 		},
 
 		/**
@@ -360,16 +404,15 @@ module.exports = function ( grunt ) {
 		 * js payload as one JavaScript file.
 		 */
 		html2js: {
-			options:{
-				module:'html_templates_jsfied',
-				base:'<%= src.dirs.app %>'// strips the build dir from the template name
+			options: {
+				module: 'html_templates_jsfied',
+				base: '<%= src.dirs.app %>'// strips the build dir from the template name
 			},
-			src_tpls_plus_build_tpls_to_js:{
-				src:['<%= src.dirs.app %>**/*.tpl.{html,partial}','!<%= src.dirs.widgets %>**'],
-				dest:'<%= build.dirs.app %>html_templates_jsfied.js'
+			src_tpls_plus_build_tpls_to_js: {
+				src: ['<%= src.dirs.app %>**/*.tpl.{html,partial}', '!<%= src.dirs.widgets %>**'],
+				dest: '<%= build.dirs.app %>html_templates_jsfied.js'
 			}
 		},
-
 
 
 		/**
@@ -388,10 +431,10 @@ module.exports = function ( grunt ) {
 
 
 		jshint: {
-		/**
-		 * lints our JSON files.
-		 */
-			json: ['src/app/**/*.json','*.*rc','!<%= src.dirs.thirdparty %>**'] // lints the rootfiles, bower files, etc.
+			/**
+			 * lints our JSON files.
+			 */
+			json: ['src/app/**/*.json', '*.*rc', '!<%= src.dirs.thirdparty %>**'] // lints the rootfiles, bower files, etc.
 		},
 
 
@@ -404,7 +447,7 @@ module.exports = function ( grunt ) {
 			unit: { // unit test specific params
 
 				// passing options is the same as if we put everything in a karma config file
-				options:{
+				options: {
 					// base path that will be used to resolve all patterns (eg. files, exclude)
 					basePath: '',
 					// urlRoot: '/', // prefix for the test scripts to load from
@@ -504,10 +547,10 @@ module.exports = function ( grunt ) {
 
 
 		less: {
-		/**
-		 * `recess` for LESS files concatenates, converts to CSS, copies, and optionally minifies them;
-		 * Only our `app.less` file is included in compilation.  It must import all other files.
-		 */
+			/**
+			 * `recess` for LESS files concatenates, converts to CSS, copies, and optionally minifies them;
+			 * Only our `app.less` file is included in compilation.  It must import all other files.
+			 */
 			build: {
 				options: {
 					compile: true,
@@ -517,7 +560,7 @@ module.exports = function ( grunt ) {
 					zeroUnits: false
 				},
 				files: {
-						'<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css': '<%= src.dirs.app %>css/app.less'
+					'<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css': '<%= src.dirs.app %>css/app.less'
 				}
 			},
 			// the compile phase only adds the compress option
@@ -530,7 +573,7 @@ module.exports = function ( grunt ) {
 					zeroUnits: false
 				},
 				files: {
-						'<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css': '<%= src.dirs.app %>css/app.less'
+					'<%= build.dirs.css %><%= pkg.name %>-<%= pkg.version %>.css': '<%= src.dirs.app %>css/app.less'
 				}
 			}
 		},
@@ -542,7 +585,7 @@ module.exports = function ( grunt ) {
 				command: "node webdriver-manager update",
 				options: {
 					stdout: true,
-					debug:true,
+					debug: true,
 					execOptions: {
 						cwd: 'node_modules/protractor/bin'
 					},
@@ -553,7 +596,7 @@ module.exports = function ( grunt ) {
 				command: "java -jar selenium-server-standalone-2.40.0.jar -Dwebdriver.chrome.driver=chromedriver.exe",
 				options: {
 					stdout: true,
-					debug:true,
+					debug: true,
 					execOptions: {
 						cwd: 'node_modules/protractor/selenium/'
 					},
@@ -564,7 +607,7 @@ module.exports = function ( grunt ) {
 				command: "rm -rf build/",
 				options: {
 					stdout: true,
-					debug:true,
+					debug: true,
 					async: false
 				}
 			},
@@ -576,38 +619,45 @@ module.exports = function ( grunt ) {
 		/**
 		 * Copies files from one directory to another.  After first copy, it will only copy changed files
 		 */
-		sync:{
+		sync: {
 			// copy thirdparty files from bower_components to src/app/thirdparty
 			thirdparty_to_src: {
-				files: [{
-					cwd: '<%= src.dirs.bower %>',
-					src: ['**/*.{js,less}','!{happathon,jQuery,node_modules,.git,Gruntfile,gruntfile,gruntFile,bootstrap/js,bootstrap/dist}*/','jQuery/jquery.min.js'],
-					dest: '<%= src.dirs.thirdparty %>'
-				}]
+				files: [
+					{
+						cwd: '<%= src.dirs.bower %>',
+						src: ['**/*.{js,less}', '!{happathon,jQuery,node_modules,.git,Gruntfile,gruntfile,gruntFile,bootstrap/js,bootstrap/dist}*/', 'jQuery/jquery.min.js'],
+						dest: '<%= src.dirs.thirdparty %>'
+					}
+				]
 			},
 			// copy over all js/css/html files except thirdparty and tests
-			src_js_css_html_to_build:{cwd: '<%= src.dirs.app %>', src:['**/*.{js,css,html}', '!**/*.spec.js'], dest:'<%= build.dirs.app %>'},
-			src_js_css_html_to_dist:{
-					cwd: '<%= src.dirs.app %>',
-					src:[
-							'widgets/**/*.{js,css,html}',
-							'bootstrap.js',
-							'partials/**/*.{html, js}',
-							'partials/*.{html, js}'
-					],
-					dest:'<%= compile.dirs.app %>'
+			src_js_css_html_to_build: {cwd: '<%= src.dirs.app %>', src: ['**/*.{js,css,html}', '!**/*.spec.js'], dest: '<%= build.dirs.app %>'},
+			src_js_css_html_to_dist: {
+				cwd: '<%= src.dirs.app %>',
+				src: [
+					'widgets/**/*.{js,css,html}',
+					'bootstrap.js',
+					'partials/**/*.{html, js}',
+					'partials/*.{html, js}'
+				],
+				dest: '<%= compile.dirs.app %>'
 			},
-			data_from_build_to_dist:{
-					cwd: '<%= build.dirs.app %>',
-					src:[
-						'data/*.{json, html, js}'
-					],
-					dest:'<%= compile.dirs.app %>'
+			data_from_build_to_dist: {
+				cwd: '<%= build.dirs.app %>',
+				src: [
+					'data/*.{json, html, js}'
+				],
+				dest: '<%= compile.dirs.app %>'
+			},
+			docs_from_build_to_dist: {
+				cwd: '<%= build.dirs.docs %>',
+				src: ['**'],
+				dest: '<%= compile.dirs.docs %>'
 			},
 			// assets from source to build
-			assets:{cwd: '<%= src.dirs.assets %>', src:'**', dest:'<%= build.dirs.assets %>'},
+			assets: {cwd: '<%= src.dirs.assets %>', src: '**', dest: '<%= build.dirs.assets %>'},
 			// assets from source to compile
-			compile_assets:{cwd: '<%= src.dirs.assets %>', src:'**', dest:'<%= compile.dirs.assets %>'}
+			compile_assets: {cwd: '<%= src.dirs.assets %>', src: '**', dest: '<%= compile.dirs.assets %>'}
 		},
 
 		/**
@@ -615,17 +665,17 @@ module.exports = function ( grunt ) {
 		 */
 		uglify: {
 			options: {banner: '<%= banner %>'},
-			files: {src:'<%= concat.compile_js.dest %>', dest:'<%= concat.compile_js.dest %>'}
+			files: {src: '<%= concat.compile_js.dest %>', dest: '<%= concat.compile_js.dest %>'}
 		},
 
 
 		watch: {
-		 // watches files to see if they change and runs the tasks specified below
-		 // when they do, automating the build process each time a file is saved.
-		 // NOTE: These only run on CHANGED files, not creations/deletions
-		 // Also, the param names mean nothing (e.g., index:, test:, etc...)
+			// watches files to see if they change and runs the tasks specified below
+			// when they do, automating the build process each time a file is saved.
+			// NOTE: These only run on CHANGED files, not creations/deletions
+			// Also, the param names mean nothing (e.g., index:, test:, etc...)
 			options: {
-				cwd:'<%= src.dirs.app %>', // set a default source dir...
+				cwd: '<%= src.dirs.app %>', // set a default source dir...
 				livereload: true // and automatically reload the browser when files change
 			},
 
@@ -633,11 +683,11 @@ module.exports = function ( grunt ) {
 			//  run the unit tests. We don't need to live reload
 			// test: { files: '<%= src.dirs.app %>**/*.spec.js', tasks: [ 'eslint:test', 'karma:unit:run'] },
 			// When the rootfiles change, lint them.
-			rootfiles:{files: ['Gruntfile.js','package.json','bower.json'],tasks:['eslint:rootfiles','build','configureProxies'],options:{cwd:'.'}},
+			rootfiles: {files: ['Gruntfile.js', 'package.json', 'bower.json'], tasks: ['eslint:rootfiles', 'build', 'configureProxies'], options: {cwd: '.'}},
 			// compile app's angular dependencies on change
-			main_app_module: {files:'app.js', tasks: ['eslint:built_appjs'] },
-			angular_modules: {files: ['**/*.js','!**/thirdparty/**/*.js'], tasks: ['eslint:src_js','sync:src_js_css_html_to_build'] },
-			static_files_excluding_angular_modules:{files: ['**/*.{css,js,html}','!**/*-module.js','!index.html'], tasks: ['sync:src_js_css_html_to_build']},
+			main_app_module: {files: 'app.js', tasks: ['eslint:built_appjs'] },
+			angular_modules: {files: ['**/*.js', '!**/thirdparty/**/*.js'], tasks: ['eslint:src_js', 'sync:src_js_css_html_to_build'] },
+			static_files_excluding_angular_modules: {files: ['**/*.{css,js,html}', '!**/*-module.js', '!index.html'], tasks: ['sync:src_js_css_html_to_build']},
 			// compile index on change
 			index: {files: 'index.html', tasks: ['concat:build_index'] },
 			// Recompile template cache on change
@@ -650,35 +700,36 @@ module.exports = function ( grunt ) {
 				]
 			},
 			// compile less on change
-			appless:{ files: 'css/app.less', tasks: ['less:build']},
+			appless: { files: 'css/app.less', tasks: ['less:build']},
 			// add bootstrap less files
-			bootstrapless:{ files: 'thirdparty/bootstrap/**/*.less', tasks: ['less:build']},
+			bootstrapless: { files: 'thirdparty/bootstrap/**/*.less', tasks: ['less:build']},
 
 			// run unit tests when template files change
-			template_files: {options:{cwd:''},files:'e2e_tests/**/*.spec.js', tasks: ['protractor:e2e'] },
+			template_files: {options: {cwd: ''}, files: 'e2e_tests/**/*.spec.js', tasks: ['protractor:e2e'] },
 
 			// Copy any changed assets
-			assets:{files:'assets/**', tasks:['sync:assets']}
+			assets: {files: 'assets/**', tasks: ['sync:assets']}
 
 		}
 	};
 
 
-
 	// initialize the grunt configuration
-	grunt.initConfig( grunt.util._.extend( taskConfig, directoryPaths ) );
+	grunt.initConfig(grunt.util._.extend(taskConfig, directoryPaths));
 
 	// define a task for our unit tests.  Adding the "run" param since we only use this in watch
 	// where karma is already started
 	// grunt.registerTask( 'unit', ['buildSpec', 'karma:unit:run']);
 
 	// Initialize the dev setup - it does a clean build before watching for changes
-	grunt.registerTask( 'dev', ['build', 'configureProxies', 'configureRewriteRules', 'connect:livereload',/* 'karma:unit',*/ 'watch' ]);
+	grunt.registerTask('dev', ['build', 'configureProxies', 'configureRewriteRules', 'connect:livereload', /* 'karma:unit',*/ 'watch' ]);
 
-	grunt.registerTask( 'e2e',
+	grunt.registerTask('docs', ['docular']);
+
+	grunt.registerTask('e2e',
 		grunt.file.exists('./node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar') ? // is standalone server installed?
-		['build', 'configureProxies', 'configureRewriteRules', 'connect:livereload', 'protractor:e2e'] : // yes, run e2e normally
-		['shell:multiple', 'build', 'configureProxies', 'configureRewriteRules','connect:livereload', 'protractor:e2e'] // no, install it first
+			['build', 'configureProxies', 'configureRewriteRules', 'connect:livereload', 'protractor:e2e'] : // yes, run e2e normally
+			['shell:multiple', 'build', 'configureProxies', 'configureRewriteRules', 'connect:livereload', 'protractor:e2e'] // no, install it first
 	);
 
 	// run this in a new console window at the same time as running
@@ -686,14 +737,14 @@ module.exports = function ( grunt ) {
 	// Every time you make a change to a tests file, the corresponding
 	// spec_files watch task will auto-run the tests.
 	// It'll get annoying eventually, but for a small number it's handy.
-	grunt.registerTask( 'e2eServer', ['shell:selenium']);
+	grunt.registerTask('e2eServer', ['shell:selenium']);
 
 	/** The default task is to build and compile for production */
-	grunt.registerTask( 'default', ['build', 'compile']);
-	grunt.registerTask( 'setup', ['compile']);
+	grunt.registerTask('default', ['build', 'compile']);
+	grunt.registerTask('setup', ['compile']);
 
 	// The `build` task sets up a dev and testing environment
-	grunt.registerTask( 'build', [
+	grunt.registerTask('build', [
 		// if this is the first run, it should copy the third party libs servero your thirdparty dir
 		!grunt.file.exists(grunt.config.get('src.dirs.thirdparty')) ? // does the thirdparty directory exist in src?
 			'sync:thirdparty_to_src' : // nope, create it and populate with fresh bower components
@@ -709,16 +760,18 @@ module.exports = function ( grunt ) {
 		'concat:build_index', // build our index file with all its dependencies
 		'buildWidgetListJSON', // add the widgetList file
 		'buildSpec', // test our build
-		'eslint:test'
+		'eslint:test',
+		'docs'
 	]);
 
 	// The `compile` task preps the app for production by concatenating, minifying, compressing the code.
-	grunt.registerTask( 'compile', [
+	grunt.registerTask('compile', [
 		'less:compile',
 		'buildWidgetListJSON',
 		'sync:compile_assets',
 		'sync:src_js_css_html_to_dist',
 		'sync:data_from_build_to_dist',
+		'sync:docs_from_build_to_dist',
 		'copy:compile_ngload',
 		'requirejs',
 		'concat:compile_thirdparty_js',
@@ -729,19 +782,29 @@ module.exports = function ( grunt ) {
 	]);
 
 	// buildSpec tests that our build happened correctly.
-	grunt.registerTask('buildSpec','test That all build files that should exist, do',function(){
-		if(!grunt.file.exists('build/app/index.html')) {grunt.fail.fatal('index.html does not exist!');}
-		if(!grunt.file.exists('build/app/app.js')) {grunt.fail.fatal('app.js does not exist!');}
+	grunt.registerTask('buildSpec', 'test That all build files that should exist, do', function () {
+		if (!grunt.file.exists('build/app/index.html')) {
+			grunt.fail.fatal('index.html does not exist!');
+		}
+		if (!grunt.file.exists('build/app/app.js')) {
+			grunt.fail.fatal('app.js does not exist!');
+		}
 		// if(!grunt.file.exists('build/app/thirdparty.js')) {grunt.fail.fatal('thirdparty js does not exist!');}
-		if(!grunt.file.exists('build/app/widgets/')) {grunt.fail.fatal('widgets directory does not exist!');}
-		if(!grunt.file.exists('build/app/html_templates_jsfied.js')) {grunt.fail.fatal('html_templates_jsfied does not exist!');}
-		if(!grunt.file.exists('build/app/data/widgetList.json')) {grunt.fail.fatal('build/app/data/widgetList.json does not exist!');}
+		if (!grunt.file.exists('build/app/widgets/')) {
+			grunt.fail.fatal('widgets directory does not exist!');
+		}
+		if (!grunt.file.exists('build/app/html_templates_jsfied.js')) {
+			grunt.fail.fatal('html_templates_jsfied does not exist!');
+		}
+		if (!grunt.file.exists('build/app/data/widgetList.json')) {
+			grunt.fail.fatal('build/app/data/widgetList.json does not exist!');
+		}
 	});
 
-	grunt.registerMultiTask('buildWidgetListJSON', 'Builds a manifest of json widgets', function() {
+	grunt.registerMultiTask('buildWidgetListJSON', 'Builds a manifest of json widgets', function () {
 		var jsonObj = {};
 		var dest = '';
-		this.filesSrc.forEach(function(dirPath) {
+		this.filesSrc.forEach(function (dirPath) {
 			var pathArray = dirPath.split('/');
 			var widgetName = pathArray[3];
 			var dirName = pathArray[2] + '/' + widgetName + '/';
@@ -750,7 +813,7 @@ module.exports = function ( grunt ) {
 			jsonObj[manifest.type].dir = dirName;
 			jsonObj[manifest.type].name = widgetName;
 		});
-		grunt.file.write(this.files[0].dest,JSON.stringify(jsonObj));
+		grunt.file.write(this.files[0].dest, JSON.stringify(jsonObj));
 	});
 
 };

@@ -1,0 +1,17 @@
+@ngdoc overview
+@id intromain
+@name Intro to Realize UI
+@description #Overview
+
+This is the frontend component to [Realize](http://www.realize.pe).  This will connect to the Realize API server, and allow you to display and manipulate data.  Most users will just need to install the API server [realize-core](https://github.com/realizeapp/realize-core), which has commands to install the frontend as well.
+
+This documentation is primarily for developers who want to contribute to the frontend, or write their own widgets.
+
+## High level look
+
+At a very high level, the Realize project consists of the API server, which is written in Python, and this frontend, which is written in Javascript, and uses the Angular framework.  The frontend is a container for widgets.  Widgets display and manipulate data for users.  The container handles things like authentication, messaging with the server, and rendering.
+
+## Widgets
+
+Widgets are the heart of the frontend, and writing a widget is a quick and easy way to extend functionality.  Please read the next tutorial for an overview of how to make a widget.
+
