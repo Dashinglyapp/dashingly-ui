@@ -33,7 +33,10 @@ define([
 			notAuthenticated: 'event:auth-loginRequired',
 			notAuthorized: 'event:auth-not-authorized',
 			switchWidgetTree: 'event:widget-replace-tree',
-			widgetSettingsChange: 'event:change-settings',
+			widgetSettingsChange: 'event:widget-change-settings',
+			widgetUpdateChildrenSettings: 'event:widget-change-settings',
+			widgetRefreshPressed: 'event:widget-refresh',
+			widgetRenderData: 'event:widget-render',
 			widgetViewChange: 'event:widget-view-change',
 			widgetAddToDash: 'event:widget-add-to-dash'
 		})
@@ -44,57 +47,38 @@ define([
 			guest: 'guest'
 		})
 
-		.config(['$locationProvider', '$controllerProvider', '$compileProvider', '$routeProvider', '$provide',
-			function ($locationProvider, $controllerProvider, $compileProvider, $routeProvider, $provide) {
+		.config(['$locationProvider', '$controllerProvider', '$compileProvider', '$routeProvider', '$provide', '$parseProvider',
+			function ($locationProvider, $controllerProvider, $compileProvider, $routeProvider, $provide, $parseProvider) {
 				// for debugging purposes, log all events emitted to rootscope.
 				$provide.decorator('$rootScope', function ($delegate) {
 					var emit = $delegate.$emit;
-
 					$delegate.$emit = function () {
 						console.log.apply(console, arguments);
 						emit.apply(this, arguments);
 					};
-
 					return $delegate;
 				});
+				// enables promises to be used in templates
+				// $parseProvider.unwrapPromises(true);
 				// enable pushstate so urls are / instead of /#/ as root
 				$locationProvider.html5Mode(true);
-
 
 				$routeProvider
 					.when('/', { template: '', controller: 'WidgetRouteCtrl'})
 					.when('/:type', { template: '', controller: 'WidgetRouteCtrl'})
-					.when('/:type/:name', { template: '', controller: 'WidgetRouteCtrl'})
+					.when('/:type/:name', {
+						template: '',
+						controller:'WidgetRouteCtrl'
+					})
 					.otherwise({
 						redirectTo: '/'
 					});
-
-				$provide.decorator('$rootScope', ['$delegate', function ($delegate) {
-
-					Object.defineProperty($delegate.constructor.prototype, '$onRootScope', {
-						value: function (name, listener) {
-							var unsubscribe = $delegate.$on(name, listener);
-							this.$on('$destroy', unsubscribe);
-						},
-						enumerable: false
-					});
-
-
-					return $delegate;
-				}]);
 			}
 		])
 
 
 		// run is where we set initial rootscope properties
-		.run(['$rootScope', 'user', 'EVENTS', function ($root, user, EVENTS) {
-
-			// check user auth status on initial pageload
-			$root.authed = user.isAuthed();
-
-			$root.$watch(user.isAuthed, function (newVal, oldVal) {
-				$root.authed = newVal;
-			});
+		.run(['$rootScope', 'user', 'EVENTS','widget', '$q',function ($root, user, EVENTS,widget,$q) {
 
 			$root.closeMenus = function () {
 				var open = false;

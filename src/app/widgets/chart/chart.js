@@ -4,7 +4,8 @@ define(['app', 'angular', 'moment', 'angular-charts', 'view', 'context', 'realiz
 		$scope.chartType = "line";
 
 		$scope.render = function () {
-			view.getDetail(context.getScopeName(), context.getScopeHash(), $scope.widgetData.settings.source.value).then(function (data) {
+			view.getDetail(context.getScopeName(), context.getScopeHash(), $scope.widgetData.settings.source.value)
+			.then(function (data) {
 				$scope.allChartData = data;
 				$scope.chartConfig = {
 					title: data.name,
@@ -62,12 +63,18 @@ define(['app', 'angular', 'moment', 'angular-charts', 'view', 'context', 'realiz
 			});
 		};
 
-		$scope.$onRootScope(EVENTS.widgetSettingsChange, function (event, widgetKey) {
-			console.log("Chart received settings change event", widgetKey);
-			if (widgetKey === $scope.hashkey) {
+		$scope.$on(EVENTS.widgetRenderData, function (event) {
+			console.log("Chart Received broadcast to re-render from an ancestor widget.  Rendering.",$scope);
+			if ($scope.render) {
 				$scope.render();
 			}
 		});
+		// $scope.$onRootScope(EVENTS.widgetSettingsChange, function (event, widgetKey) {
+		// 	console.log("Chart received settings change event", widgetKey);
+		// 	if (widgetKey === $scope.hashkey) {
+		// 		$scope.render();
+		// 	}
+		// });
 
 		$scope.render();
 	}]);

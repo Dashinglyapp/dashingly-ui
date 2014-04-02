@@ -201,6 +201,8 @@ define(['angularAMD', 'http-auth-interceptor'], function (angularAMD) {
 			return normalizeResponseData($http.get('/widgetList.json', {cache: true}));
 		};
 
+
+
 		return sync;
 	}]);
 });

@@ -45,13 +45,19 @@ define(['app', 'angular', 'moment', 'view', 'context', 'user', 'realize-sync'], 
 				console.log("Form saved properly");
 			});
 		};
-
-		$scope.$onRootScope(EVENTS.widgetSettingsChange, function (event, widgetKey) {
-			console.log("Chart received settings change event", widgetKey);
-			if (widgetKey === $scope.hashkey) {
+		// change settings when an ancestor widget broadcasts to do it.
+		$scope.$on(EVENTS.widgetUpdateChildrenSettings, function () {
+			console.log("Received broadcast to update settings from an ancestor widget.  Rendering.",$scope);
+			if ($scope.render) {
 				$scope.render();
 			}
 		});
+		// $scope.$onRootScope(EVENTS.widgetSettingsChange, function (event, widgetKey) {
+		// 	console.log("Chart received settings change event", widgetKey);
+		// 	if (widgetKey === $scope.hashkey) {
+		// 		$scope.render();
+		// 	}
+		// });
 
 		$scope.render();
 

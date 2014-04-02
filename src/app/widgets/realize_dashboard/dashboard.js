@@ -6,7 +6,7 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
 		var modalInstance;
 
 		$scope.open = function () {
-
+			console.log('open()');
 			modalInstance = $modal.open({
 				templateUrl: 'widgetModal.tpl.html',
 				scope: $scope
@@ -16,9 +16,10 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
 		$scope.ok = function () {
 			$modal.$close();
 		};
-
 		$scope.setupDashboard = function () {
+			console.log('setupDashboard() in WidgetDashboardCtrl ');
 			$scope.data = widget.listInstalledByParent($scope.hashkey).then(function (data) {
+				console.log('setupDashboard() post listInstalledByParent in WidgetDashboardCtrl ');
 				$scope.loadedWidgets = data;
 			});
 		};
@@ -34,20 +35,23 @@ define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'reali
 			});
 		};
 
-		$scope.$onRootScope(EVENTS.widgetSettingsChange, function (event, widgetKey) {
-			console.log("Dashboard received settings change event", widgetKey);
-			if (widgetKey === $scope.hashkey) {
-				$scope.setupDashboard();
-			}
+		// $scope.$onRootScope(EVENTS.widgetSettingsChange, function (event, widgetKey) {
+		// 	console.log("Dashboard received settings change event", widgetKey);
+		// 	if (widgetKey === $scope.hashkey) {
+		// 		$scope.setupDashboard();
+		// 	}
+		// });
+		$scope.$on('$viewContentLoaded',function(){
+			// $scope.$broadcast(EVENTS.widgetUpdateChildrenSettings);
+			console.log('dashboard widget view content loaded');
+			$scope.setupDashboard();
 		});
-
 		$scope.$onRootScope(EVENTS.widgetAddToDash, function (event, hashkey, widgetObj) {
 			console.log("Dashboard received widget add event", hashkey);
 			if (hashkey === $scope.hashkey) {
 				$scope.add(widgetObj);
 			}
 		});
-
 		$scope.setupDashboard();
 	}]);
 });

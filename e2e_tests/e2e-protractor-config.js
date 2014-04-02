@@ -1,14 +1,14 @@
 // An example configuration file.
 exports.config = {
   // Remove definition for `seleniumAddress` so that selenium is launched by protractor.
-  // seleniumAddress: 'http://localhost:4444/wd/hub',
+  seleniumAddress: 'http://127.0.0.1:4444/wd/hub',
   // seleniumServerJar: './node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar',
 
   //Capabilities to be passed to the webdriver instance.
-  capabilities: {
-    'browserName': 'phantomjs',
-    'phantomjs.binary.path': './node_modules/karma-phantomjs-launcher/node_modules/phantomjs/bin/phantomjs'
-  },
+  // capabilities: {
+  //   'browserName': 'phantomjs',
+  //   'phantomjs.binary.path': './node_modules/karma-phantomjs-launcher/node_modules/phantomjs/bin/phantomjs'
+  // },
 
 
   // The timeout for each script run on the browser. This should be longer
@@ -29,12 +29,12 @@ exports.config = {
      */
     // onComplete: function () {},
     // If true, display spec names.
-    isVerbose: true,
+    isVerbose: false,
     // If true, print colors to the terminal.
     showColors: true,
     // If true, include stack traces in failures.
     includeStackTrace: false,
     // Default time to wait in ms before a test fails.
-    defaultTimeoutInterval: 30000
+    defaultTimeoutInterval: 10000
   }
 };

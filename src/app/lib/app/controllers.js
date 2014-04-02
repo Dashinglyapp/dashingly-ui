@@ -1,13 +1,11 @@
 define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'], function (app, angular, $) {
-	app.controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', 'plugin', function ($root, $scope, user, widget, widgetMeta, EVENTS, $location, plugin) {
-		$scope.widgetMeta = widgetMeta;
-		$scope.widgetData = undefined;
-		$scope.currentWidget = {
-			name: undefined,
-			type: undefined
-		};
-
-		console.log('WidgetCtrl $scope', $scope);
+	app.controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$attrs', 'plugin','$location', function ($root, $scope, user, widget, widgetMeta, EVENTS, $attrs, plugin,$location) {
+		// $scope.widgetMeta = widgetMeta;
+		// $scope.widgetData = undefined;
+		// $scope.currentWidget = {
+		// 	name: undefined,
+		// 	type: undefined
+		// };
 		$scope.setupWidget = function (data) {
 			console.log("Setting up widget: ", data);
 			$scope.currentWidget.type = data.type;
@@ -46,6 +44,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 						$scope.setupWidgetWithData(widgetType, widgetName);
 					}, function (reason) {
 						console.log("Unathenticated user.  Initializing default widget version.");
+						console.log("Unathenticated user.  Initializing default widget version.");
 						$scope.setupWidget({type: widgetType, name: widgetName, hashkey: ""});
 					});
 				} else {
@@ -65,77 +64,139 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 				console.log('EVENTS.switchWidget called with args: ', widgetType, widgetName);
 				$scope.replace(widgetType, widgetName || 'default');
 			}
+			console.log('ERR in switchWidget');
 		};
+		if(!$scope.widgetData){
+			throw 'scope has no widgetData';
+		}
+		$scope.switchWidget($scope.widgetData.type,$scope.widgetData.name);
 
 
-		$scope.$onRootScope(EVENTS.switchWidgetTree, function (event, widgetType, widgetName) {
-			console.log("WidgetCtrl widget change event", widgetType, widgetName);
-			$scope.switchWidget(widgetType, widgetName);
-		});
 
-		$scope.$onRootScope(EVENTS.notAuthenticated, function (event) {
-			if ($scope.currentWidget.type !== "index") {
-				$scope.switchWidget("index");
-				console.log('checkLogin: auth-needed');
+
+		// change settings on this widget when this widget specifically is called.
+		// still allows broadcasts to pass through this widget though
+		// $scope.$onRootScope(EVENTS.widgetSettingsChange, function (event, widgetKey) {
+		// 	// if(event.stopPropagation){
+		// 	// 	console.log("Received emit to update settings from this widget's immediate child.  Rendering.",event,$scope);
+		// 	// 	console.log('stopping propagation');
+		// 	// 	// event.stopPropagation(); // prevent the settings message from progressing further.
+		// 	// }
+		// 	// if(event.preventDefault){
+		// 	// 	console.log('preventing default');
+		// 	// 	// event.preventDefault(); // prevent the settings message from progressing further.
+		// 	// }
+		// 	if (widgetKey === $scope.hashkey) {
+		// 		$scope.$broadcast(EVENTS.widgetUpdateChildrenSettings,widgetKey);
+		// 	}
+		// });
+				// change settings when an ancestor widget broadcasts to do it.
+		$scope.$on(EVENTS.widgetRefreshPressed, function (event,widgetKey) {
+			if(event.stopPropagation){
+				console.log("Received emit to update settings from this widget's immediate child.  Rendering.",event,$scope);
+				console.log('stopping propagation');
+				event.stopPropagation(); // prevent the settings message from progressing further.
 			}
+
+			console.log("Received widgetRefreshPressed. Broadcasting update to children $scope is",$scope);
+			$scope.$broadcast(EVENTS.widgetUpdateChildrenSettings);
 		});
 
-		$scope.$onRootScope(EVENTS.loginSuccess, function () {
-			console.log("WidgetCtrl login success");
-			$scope.switchWidget("dashboard");
+		// // change settings when an ancestor widget broadcasts to do it.
+		// $scope.$on(EVENTS.widgetUpdateChildrenSettings, function () {
+		// 	console.log("Received broadcast to update settings from an ancestor widget.  Rendering.",$scope);
+		// 	if ($scope.render) {
+		// 		$scope.render();
+		// 	}
+		// });
+
+		// if($scope.widgetData && $scope.render){
+		// 	$scope.render();
+		// }
+
+		console.log('widget data before load',$scope.widgetData);
+
+		$scope.$watch('widgetdata',function (tplUpdated) {
+			console.log('tplUpdated',tplUpdated);
 		});
 
-		$scope.$onRootScope(EVENTS.logoutSuccess, function (event) {
-			console.log("WidgetCtrl logout success");
-			$scope.switchWidget("index");
-		});
+		console.log('$attrs',$attrs);
 
-		$root.initialRenderDone = true;
+		console.log('WidgetCtrl $scope', $scope);
 	}])
 
-	.controller('WidgetRouteCtrl', ["$rootScope", "$scope", '$routeParams', "user", 'widget', 'widgetMeta', 'EVENTS', function ($root, $scope, $routeParams, user, widget, widgetMeta, EVENTS) {
+	.controller('WidgetRouteCtrl', ["$rootScope", "$scope", '$routeParams', "user", 'widget', 'widgetMeta', 'EVENTS','$q', function ($root, $scope, $routeParams, user, widget, widgetMeta, EVENTS, $q) {
+		console.log('WidgetRouteCtrl running ',arguments);
+		if(!$root.activeTopLevelWidgets){
+			var authcounter = 0;
+			// $root.authed = false;
+						// check user auth status on initial pageload
+			$root.activeTopLevelWidgets = [];
+			$root.dashboards = [];
+			// do additional tasks on user authed
+			function catchInitializeError(){
+				console.log('initializeerror',arguments);
+				$root.$emit(EVENTS.switchWidgetTree,'index','default');
+			}
+			function initializePage(newVal, oldVal){
+				console.log(++authcounter,'auth status changing');
+				$root.authed = newVal; //
+				console.log("user.isAuthed watch name", $routeParams.name, "type", $routeParams.type);
+				if($root.authed){
+					// get the dashboard list
+					if($routeParams.type === 'dashboard'){
+						widget.loadWidget('dashboard')
+						.then(function (foo1) {
+							console.log('$root.getWidgetListPromise foo1',foo1);
+							$root.dashboards = [foo1];
+							$root.activeTopLevelWidgets = $root.dashboards;
+						},catchInitializeError);
+					} else {
+						widget.loadWidget('dashboard')
+						.then(function (foo) {
+							console.log('$root.getWidgetListPromise foo',foo);
+							$root.dashboards = [foo];
+						},catchInitializeError);
+						widget.loadWidget($routeParams.type)
+						.then(function (dataObj) {
+							console.log('$root.getWidgetListPromise dataObj',dataObj);
+							$root.activeTopLevelWidgets = dataObj;
+						},catchInitializeError);
+					}
+				} else{
+					widget.loadWidget($routeParams.type || 'index')
+					.then(function (dataObj) {
+						console.log('$root.getWidgetListPromise dataObj',dataObj);
+						$root.activeTopLevelWidgets = dataObj;
+					},catchInitializeError);
+				}
+			}
+			$root.$watch(user.isAuthed, initializePage);
 
-		var name = $routeParams.name || 'default';
-		var type = $routeParams.type || 'index';
 
-		console.log("WidgetRouteCtrl name", name, "type", type);
-		$root.$emit(EVENTS.switchWidgetTree, type, name);
-	}])
 
-	.controller("DashboardsCtrl", ["$scope", "$window", "user", 'widget', '$rootScope', '$document', 'EVENTS', function ($scope, $window, user, widget, $root, $document, EVENTS) {
-		console.log('DashboardsCtrl $scope', $scope);
-		$scope.dashboards = [];
-
-		$scope.updateDashboards = function () {
-			widget.listInstalledByType("dashboard").then(function (data) {
-				console.log('User dashboards:', data);
-				if (Object.keys(data).length === 0) {
-					widget.create({name: 'default', type: 'dashboard'}).then(function (data) {
-						$scope.dashboards.push(data);
-					});
-				} else {
-					$scope.dashboards = data;
+			$root.$on(EVENTS.notAuthenticated, function (event) {
+				if ($scope.currentWidget.type !== "index") {
+					$root.authed = false;
 				}
 			});
-		};
+
+			$root.$on(EVENTS.loginSuccess, function () {
+				console.log("WidgetCtrl login success");
+				$root.authed = true;
+			});
 
 
-		$scope.switchDashboard = function (dashName) {
-			console.log("Emitting switch dashboard event", dashName);
-			$root.$emit(EVENTS.switchWidgetTree, "dashboard", dashName);
-		};
+			$root.$on(EVENTS.logoutSuccess, function (event) {
+				console.log("WidgetCtrl logout success");
+				$root.authed = false;
+			});
+			return;
+		}
 
-		$scope.update = function () {
-			$scope.updateDashboards();
-		};
+		initializePage(user.isAuthed());
 
-		$scope.$on('$viewContentLoaded', function () {
-			$scope.update();
-		});
-
-		$scope.$watch(user.isAuthed, $scope.update);
-
-	}])
+				}])
 
 /**
  * Controllers
@@ -145,10 +206,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 		console.log('TopNavCtrl $scope', $scope);
 
 		$scope.logout = function () {
+			$root.$emit(EVENTS.logoutSuccess);
 			sync.logout()
 				.finally(function () {
 					// TODO this needs a logout spinner in case the login takes a while
-					$root.$emit(EVENTS.logoutSuccess);
 					user.deAuthorize();
 				});
 		};
@@ -164,47 +225,37 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 	}])
 
 
-	.controller("LeftMenuCtrl", ['$scope', 'user', 'sync', 'EVENTS', function ($scope, user, sync, EVENTS) {
-		$scope.dashboardListSource = 'installed';
+	.controller("LeftMenuCtrl", ['$scope', 'user', 'sync', 'EVENTS', '$rootScope', 'context',function ($scope, user, sync, EVENTS, $rootScope,context) {
 		console.log('LeftMenuCtrl $scope', $scope);
-		var basePlugins;
+		$scope.showItem = function (itemName) {
+			console.log('LeftMenuCtrl showItem',itemName);
+			$scope.shownItem = $scope.shownItem ? '' : itemName;
+			console.log('LeftMenuCtrl $scope',$scope);
+		};
 
-		$scope.updatePlugins = function () {
-			sync.plugins('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
-				.then(function (data) {
-					console.log("Plugin list: ", data);
-					$scope.pluginList = data;
+		$scope.logout = function () {
+			$rootScope.$emit(EVENTS.logoutSuccess);
+			sync.logout()
+				.finally(function () {
+					// TODO this needs a logout spinner in case the login takes a while
+					user.deAuthorize();
+				});
+		};
+		$scope.updateAuthorizations = function(){
+				sync.authorizations('readList', {scope: context.getScopeName(), scopeHash: context.getScopeHash()})
+				.then(function (data){
+						console.log("Authorization list: ", data);
+						$scope.authorizationList = data;
 				});
 		};
 
-
-		$scope.addPlugin = function (pluginObj) {
-			console.log("Adding a plugin");
-			sync.plugins("add", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
-				.then(function (data) {
-					console.log("Plugin added: ", data);
-					$scope.updatePlugins();
-				});
-		};
-		$scope.removePlugin = function (pluginObj) {
-			console.log("Removing a plugin");
-			sync.plugins("remove", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
-				.then(function (data) {
-					console.log("Plugin added: ", data);
-					$scope.updatePlugins();
-				});
-		};
-
-
-		$scope.update = function () {
-			$scope.updatePlugins();
-		};
-
-		$scope.$on('$viewContentLoaded', function () {
-			$scope.update();
+		$scope.$on('$viewContentLoaded', function() {
+			$scope.updateAuthorizations();
 		});
 
-		$scope.$watch(user.isAuthed, $scope.update);
+		$scope.logout = function () {
+			$scope.$emit(EVENTS.logoutAttempt);
+		};
 
 	}])
 
@@ -230,7 +281,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 		};
 
 		$scope.refreshWidget = function () {
-			$root.$emit(EVENTS.widgetSettingsChange, $scope.hashkey);
+			$scope.$emit(EVENTS.widgetRefreshPressed, $scope.hashkey);
 		};
 
 		$scope.save = function () {
@@ -247,7 +298,8 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 			});
 		};
 
-		if ($scope.widgetData !== undefined) {
+		// console.log('$scope.widgetData in WidgetActionsCtrl',$scope.widgetData);
+		if (typeof $scope.widgetData === 'object') {
 			$scope.hashkey = $scope.widgetData.hashkey;
 			$scope.tags = $scope.widgetData.tags;
 
