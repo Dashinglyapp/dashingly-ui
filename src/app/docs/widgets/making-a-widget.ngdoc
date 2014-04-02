@@ -1,0 +1,368 @@
+@ngdoc overview
+@id makeAWidget
+@name Make a widget
+@description #Tutorial
+
+Now that you know what widgets are, let's walk through making a widget.  Let's make a simple widget that displays a chart of timeseries data.
+
+## Making a widget folder
+
+Let's call our widget `chart`.  We will make a folder called `chart` in the `src/app/widgets` directory (you make notice that this directory already exists, feel free to make a directory called `chart2` if you are following along).  The name of this folder is the type of the widget.  This is important to the system, as this is how it finds widgets.  In order to facilitate this, once you decide on a widget type, do not change it!
+
+## Making a manifest file
+
+We will start with the manifest file, which is how the system know how to load and render the widget.  Here is the final manifest:
+
+```js
+{
+	"title": "Chart",
+	"description": "A basic chart",
+	"controller": "ChartCtrl",
+	"type": "chart",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["dashboard-item", "chart"],
+	"javascripts": ["chart.js"],
+	"templates": ["chart.tpl.html"],
+	"css": [],
+	"settings": {
+		"source": {
+			"type": "endpoint",
+			"description": "Data source",
+			"meta": {
+				"tags": ["chart"]
+			},
+			"required": true,
+			"default": "d9ec9527e5fc7c8a61d203ea97164466"
+		}
+	},
+	"display": {
+		"views": {
+			"chart": {
+				"type": "chart",
+				"formats": ["desktop", "mobile"]
+			},
+			"number": {
+				"type": "number",
+				"formats": ["mobile", "desktop"]
+			}
+		},
+		"defaults": {
+			"desktop": "chart",
+			"mobile": "number"
+		}
+	}
+}
+```
+
+And what each attribute does:
+
+* `title` -- The title of the widget.  Will be displayed to users in menus.
+* `description` -- What the widget does.  Users will see this when they add the widget.
+* `controller` -- The name of the angular controller that your widget defines.  We will look more at this later.
+* `type` -- This is the same as your folder name, and defines the widget type.  This should not change once you decide on it.
+* `version` -- The version of your widget.
+* `authors` -- Your name!
+* `tags` -- Tags that the system will use to describe your widget.  Anything that you want to go into a user dashboard should have the tag `dashboard-item`.  Other tags are for findability by the user, so feel free to be specific about what your widget does.
+* `javascripts` -- The javascript files that your widget depends on.  For now, this should only be one file.
+* `templates` -- The templates you would like to load to render your widget.  Currently, only the first will be loaded.
+* `css` -- CSS that you would like to load.  Does not do anything currently.
+
+The next two attributes are a little more involved, so let's break them into sections.
+
+### Settings
+
+Widgets can persist settings to the API server.  This json object lets you define what settings you want to store.  Each key in the settings object is a separate setting that you want to store.  In this case, we are storing one settings, `source`.
+
+```js
+"source": {
+			"type": "endpoint",
+			"description": "Data source",
+			"meta": {
+				"tags": ["chart"]
+			},
+			"required": true,
+			"default": "d9ec9527e5fc7c8a61d203ea97164466"
+		}
+```
+
+What each attribute means:
+
+* `type` -- the type of the setting.
+    * `endpoint` is a special type that tells the server that you want to use this setting to allow the user to choose what data source to connect the widget to.  The user will see a drop down with compatible data sources.
+    * `text` -- A simple text value.
+* `description` -- What to show the user when they enter the setting value.
+* `meta` -- Specific to type.  Gives the system additional information.
+    * `endpoint` -- If the type is endpoint, `tags` tells the system what endpoints this widget can interact with.  In this case, any endpoint with the tag `chart` can be a valid data source.  Tags are inclusive, so including another tag will include all endpoints tagged with either tag.
+* `required` -- Whether or not the user has to enter this setting.
+* `default` -- A default value for this setting.  In this case, the endpoint for github commits per day.
+
+### Display
+
+We want to show the widget to the user, right?  Display controls how that happens.  Display has two keys, views and defaults.
+
+#### Views
+
+Views define different ways to render the widget.  For example, we may want to have a widget that displays a chart in some cases, and just a number in other cases.  Users can switch between views at will, and the system will automatically change views as the resolution changes.
+
+Let's look at the `chart` view:
+
+```js
+"chart": {
+        "type": "chart",
+        "formats": ["desktop", "mobile"]
+    },
+```
+
+Attributes:
+
+* `type` -- the type of view. You can find currently available views in `src/app/partials/views`.  `chart` will use `src/app/partials/views/chart.tpl.html`.  You can also set this to `custom` to specify your own template.
+* `formats` -- the screen formats that this view is compatible with.  In this case, a chart is okay to show on mobile and desktop.
+
+We also have a `number` view that corresponds to the `number.tpl.html` partial.
+
+#### Defaults
+
+Defaults specify the view to be shown for different screen formats.  The user can override these defaults.
+
+```js
+    "defaults": {
+        "desktop": "chart",
+        "mobile": "number"
+    }
+```
+
+In this case, we want to show the `chart` view to desktop users, and the `number` view to mobile users by default.  They will be able to switch between the views on demand, as both support `mobile` and `desktop` screen formats.
+
+### Manifest done
+
+Okay, all done with the manifest!  Now, let's actually make the widget.
+
+## Creating the widget javascript
+
+So, we have some outlines of our widget already.  We know that it will be able to connect to any endpoint with the tag `chart`, pull the data in, and render it into one of two views.  Let's see how we can glue everything together.
+
+### Angular controller
+
+Widgets are [angularjs](http://angularjs.org/) controllers.  If you aren't familiar with Angular, it is advisable to do the tutorial.  Angular controllers define scopes and functions, and bind data between views (templates), and the app.  In simpler terms, our controller will get and process data, and our templates will be able to display it.
+
+```js
+define(['app', 'angular'], function (app, angular) {
+});
+```
+
+The first thing we do is use [requirejs](http://requirejs.org/) to pull in our app, and angular.
+
+Now, we can register our controller:
+
+```js
+define(['app', 'angular'], function (app, angular) {
+	app.register.controller('ChartCtrl', ['$scope', function ($scope) {
+	}]);
+});
+```
+
+Notice how we use the same name for the controller that we specified in the manifest.  This is important to do.  We also inject the $scope variable into the controller, which will allow us to access data about our context.
+
+Great, so we have a controller.  Unfortunately, it doesn't really do anything yet.  Let's have it talk to the server!
+
+### Getting data
+
+```js
+define(['app', 'angular', 'view', 'context', function (app, angular, moment) {
+	app.register.controller('ChartCtrl', ['$scope', 'view', 'context', function ($scope, view, context) {
+		$scope.hashkey = $scope.widgetData.hashkey;
+		$scope.chartType = "line";
+
+		$scope.render = function () {
+			view.getDetail(context.getScopeName(), context.getScopeHash(), $scope.widgetData.settings.source.value).then(function (data) {
+				$scope.allChartData = data;
+			});
+		};
+	}]);
+});
+```
+We are getting the `hashkey` of our widget from the `$scope`.  The hashkey is a unique key that refers to a specific widget for a specific user, and is stored on the server.  The hashkey will let us request data on our widget later on.
+
+Notice how we are calling on `$scope.widgetData` without defining it.  `$scope.widgetData` is defined by the caller of our widget, and can be assumed to be available.  It contains information about a particular instance of the widget (specific to a user).
+
+We are also setting the `chartType`, which will be useful later on.
+
+Now we are getting somewhere.  We are using requirejs to pull in the `view` and `context` libraries (they can be found at `src/app/lib/common/models`).  These will let us communicate with the server.
+
+* `view` -- view gets data from endpoints.  The `getDetail` function gets data from a specific endpoint.
+* `context` -- context is used to refer to the current user.  Each context has a scopeName, which is "user", or "group", and a hashkey which is unique for that user or group.  We need to send this to the server when we make requests, so that it can look up the right person's data.
+
+Notice how we are referring to `$scope.widgetData.settings.source.value`.  You may remember `source` from our manifest file.  This is how we retrieve data on which endpoint the user selected.
+
+So, the whole function is getting data for a specific user or group from a specific endpoint.  We are using a `promise` (via `.then`), which will pick up the result when it is ready and process it.
+
+### Processing data
+
+Awesome, we have our data from the server!  Now, we just need to convert it to the type of data that our views defined in our settings can render.
+
+Here is how we do it:
+
+```js
+$scope.allChartData = data;
+    $scope.chartConfig = {
+        title: data.name,
+        legend: {
+            display: false,
+            position: 'left'
+        },
+        labels: false,
+        xAxisMaxTicks: 3
+    };
+
+    var series = [];
+    var chartData = [];
+    var i;
+    for (i = 0; i < data.data.y.length; i++) {
+        series.push(data.data.y[i].label);
+    }
+
+    for (i = 0; i < data.data.y[0].data.length; i++) {
+        var y = [];
+        var x = data.data.x.data[i];
+        var m = moment(x).format("M/D");
+        for (var j = 0; j < data.data.y.length; j++) {
+            y.push(data.data.y[j].data[i]);
+        }
+        chartData.push({
+            x: m,
+            y: y,
+            tooltip: m
+        });
+    }
+
+
+    $scope.chartData = {
+        series: series,
+        data: chartData
+    };
+
+    if (chartData.length > 0) {
+        $scope.number = chartData[chartData.length - 1].y[0];
+    } else {
+        $scope.number = 0;
+    }
+```
+
+The code above isn't super critical to understand for the purposes of this tutorial, but it is just reformatting the server response to what our `chart` view expects.  We have also added some dependencies, which we will add into our `define` and controller functions later.
+
+We define `chartConfig`.  This dictates higher level functions about how the chart is drawn.  The `chart` view uses [angular-charts](http://chinmaymk.github.io/angular-charts/), and reading through the documentation there will give a better understanding of how the config works.
+
+We also define `chartData`, which is properly formatted data for rendering.
+
+### View data
+
+Finally, we will set the view data property on our scope:
+
+```js
+$scope.viewData = {
+    "chart": {
+        "chartData": $scope.chartData,
+        "chartType": $scope.chartType,
+        "chartConfig": $scope.chartConfig
+    },
+    "number": {
+        "number": $scope.number
+    }
+};
+```
+
+This looks a lot like our `display` section of the manifest, and with good reason.  This defines how our views are rendered, and we need to specify the right data for each of our views.  In this case, the `chart` view requires certain keys, and the `number` view requires other keys.  Looking at the base templates for these views (in `src/app/partials/views`) will help with what data should be included.
+
+### Everything all put together
+
+
+```js
+define(['app', 'angular', 'moment', 'angular-charts', 'view', 'context', 'realize-sync'], function (app, angular, moment) {
+	app.register.controller('ChartCtrl', ['$scope', 'sync', 'user', 'EVENTS', 'view', 'context', function ($scope, sync, user, EVENTS, view, context) {
+		$scope.hashkey = $scope.widgetData.hashkey;
+		$scope.chartType = "line";
+
+		$scope.render = function () {
+			view.getDetail(context.getScopeName(), context.getScopeHash(), $scope.widgetData.settings.source.value).then(function (data) {
+				$scope.allChartData = data;
+				$scope.chartConfig = {
+					title: data.name,
+					legend: {
+						display: false,
+						position: 'left'
+					},
+					labels: false,
+					xAxisMaxTicks: 3
+				};
+
+				var series = [];
+				var chartData = [];
+				var i;
+				for (i = 0; i < data.data.y.length; i++) {
+					series.push(data.data.y[i].label);
+				}
+
+				for (i = 0; i < data.data.y[0].data.length; i++) {
+					var y = [];
+					var x = data.data.x.data[i];
+					var m = moment(x).format("M/D");
+					for (var j = 0; j < data.data.y.length; j++) {
+						y.push(data.data.y[j].data[i]);
+					}
+					chartData.push({
+						x: m,
+						y: y,
+						tooltip: m
+					});
+				}
+
+
+				$scope.chartData = {
+					series: series,
+					data: chartData
+				};
+
+				if (chartData.length > 0) {
+					$scope.number = chartData[chartData.length - 1].y[0];
+				} else {
+					$scope.number = 0;
+				}
+
+				$scope.viewData = {
+					"chart": {
+						"chartData": $scope.chartData,
+						"chartType": $scope.chartType,
+						"chartConfig": $scope.chartConfig
+					},
+					"number": {
+						"number": $scope.number
+					}
+				};
+			});
+		};
+
+		$scope.$onRootScope(EVENTS.widgetSettingsChange, function (event, widgetKey) {
+			console.log("Chart received settings change event", widgetKey);
+			if (widgetKey === $scope.hashkey) {
+				$scope.render();
+			}
+		});
+
+		$scope.render();
+	}]);
+});
+```
+
+Above is our full code!  You may have noticed a couple of changes.  One, we got all of the dependencies into our `define` function and into our controller.
+
+We also defined a `$scope.$onRootScope` listener.  This will refresh the widget any time its settings are changed.  We check if this widget is being referenced by checking if the key in the broadcast matches the key of the widget.
+
+Finally, we do a `$scope.render` to render the widget when it is loaded.
+
+## Next steps
+
+Now that we have a working widget, you might want to try building your own.  The sky is the limit!  Looking at the `src/app/widgets` folder may give you inspiration and further guidance.  Feel free to open issues on [Github](https://github.com/realizeapp/realize-ui-angular) if you have more questions.
+
+
+

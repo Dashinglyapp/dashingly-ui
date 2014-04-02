@@ -1,0 +1,11 @@
+@ngdoc overview
+@id widgetsOverview
+@name Widgets Overview
+@description #Overview
+
+Widgets are UI elements that are also able to do data processing.  A widget might be a chart that displays how many steps you take in a day, or a form that allows you to enter your mood, or even a map that shows the locations you visited recently.
+
+## Where do widgets live?
+
+Widgets all live in the `src/app/widgets` folder.  You can look in this folder for examples of widgets.  Any widget whose name starts with `realize_` is a system widget.
+
