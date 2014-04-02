@@ -302,6 +302,10 @@ a,a:link,a:visited,a:hover,a:active, {
     height: 225px;
 }
 
+.gridster{
+    background: inherit !important;
+}
+
 /**
 *
 * Plugins
@@ -336,6 +340,32 @@ a,a:link,a:visited,a:hover,a:active, {
     .search-box{
         color: @black;
     }
+}
+
+/**
+*
+* Notifications
+*/
+
+.notification-container{
+    position: absolute;
+    z-index: 10000;
+
+    &.bottom{
+        bottom: 20px;
+    }
+
+    &.right{
+        right: 20px;
+    }
+
+    .growl{
+      max-width: 350px;
+      position: relative;
+      margin: 10px 0;
+    }
+
+
 }
 
 // # The `src/less` Directory

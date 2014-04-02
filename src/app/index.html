@@ -6,6 +6,7 @@
     <!-- font awesome from BootstrapCDN -->
     <!--     <link href="http://netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.css" rel="stylesheet">
      -->
+
     <!-- compiled CSS -->
     <!-- token_replace_css_here -->
 
@@ -33,11 +34,15 @@
         </div>
     </div>
     <ng-view></ng-view>
+
+    <div class="notification-container bottom right">
+        <div growl></div>
+    </div>
 </div>
 
-<!-- token_replace_thirdparty_js_here -->
-<!-- token_replace_js_here -->
+    <!-- token_replace_thirdparty_js_here -->
+    <!-- token_replace_js_here -->
 
-<script data-main="require-config" src="/app/thirdparty/requirejs/require.js"></script>
+    <script data-main="require-config" src="/app/thirdparty/requirejs/require.js"></script>
 </body>
 </html>

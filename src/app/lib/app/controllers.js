@@ -1,5 +1,5 @@
-define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'], function (app, angular, $) {
-	app.controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', 'plugin', function ($root, $scope, user, widget, widgetMeta, EVENTS, $location, plugin) {
+define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 'notification'], function (app, angular, $) {
+	app.controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', 'plugin', 'notification', function ($root, $scope, user, widget, widgetMeta, EVENTS, $location, plugin, notification) {
 		$scope.widgetMeta = widgetMeta;
 		$scope.widgetData = undefined;
 		$scope.currentWidget = {
@@ -126,20 +126,14 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 		};
 
 		$scope.update = function () {
-			$scope.updateDashboards();
+			if(user.isAuthed()){
+				$scope.updateDashboards();
+			}
 		};
-
-		$scope.$on('$viewContentLoaded', function () {
-			$scope.update();
-		});
 
 		$scope.$watch(user.isAuthed, $scope.update);
 
 	}])
-
-/**
- * Controllers
- */
 
 	.controller("TopNavCtrl", ['$scope', '$window', 'user', 'sync', 'EVENTS', '$rootScope', function ($scope, $window, user, sync, EVENTS, $root) {
 		console.log('TopNavCtrl $scope', $scope);
@@ -164,51 +158,14 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 	}])
 
 
-	.controller("LeftMenuCtrl", ['$scope', 'user', 'sync', 'EVENTS', function ($scope, user, sync, EVENTS) {
-		$scope.dashboardListSource = 'installed';
-		console.log('LeftMenuCtrl $scope', $scope);
-		var basePlugins;
-
-		$scope.updatePlugins = function () {
-			sync.plugins('readList', {scope: "user", scopeHash: user.getProp('hashkey')})
-				.then(function (data) {
-					console.log("Plugin list: ", data);
-					$scope.pluginList = data;
-				});
+	.controller("LeftMenuCtrl", ['$scope', '$rootScope', 'EVENTS', function ($scope, $root, EVENTS) {
+		$scope.logout = function(){
+			$root.$emit(EVENTS.logoutAttempt);
 		};
-
-
-		$scope.addPlugin = function (pluginObj) {
-			console.log("Adding a plugin");
-			sync.plugins("add", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
-				.then(function (data) {
-					console.log("Plugin added: ", data);
-					$scope.updatePlugins();
-				});
-		};
-		$scope.removePlugin = function (pluginObj) {
-			console.log("Removing a plugin");
-			sync.plugins("remove", {scope: "user", scopeHash: user.getProp('hashkey'), resourceHash: pluginObj.hashkey})
-				.then(function (data) {
-					console.log("Plugin added: ", data);
-					$scope.updatePlugins();
-				});
-		};
-
-
-		$scope.update = function () {
-			$scope.updatePlugins();
-		};
-
-		$scope.$on('$viewContentLoaded', function () {
-			$scope.update();
-		});
-
-		$scope.$watch(user.isAuthed, $scope.update);
 
 	}])
 
-	.controller('WidgetActionsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', function ($scope, user, sync, EVENTS, widget, $root, view, context, widgetSettings) {
+	.controller('WidgetActionsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', 'notification', function ($scope, user, sync, EVENTS, widget, $root, view, context, widgetSettings, notification) {
 		$scope.collapseSettings = true;
 		$scope.formData = {};
 
@@ -235,7 +192,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 
 		$scope.save = function () {
 			console.log("Saving settings with data", $scope.formData);
-			widgetSettings.saveSettingsForm($scope.widgetData, $scope.formData);
+			widgetSettings.saveSettingsForm($scope.widgetData, $scope.formData).then(function(){
+			}).catch(function(err){
+				console.log(err);
+			});
 		};
 
 		$scope.deleteWidget = function () {
@@ -338,17 +298,12 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin'],
 		};
 
 		$scope.update = function () {
-			$scope.setup();
+			if(user.isAuthed()){
+				$scope.setup();
+			}
 		};
-
-		$scope.$on('$viewContentLoaded', function () {
-			$scope.update();
-		});
 
 		$scope.$watch(user.isAuthed, $scope.update);
 
-		$scope.setup();
-
 	}]);
 });
-

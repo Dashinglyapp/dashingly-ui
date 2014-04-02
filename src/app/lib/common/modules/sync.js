@@ -1,8 +1,8 @@
 /*global angular:true, browser:true */
-define(['angularAMD', 'http-auth-interceptor'], function (angularAMD) {
-	var module = angular.module('realize-sync', ['http-auth-interceptor']);
+define(['angularAMD', 'http-auth-interceptor', 'angular-growl'], function (angularAMD) {
+	var module = angular.module('realize-sync', ['http-auth-interceptor', 'angular-growl']);
 
-	module.config(['$httpProvider', function ($httpProvider) {
+	module.config(['$httpProvider', 'growlProvider', function ($httpProvider, growlProvider) {
 		// centralize authorization/authentication messages and error handling
 		$httpProvider.interceptors.push(['$rootScope', '$q', function ($rootScope, $q) {
 			return {
@@ -19,6 +19,27 @@ define(['angularAMD', 'http-auth-interceptor'], function (angularAMD) {
 						config.headers['Content-Type'] = "application/json";
 					}
 					return config || $q.when(config);
+				}
+			};
+		}]);
+		$httpProvider.responseInterceptors.push(growlProvider.serverMessagesInterceptor);
+
+
+		$httpProvider.interceptors.push(['$rootScope', '$q', 'serverError', function ($rootScope, $q, serverError) {
+			return {
+				'responseError': function (rejection) {
+					switch(rejection.status){
+						case 500:
+							serverError.handleServerException(rejection.data);
+							break;
+						case 401:
+							serverError.handleNotAuthenticated(rejection.data);
+							break;
+						case 403:
+							serverError.handleNotAuthorized(rejection.data);
+							break;
+					}
+					return $q.reject(rejection);
 				}
 			};
 		}]);
@@ -41,16 +62,14 @@ define(['angularAMD', 'http-auth-interceptor'], function (angularAMD) {
 		// instead of the full response object
 		function normalizeResponseData(httpObj) {
 			var d = $q.defer();
-			httpObj.then(
-				function (obj) {
+			httpObj.then(function (obj) {
 					console.log("Http success");
 					d.resolve(obj.data || obj);
-				},
-				function (rejection) {
-					console.log("Http rejection.");
-					d.reject(rejection);
 				}
-			);
+			).catch(function(err){
+					console.log("Http error");
+					d.reject(err);
+				});
 			return d.promise;
 		}
 
@@ -83,6 +102,9 @@ define(['angularAMD', 'http-auth-interceptor'], function (angularAMD) {
 					break;
 				case 'remove':
 					promise = normalizeResponseData($http({method: 'DELETE', url: route + "/" + options.resourceHash}));
+					break;
+				case 'updateLayoutList':
+					promise = normalizeResponseData($http.post(route + '/layout', options.data));
 					break;
 				default:
 					break;

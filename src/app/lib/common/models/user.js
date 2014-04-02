@@ -1,7 +1,7 @@
-define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash', 'view'],
+define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash', 'view', 'notification'],
 	function (angularAMD) {
-		var module = angular.module('user', ['ng', 'realize-sync', 'realize-lodash', 'view']);
-		module.factory("user", ['$rootScope', '$q', '$window', 'sync', '_', 'EVENTS', 'authService', 'view', function ($root, $q, $window, sync, _, EVENTS, authService) {
+		var module = angular.module('user', ['ng', 'realize-sync', 'realize-lodash', 'view', 'notification']);
+		module.factory("user", ['$rootScope', '$q', '$window', 'sync', '_', 'EVENTS', 'authService', 'view', 'notification', function ($root, $q, $window, sync, _, EVENTS, authService, view, notification) {
 			// console.log('$q.defer',$q.defer);
 			var authObj;
 			var authPromise;
@@ -95,6 +95,7 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash', 'view'],
 					delete $window.localStorage.realize_user_auth_token;
 					delete $window.localStorage.realize_user_hashkey;
 					api.setProp('authed', false);
+					notification.success("Logged out.");
 					return data;
 				},
 				authorize: function (userObj) {
@@ -134,6 +135,7 @@ define(['angularAMD', 'realize-sync', 'lodash', 'realize-lodash', 'view'],
 							return config;
 						};
 						authService.loginConfirmed(data, updater);
+						notification.success("Logged in as " + data.email);
 						d.resolve(data);
 					}).catch(function (err) {
 						var rejection = {};

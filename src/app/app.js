@@ -18,11 +18,15 @@ define([
 	'view',
 	'context',
 	'plugin',
-	'util'
+	'util',
+	'angular-growl',
+	'error',
+	'angular-gridster',
+	'realize-sync'
 ], function (angular, angularAMD, $) {
 	var DEBUG_MODE = false;
 
-	var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen', 'view', 'context', 'plugin', 'util'])
+	var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen', 'view', 'context', 'plugin', 'util', 'angular-growl', 'error', 'gridster', 'realize-sync'])
 		.constant('EVENTS', {
 			// auth
 			loginSuccess: 'event:auth-loginConfirmed',
@@ -47,7 +51,7 @@ define([
 		.config(['$locationProvider', '$controllerProvider', '$compileProvider', '$routeProvider', '$provide',
 			function ($locationProvider, $controllerProvider, $compileProvider, $routeProvider, $provide) {
 				// for debugging purposes, log all events emitted to rootscope.
-				$provide.decorator('$rootScope', function ($delegate) {
+				$provide.decorator('$rootScope', ['$delegate', function ($delegate) {
 					var emit = $delegate.$emit;
 
 					$delegate.$emit = function () {
@@ -56,7 +60,7 @@ define([
 					};
 
 					return $delegate;
-				});
+				}]);
 				// enable pushstate so urls are / instead of /#/ as root
 				$locationProvider.html5Mode(true);
 
@@ -114,6 +118,12 @@ define([
 				}
 
 				return input.substring(0, 1).toUpperCase() + input.substring(1);
+			};
+		}])
+
+		.factory('$exceptionHandler', ['error', function (error) {
+			return function (exception, cause) {
+				error.handleException(exception, cause);
 			};
 		}]);
 	return module;

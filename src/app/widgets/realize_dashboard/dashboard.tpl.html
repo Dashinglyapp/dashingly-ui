@@ -16,7 +16,9 @@
         </div>
     </script>
 
-    <div ng-repeat="widgetData in loadedWidgets">
-        <top-level-widget widgetData="widgetData"></top-level-widget>
+    <div gridster="gridsterOpts">
+        <div gridster-item="itemMap" ng-repeat="widgetData in loadedWidgets">
+            <top-level-widget widgetData="widgetData"></top-level-widget>
+        </div>
     </div>
 </div>

@@ -48,6 +48,17 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'c
 					var d = $q.defer();
 					api.detail(hashkey).then(function (data) {
 						api.initializeWidgets(data.related).then(function (widgets) {
+							widgets = widgets.sort(function(a,b) {
+								var val;
+								if (a.layout.row > b.layout.row){
+								  val = 1;
+								} else if (a.layout.row < b.layout.row){
+								  val = -1;
+								} else {
+								  val = 0;
+								}
+								return val;
+							});
 							d.resolve(widgets);
 						});
 					});
@@ -91,6 +102,7 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'c
 							widget.currentView = widgetData.current_view;
 							widget.parents = widgetData.parents;
 							widget.name = widgetData.name;
+							widget.layout = widgetData.layout;
 							if (widget.settings !== undefined) {
 								for (var j = 0; j < Object.keys(widget.settings).length; j++) {
 									var key = Object.keys(widget.settings)[j];
@@ -174,7 +186,7 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'c
 				},
 				getDependencies: function (widgetObj) {
 					var d = $q.defer();
-					if (!widgetObj.noAuth) {
+					if (!widgetObj.noAuth && user.isAuthed()) {
 						view.listAvailableForScope(context.getScopeName(), context.getScopeHash()).then(function (views) {
 							var compatiblePlugins = [];
 							if (widgetObj.settings !== undefined) {
@@ -239,8 +251,9 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'c
 					var d = $q.defer();
 					var settings = {};
 					var endpoints = [];
+					var i;
 					if (data.settings !== undefined) {
-						for (var i = 0; i < Object.keys(data.settings).length; i++) {
+						for (i = 0; i < Object.keys(data.settings).length; i++) {
 							var key = Object.keys(data.settings)[i];
 							var setting = data.settings[key];
 							if (setting.default !== undefined) {
@@ -267,14 +280,56 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'c
 						current_view: currentView
 					};
 
-					sync.resource("create", {scope: context.getScopeName(), scopeHash: context.getScopeHash(), data: postData})
+					var syncData = {scope: context.getScopeName(), scopeHash: context.getScopeHash(), data: postData};
+
+					if(data.parent !== undefined){
+						api.listInstalledByParent(data.parent).then(function(widgets){
+							var col = 0;
+							var sizeX = 4;
+							var sizeY = 2;
+							var row = 0;
+
+							if(widgets.length > 0){
+								for(i = 0; i < widgets.length; i++){
+									row = row + widgets[i].layout.sizeX;
+								}
+							}
+							syncData.data.layout = {
+								row: row,
+								col: col,
+								sizeX: sizeX,
+								sizeY: sizeY
+							};
+
+							api.postWidgetToServer(syncData).then(function(result){
+								d.resolve(result);
+							});
+						});
+					} else{
+						api.postWidgetToServer(syncData).then(function(result){
+							d.resolve(result);
+						});
+					}
+
+					return d.promise;
+				},
+				postWidgetToServer: function(data){
+					var d = $q.defer();
+					sync.resource("create", data)
 						.then(function (data) {
 							console.log("Added widget to dashboard: ", data);
 							api.initializeWidgets([data]).then(function (widgets) {
 								d.resolve(widgets[0]);
 							});
 						});
-
+					return d.promise;
+				},
+				updateWidgetPositions: function(positions){
+					var d = $q.defer();
+					sync.resource("updateLayoutList", {scope: context.getScopeName(), scopeHash: context.getScopeHash(), data: {positions: positions}}).then(function(data){
+						console.log("Updated widget positions.");
+						d.resolve(data);
+					});
 					return d.promise;
 				},
 				remove: function (hashkey) {
@@ -303,6 +358,9 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'c
 						.then(function (data) {
 							console.log("Updated settings for widget: ", data);
 							d.resolve(data);
+						}).catch(function(err){
+							console.log("Failed to update settings for widget: ", data);
+							d.reject(err);
 						});
 					return d.promise;
 				},
@@ -380,11 +438,12 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'c
 					return d.promise;
 				},
 				saveSettingsForm: function (widgetData, formData) {
+					var d = $q.defer();
 					var views = widgetData.endpoints;
 					var patchData = {};
 					for (var i = 0; i < Object.keys(formData).length; i++) {
 						var key = Object.keys(formData)[i];
-						if (formData[key].value !== undefined) {
+						if (formData[key] !== undefined && formData[key].value !== undefined) {
 							patchData[key] = formData[key].value;
 						} else {
 							patchData[key] = formData[key];
@@ -396,9 +455,13 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'c
 							views.push(patchData[key]);
 						}
 					}
-					widget.saveSettings(widgetData.hashkey, patchData, views).then(function () {
+					widget.saveSettings(widgetData.hashkey, patchData, views).then(function (data) {
 						$root.$emit(EVENTS.widgetSettingsChange, widgetData.hashkey);
+						d.resolve(data);
+					}).catch(function(err){
+						d.reject(err);
 					});
+					return d.promise;
 				}
 			};
 			return api;
