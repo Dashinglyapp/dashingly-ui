@@ -1,8 +1,8 @@
 define(['app', 'realize-debugging', 'screen'], function (app) {
-	app.directive('topLevelWidget', function () {
+	app.directive('widgetContainer', function () {
 		return {
 			restrict: 'E',
-			templateUrl: 'partials/top-level-widget.tpl.html'
+			templateUrl: 'partials/widget-container.tpl.html'
 		};
 	})
 

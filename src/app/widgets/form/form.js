@@ -45,7 +45,7 @@ define(['app', 'angular', 'moment', 'view', 'context', 'user', 'realize-sync'], 
 				console.log("Form saved properly");
 			});
 		};
-
+		// change settings when an ancestor widget broadcasts to do it.
 		$scope.$onRootScope(EVENTS.widgetSettingsChange, function (event, widgetKey) {
 			console.log("Chart received settings change event", widgetKey);
 			if (widgetKey === $scope.hashkey) {

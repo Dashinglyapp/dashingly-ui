@@ -4,7 +4,8 @@ define(['app', 'angular', 'moment', 'angular-charts', 'view', 'context', 'realiz
 		$scope.chartType = "line";
 
 		$scope.render = function () {
-			view.getDetail(context.getScopeName(), context.getScopeHash(), $scope.widgetData.settings.source.value).then(function (data) {
+			view.getDetail(context.getScopeName(), context.getScopeHash(), $scope.widgetData.settings.source.value)
+			.then(function (data) {
 				$scope.allChartData = data;
 				$scope.chartConfig = {
 					title: data.name,

@@ -85,6 +85,7 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 			$scope.switchWidget("dashboard");
 		});
 
+		// // change settings when an ancestor widget broadcasts to do it.
 		$scope.$onRootScope(EVENTS.logoutSuccess, function (event) {
 			console.log("WidgetCtrl logout success");
 			$scope.switchWidget("index");

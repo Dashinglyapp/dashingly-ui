@@ -1,17 +1,64 @@
 <div class="menuleft"
-      ng-class="{active:$root.showleftmenu}"
-      ng-click="$event.stopPropagation();"
-      ng-controller="LeftMenuCtrl">
+			ng-class="{active:$root.showleftmenu}"
+			ng-click="$event.stopPropagation();" ng-controller="LeftMenuCtrl">
 
-  <div class="btn-group-vertical">
-    <ul class="nav nav-pils nav-stacked">
-      <li><a>Invite</a></li>
-      <li><a>Developers</a></li>
-      <li><a>Settings</a></li>
-      <li><a>Authorizations</a></li>
-      <li ng-click="logout()"><a>Log Out</a></li>
-      <li><a>Contact Us</a></li>
-      <li><a>Feedback</a></li>
-    </ul>
-  </div>
+
+	<div class="content-container" ng-class='{active:shownItem}'>
+		<ul class="nav nav-pils nav-stacked">
+			<li ng-click="showItem('settings')">
+				<span class="fa-angle-right"></span>
+				<a>Settings</a>
+			</li>
+			<li ng-click="logout();">
+				<span class="fa-angle-right"></span>
+				<a>Log Out</a>
+			</li>
+			<li ng-click="showItem('authorizations')">
+				<span class="fa-angle-right"></span>
+				<a>Authorizations</a>
+			</li>
+			<li ng-click="showItem('developers')">
+				<span class="fa-angle-right"></span>
+				<a>Developers</a>
+			</li>
+			<li ng-click="showItem('invite')">
+				<span class="fa-angle-right"></span>
+				<a>Invite</a>
+			</li>
+			<li ng-click="showItem('contact')">
+				<span class="fa-angle-right"></span>
+				<a>Contact Us</a>
+			</li>
+			<li ng-click="showItem('feedback')">
+				<span class="fa-angle-right"></span>
+				<a>Feedback</a>
+			</li>
+		</ul>
+		<div class="left-menu-content">
+			<button class="btn btn-link" ng-click="shownItem=''">
+				<span class="fa-angle-left"></span>
+				<span>Back</span>
+			</button>
+			<div class="leftmenuitembody settings" ng-class="{active:shownItem==='settings'}">
+				form
+			</div>
+			<div class="leftmenuitembody invite" ng-class="{active:shownItem==='invite'}">
+				Invite your friends!  Somehow.
+			</div>
+			<div class="leftmenuitembody developers" ng-class="{active:shownItem==='developers'}">
+				You can customize Realize.
+				Github link
+				links to tutorials.
+			</div>
+			<div class="leftmenuitembody authorizations" ng-class="{active:shownItem==='authorizations'}">
+				authorizations content
+			</div>
+			<div class="leftmenuitembody contact" ng-class="{active:shownItem==='contact'}">
+				<a href="mailto:hello@realize.pe" target="_top">Contact Us</a>
+			</div>
+			<div class="leftmenuitembody feedback" ng-class="{active:shownItem==='feedback'}">
+				Have idea, suggestions, comments? Give us feedback and vote on suggested features with <a href="realize.uservoice.com">Uservoice</a>.
+			</div>
+		</div>
+	</div>
 </div>
