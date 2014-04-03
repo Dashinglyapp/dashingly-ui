@@ -6,41 +6,43 @@
 	<div class="content-container" ng-class='{active:shownItem}'>
 		<ul class="nav nav-pils nav-stacked">
 			<li ng-click="showItem('settings')">
-				<span class="fa-angle-right"></span>
+				<a class="fa fa-angle-right"></a>
 				<a>Settings</a>
 			</li>
 			<li ng-click="logout();">
-				<span class="fa-angle-right"></span>
 				<a>Log Out</a>
 			</li>
 			<li ng-click="showItem('authorizations')">
-				<span class="fa-angle-right"></span>
+				<a class="fa fa-angle-right"></a>
 				<a>Authorizations</a>
 			</li>
 			<li ng-click="showItem('developers')">
-				<span class="fa-angle-right"></span>
+				<a class="fa fa-angle-right"></a>
 				<a>Developers</a>
 			</li>
 			<li ng-click="showItem('invite')">
-				<span class="fa-angle-right"></span>
+				<a class="fa fa-angle-right"></a>
 				<a>Invite</a>
 			</li>
 			<li ng-click="showItem('contact')">
-				<span class="fa-angle-right"></span>
+				<a class="fa fa-angle-right"></a>
 				<a>Contact Us</a>
 			</li>
 			<li ng-click="showItem('feedback')">
-				<span class="fa-angle-right"></span>
+				<a class="fa fa-angle-right"></a>
 				<a>Feedback</a>
 			</li>
 		</ul>
 		<div class="left-menu-content">
 			<button class="btn btn-link" ng-click="shownItem=''">
-				<span class="fa-angle-left"></span>
+				<span class="fa fa-angle-left"></span>
 				<span>Back</span>
 			</button>
 			<div class="leftmenuitembody settings" ng-class="{active:shownItem==='settings'}">
-				form
+				<form class="app-settings">
+					<label for="timezone">Time Zone</label>
+					<input name="timezone" type="text" placeholder="Time Zone"></input>
+				</form>
 			</div>
 			<div class="leftmenuitembody invite" ng-class="{active:shownItem==='invite'}">
 				Invite your friends!  Somehow.

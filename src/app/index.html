@@ -11,7 +11,7 @@
 
 	<base href="/app/">
 </head>
-<body ng-cloak>
+<body ng-cloak ng-class="{authed:authed}">
 <div class="root-container"
 	 ng-swipe-left="$root.showleftmenu=0;"
 	 ng-swipe-right="$root.showrightmenu=0;"
@@ -20,21 +20,24 @@
 
 	<div class="menus">
 		<div ng-include="'partials/left-menu.tpl.html'"></div>
+		<div ng-include="'partials/right-menu.tpl.html'"></div>
 		<div ng-include="'partials/top-nav.tpl.html'"></div>
 	</div>
-    <div id="widget-container" ng-controller="WidgetCtrl" class="container">
-    	<widget-container widgetData="widgetData"></widget-container>
-    </div>
-    <ng-view></ng-view>
 
-    <div class="notification-container bottom right">
-        <div growl></div>
-    </div>
+	<div ng-controller="WidgetCtrl" class="widgets-frame">
+		<widget-container widgetData="widgetData"></widget-container>
+	</div>
+
+	<ng-view></ng-view>
+
+	<div class="notification-container bottom right">
+		<div growl></div>
+	</div>
 </div>
 
-    <!-- token_replace_thirdparty_js_here -->
-    <!-- token_replace_js_here -->
+		<!-- token_replace_thirdparty_js_here -->
+		<!-- token_replace_js_here -->
 
-    <script data-main="require-config" src="/app/thirdparty/requirejs/require.js"></script>
+		<script data-main="require-config" src="/app/thirdparty/requirejs/require.js"></script>
 </body>
 </html>

@@ -159,17 +159,46 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 	}])
 
 
-	.controller("LeftMenuCtrl", ['$scope', '$rootScope', 'EVENTS', function ($scope, $root, EVENTS) {
-		$scope.logout = function(){
-			$root.$emit(EVENTS.logoutAttempt);
+	.controller("LeftMenuCtrl", ['$scope', '$rootScope', 'EVENTS', 'sync',function ($scope, $root, EVENTS,sync) {
+		$scope.showItem = function (itemName) {
+			console.log('LeftMenuCtrl showItem',itemName);
+			$scope.shownItem = $scope.shownItem ? '' : itemName;
+		};
+
+		$scope.logout = function () {
+			$rootScope.$emit(EVENTS.logoutSuccess);
+			sync.logout()
+			.finally(function () {
+				// TODO this needs a logout spinner in case the login takes a while
+				user.deAuthorize();
+			});
+		};
+		$scope.updateAuthorizations = function(){
+				sync.authorizations('readList', {scope: context.getScopeName(), scopeHash: context.getScopeHash()})
+				.then(function (data){
+						console.log("Authorization list: ", data);
+						$scope.authorizationList = data;
+				});
+		};
+
+		$scope.$on('$viewContentLoaded', function() {
+			$scope.updateAuthorizations();
+		});
+
+		$scope.logout = function () {
+			$scope.$emit(EVENTS.logoutAttempt);
 		};
 
 	}])
 
-	.controller('WidgetActionsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', 'notification', function ($scope, user, sync, EVENTS, widget, $root, view, context, widgetSettings, notification) {
+	.controller("RightMenuCtrl", ['$scope', function($scope){
+	  console.log('RightMenuCtrl $scope',$scope);
+	}])
+
+	.controller('WidgetActionsCtrl', ['$scope', 'user', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', 'notification',function ($scope, user, EVENTS, widget, $root, view, context, widgetSettings, notification) {
 		$scope.collapseSettings = true;
 		$scope.formData = {};
-
+		console.log('$scope.widgetData',$scope.widgetData);
 		$scope.changeView = function (viewName) {
 			widget.saveView($scope.hashkey, viewName).then(function () {
 				$root.$emit(EVENTS.widgetViewChange, $scope.hashkey, viewName);
