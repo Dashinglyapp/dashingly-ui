@@ -1,9 +1,8 @@
 *.sw*
 *~
-build/
-node_modules/
-bower_components/
-*demo/
+/build
+/node_modules
+/bower_components
 .jshintrc
 *tpl-compiled.html
 .idea/*
