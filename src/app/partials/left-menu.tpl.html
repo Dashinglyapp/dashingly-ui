@@ -17,11 +17,11 @@
 				<a class="fa fa-angle-right"></a>
 				<a>Contact Us</a>
 			</li>
-            <li ng-click="showItem('developers')">
+						<li ng-click="showItem('developers')">
 				<a class="fa fa-angle-right"></a>
 				<a>Developers</a>
 			</li>
-            <li ng-click="logout();">
+						<li ng-click="logout();$root.closeMenus();">
 				<a>Log Out</a>
 			</li>
 		</ul>
@@ -40,14 +40,17 @@
 				<p>Want to customize Realize?  Check us out on <a href="http://www.github.com/realizeapp/realize-core">Github</a>!</p>
 			</div>
 			<div class="leftmenuitembody authorizations" ng-class="{active:shownItem==='authorizations'}">
-               <ul class="authorization-list">
-                    <li ng-repeat="auth in authorizationList">
-                      <a ng-click="authRedirect(auth)"><span ng-class="(auth.active==true) ? 'fa fa-minus' : 'fa fa-plus'"></span> {{auth.name | capitalize}}</a>
-                    </li>
-               </ul>
+				<ul class="authorization-list">
+					<li ng-repeat="auth in authorizationList">
+						<a ng-click="authRedirect(auth)"><span ng-class="(auth.active==true) ? 'fa fa-minus' : 'fa fa-plus'"></span> {{auth.name | capitalize}}</a>
+					</li>
+					<li ng-show="authorizationList.length === 0">
+						Your server administrator needs to define private oauth keys for authorizations to show up.
+					</li>
+				</ul>
 			</div>
 			<div class="leftmenuitembody contact" ng-class="{active:shownItem==='contact'}">
-                <p>Have idea, suggestions, comments? Give us feedback and vote on suggested features with <a href="realize.uservoice.com">Uservoice</a>.</p>
+								<p>Have idea, suggestions, comments? Give us feedback and vote on suggested features with <a href="realize.uservoice.com">Uservoice</a>.</p>
 				<p>Have a question or want to reach us directly?  Email us at <a href="mailto:hello@realize.pe" target="_top">hello@realize.pe</a>.</p>
 			</div>
 			<div class="leftmenuitembody feedback" ng-class="{active:shownItem==='feedback'}">
