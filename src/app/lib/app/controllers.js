@@ -159,18 +159,18 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 	}])
 
 
-	.controller("LeftMenuCtrl", ['$scope', '$rootScope', 'EVENTS', 'sync',function ($scope, $root, EVENTS,sync) {
+	.controller("LeftMenuCtrl", ['$scope', '$rootScope', 'EVENTS', 'sync', 'user', 'context', '$window', function ($scope, $root, EVENTS, sync, user, context, $window) {
 		$scope.showItem = function (itemName) {
 			console.log('LeftMenuCtrl showItem',itemName);
 			$scope.shownItem = $scope.shownItem ? '' : itemName;
 		};
 
 		$scope.logout = function () {
-			$rootScope.$emit(EVENTS.logoutSuccess);
 			sync.logout()
 			.finally(function () {
 				// TODO this needs a logout spinner in case the login takes a while
 				user.deAuthorize();
+				$root.$emit(EVENTS.logoutSuccess);
 			});
 		};
 		$scope.updateAuthorizations = function(){
@@ -181,13 +181,16 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 				});
 		};
 
+		$scope.authRedirect = function(auth){
+            var query_url = auth.url + "?token=" + user.getProp('token');
+            $window.location.href = query_url;
+        };
+
 		$scope.$on('$viewContentLoaded', function() {
 			$scope.updateAuthorizations();
 		});
 
-		$scope.logout = function () {
-			$scope.$emit(EVENTS.logoutAttempt);
-		};
+		$scope.$watch(user.isAuthed, $scope.updateAuthorizations);
 
 	}])
 
@@ -332,6 +335,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 				$scope.setup();
 			}
 		};
+
+		$scope.$on('$viewContentLoaded', function() {
+			$scope.update();
+		});
 
 		$scope.$watch(user.isAuthed, $scope.update);
 

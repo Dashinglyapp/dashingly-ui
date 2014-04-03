@@ -34,18 +34,18 @@
 				<!-- If !authed -->
 				<ul class="nav navbar-nav" ng-if="!authed">
 					<li class="navbar-link">
-						<a ng-click="$root.showleftmenu=!$root.showleftmenu;$event.stopPropagation();"
-								class="nav-toggle-left fa fa-bars">
+						<a href="/" class="navbar-brand">
+                            Realize
 						</a>
 					</li>
 					<li class="nav-register" ng-click="register()">
-						<a class="navbar-link"><span class="hidden-xs">Sign Up</span></a>
+						<a class="navbar-link"><span class="fa fa-user"></span> <span class="hidden-xs">Sign Up</span></a>
 					</li>
 					<li class="nav-login" ng-click="login()">
-						<a class="navbar-link"><span class="hidden-xs">Log In</span></a>
+						<a class="navbar-link"><span class="fa fa-sign-in"></span> <span class="hidden-xs">Log In</span></a>
 					</li>
 					<li class="nav-about">
-						<a class="navbar-link"><span class="hidden-xs">About</span></a>
+						<a class="navbar-link"><span class="fa fa-question"></span> <span class="hidden-xs">About</span></a>
 					</li>
 				</ul>
 

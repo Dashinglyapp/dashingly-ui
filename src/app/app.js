@@ -110,6 +110,10 @@ define([
 					open = true;
 					$root.showleftmenu = 0;
 				}
+				if ($root.showrightmenu) {
+					open = true;
+					$root.showrightmenu = 0;
+				}
 				return open;
 			};
 
