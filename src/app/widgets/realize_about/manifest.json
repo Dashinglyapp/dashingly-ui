@@ -1,0 +1,14 @@
+{
+	"title": "About",
+	"description": "About Realize",
+	"controller": "AboutCtrl",
+	"type": "about",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["core"],
+	"plugin": "",
+	"javascripts": ["about.js"],
+	"templates": ["about.tpl.html"],
+	"css": [],
+	"noAuth": true
+}

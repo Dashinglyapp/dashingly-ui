@@ -47,7 +47,7 @@
     "connect-livereload": "~0.3.2",
     "grunt-connect-rewrite": "~0.2.1",
     "grunt-contrib-requirejs": "~0.4.3",
-    "grunt-docular": "~0.1.2",
+    "grunt-docular": "git+https://github.com/realizeapp/grunt-docular.git",
     "docular": "git+https://github.com/realizeapp/docular.git"
   }
 }
