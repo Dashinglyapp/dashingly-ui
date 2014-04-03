@@ -1,0 +1,30 @@
+{
+	"title": "Removed",
+	"description": "This widget is shown as a substitute when a widget is not available for some reason.",
+	"controller": "RemovedCtrl",
+	"type": "removed",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["dashboard-item"],
+	"plugin": "",
+	"javascripts": ["removed.js"],
+	"templates": ["removed.tpl.html"],
+	"css": [],
+	"display": {
+		"views": {
+			"long": {
+				"type": "text",
+				"formats": ["desktop"]
+			},
+			"short": {
+				"type": "text",
+				"formats": ["mobile"]
+			}
+		},
+		"defaults": {
+			"desktop": "long",
+			"mobile": "short"
+		}
+	},
+	"settings": {}
+}

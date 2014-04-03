@@ -142,7 +142,9 @@ define(['angularAMD', 'jquery', 'realize-sync', 'lodash', 'user', 'angular' , 'c
 							var i;
 							var widgetObj = list[widgetType];
 							if (!widgetObj) {
-								d.reject();
+								api.loadWidget('removed').then(function(widgetObj){
+									d.resolve(widgetObj);
+								});
 								return console.log('no widget exists with template name ', widgetType);
 							}
 							console.log("Loading widget: ", widgetType, widgetObj);

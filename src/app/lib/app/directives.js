@@ -33,7 +33,7 @@ define(['app', 'realize-debugging', 'screen'], function (app) {
 
 					var currentView = data.currentView;
 					var views = data.display.views;
-					if (views[currentView].formats.indexOf(screenFormat) === -1) {
+					if (currentView === undefined || views[currentView] === undefined || views[currentView].formats.indexOf(screenFormat) === -1) {
 						currentView = data.display.defaults[screenFormat];
 					}
 

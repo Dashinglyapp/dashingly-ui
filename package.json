@@ -48,6 +48,6 @@
     "grunt-connect-rewrite": "~0.2.1",
     "grunt-contrib-requirejs": "~0.4.3",
     "grunt-docular": "~0.1.2",
-    "docular": "~0.6.3"
+    "docular": "git+https://github.com/realizeapp/docular.git"
   }
 }
