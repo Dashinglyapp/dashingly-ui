@@ -36,6 +36,7 @@
 
 	</div>
 	<div class="widget-body widget-content">
+        <span us-spinner ng-if="widgetData === undefined"></span>
 		<ng-include src="widgetData.template" widgetData="{{widgetData}}"></ng-include>
 	</div>
 </div>
