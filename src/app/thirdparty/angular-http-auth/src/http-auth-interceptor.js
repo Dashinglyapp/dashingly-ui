@@ -110,7 +110,6 @@
        */
       retryAll: function(updater) {
         for (var i = 0; i < buffer.length; ++i) {
-            console.log("HTTP buffer config: ", buffer[i].config);
           retryHttpRequest(updater(buffer[i].config), buffer[i].deferred);
         }
         buffer = [];
