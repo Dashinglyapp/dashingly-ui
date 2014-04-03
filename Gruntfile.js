@@ -740,7 +740,7 @@ module.exports = function (grunt) {
 	grunt.registerTask('e2eServer', ['shell:selenium']);
 
 	/** The default task is to build and compile for production */
-	grunt.registerTask('default', ['build', 'compile']);
+	grunt.registerTask('default', ['build', 'docs', 'compile']);
 	grunt.registerTask('setup', ['compile']);
 
 	// The `build` task sets up a dev and testing environment
