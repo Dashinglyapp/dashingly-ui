@@ -24,6 +24,8 @@ require.config({
 		'angular-animate': 'thirdparty/angular-animate/angular-animate',
 		'angular-gridster': 'thirdparty/angular-gridster/dist/scripts/gridster.min',
 		'es5-shim': 'thirdparty/es5-shim/es5-shim',
+		'angular-spinner': 'thirdparty/angular-spinner/angular-spinner',
+		'spin': 'thirdparty/spin.js/spin',
 
 		// Templates
 		'html_templates_jsfied': 'html_templates_jsfied',
@@ -95,6 +97,9 @@ require.config({
 		},
 		'angular-gridster': {
 			deps: ['angular', 'jquery-ui', 'es5-shim']
+		},
+		'angular-spinner': {
+			deps: ['angular', 'spin']
 		}
 	},
 	priority: [

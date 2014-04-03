@@ -159,17 +159,49 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 	}])
 
 
-	.controller("LeftMenuCtrl", ['$scope', '$rootScope', 'EVENTS', function ($scope, $root, EVENTS) {
-		$scope.logout = function(){
-			$root.$emit(EVENTS.logoutAttempt);
+	.controller("LeftMenuCtrl", ['$scope', '$rootScope', 'EVENTS', 'sync', 'user', 'context', '$window', function ($scope, $root, EVENTS, sync, user, context, $window) {
+		$scope.showItem = function (itemName) {
+			console.log('LeftMenuCtrl showItem',itemName);
+			$scope.shownItem = $scope.shownItem ? '' : itemName;
 		};
+
+		$scope.logout = function () {
+			sync.logout()
+			.finally(function () {
+				// TODO this needs a logout spinner in case the login takes a while
+				user.deAuthorize();
+				$root.$emit(EVENTS.logoutSuccess);
+			});
+		};
+		$scope.updateAuthorizations = function(){
+				sync.authorizations('readList', {scope: context.getScopeName(), scopeHash: context.getScopeHash()})
+				.then(function (data){
+						console.log("Authorization list: ", data);
+						$scope.authorizationList = data;
+				});
+		};
+
+		$scope.authRedirect = function(auth){
+            var query_url = auth.url + "?token=" + user.getProp('token');
+            $window.location.href = query_url;
+        };
+
+		$scope.$on('$viewContentLoaded', function() {
+			$scope.updateAuthorizations();
+		});
+
+		$scope.$watch(user.isAuthed, $scope.updateAuthorizations);
 
 	}])
 
-	.controller('WidgetActionsCtrl', ['$scope', 'user', 'sync', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', 'notification', function ($scope, user, sync, EVENTS, widget, $root, view, context, widgetSettings, notification) {
+	.controller("RightMenuCtrl", ['$scope', function($scope){
+	  console.log('RightMenuCtrl $scope',$scope);
+	}])
+
+	.controller('WidgetActionsCtrl', ['$scope', 'user', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', 'notification',function ($scope, user, EVENTS, widget, $root, view, context, widgetSettings, notification) {
 		$scope.collapseSettings = true;
 		$scope.formData = {};
-
+		console.log('$scope.widgetData',$scope.widgetData);
 		$scope.changeView = function (viewName) {
 			widget.saveView($scope.hashkey, viewName).then(function () {
 				$root.$emit(EVENTS.widgetViewChange, $scope.hashkey, viewName);
@@ -303,6 +335,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 				$scope.setup();
 			}
 		};
+
+		$scope.$on('$viewContentLoaded', function() {
+			$scope.update();
+		});
 
 		$scope.$watch(user.isAuthed, $scope.update);
 
