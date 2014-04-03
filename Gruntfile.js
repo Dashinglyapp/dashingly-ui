@@ -50,24 +50,7 @@ module.exports = function (grunt) {
 				widgets: '<%= src.dirs.app %>widgets/' // created by bowercopy
 			},
 			// requiredFiles are the prerequisites for the app to run
-			requiredFiles: [
-				// '<%= src.dirs.thirdparty %>jquery/jquery.min.js',
-				// '<%= src.dirs.thirdparty %>lodash/dist/lodash.min.js',
-				// '<%= src.dirs.thirdparty %>angular/angular.js',
-				// '<%= src.dirs.thirdparty %>angular-bootstrap/ui-bootstrap-tpls.min.js',
-				// '<%= src.dirs.thirdparty %>angular-mocks/angular-mocks.js',
-				// '<%= src.dirs.thirdparty %>angular-touch/angular-touch.min.js',
-				// '<%= src.dirs.thirdparty %>angular-ui-router/release/angular-ui-router.js',
-				// '<%= src.dirs.thirdparty %>angular-http-auth/src/http-auth-interceptor.js',
-				// '<%= src.dirs.thirdparty %>angular-gesture/ngGesture/gesture.js',
-				// '<%= src.dirs.thirdparty %>angular-ui-utils/modules/utils.js',
-				// '<%= src.dirs.thirdparty %>restangular/dist/restangular.js',
-				'<%= src.dirs.thirdparty %>requirejs/require.js'
-				// we aren't using these yet, so comment them out
-				// 'd3/d3.min.js',
-				// 'd3.chart/d3.chart.min.js',
-				// 'Faker/Faker.js',
-			]
+			requiredFiles:'<%= src.dirs.thirdparty %>requirejs/require.js'
 		},
 		/**
 		 * The `build.dirs` is where file live during development.
@@ -319,6 +302,15 @@ module.exports = function (grunt) {
 			}
 		},
 
+		copy: {
+			compile_ngload: {
+				src: '<%= src.dirs.app %>thirdparty/angularAMD/ngload.js',
+				dest: '<%= compile.dirs.app %>ngload.js'
+			}
+		},
+
+
+
 		/**
 		 * Docular generates documentation for angular projects.
 		 *
@@ -356,24 +348,6 @@ module.exports = function (grunt) {
 			docular_webapp_target: "<%= build.dirs.root %>/docs/frontend",
 			docAPIOrder: ['realize-ui-angular', 'docular'],
 			docular_partial_home: 'src/app/docs/partials/home.html'
-		},
-
-		copy: {
-			compile_ngload: {
-				src: '<%= src.dirs.app %>thirdparty/angularAMD/ngload.js',
-				dest: '<%= compile.dirs.app %>ngload.js'
-			}
-		},
-
-		requirejs: {
-			compile: {
-				options: {
-					name: 'bootstrap',
-					baseUrl: 'src/app/',
-					mainConfigFile: 'src/app/require-config.js',
-					out: "dist/app/<%= pkg.name %>-<%= pkg.version %>-require.js"
-				}
-			}
 		},
 
 		/**
@@ -519,31 +493,6 @@ module.exports = function (grunt) {
 			}
 		},
 
-		protractor: {
-			options: {
-				configFile: "e2e_tests/e2e-protractor-config.js"
-			},
-			e2e: {
-				options: {
-					keepAlive: true,
-					args: {
-						browser: "chrome",
-						baseUrl: "http://<%= connect.options.host %>:<%= connect.options.port %>/app/"
-						// seleniumServerJar:'./node_modules/grunt-protractor-runner/node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar'
-					}
-				}
-			},
-			"build-travis": {
-				options: {
-					keepAlive: false,
-					args: {
-						browser: "phantomjs",
-						baseUrl: "http://<%= cvars.www_server %>:<%= cvars.e2e_port %>"
-					}
-				}
-			}
-		},
-// node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update
 
 
 		less: {
@@ -577,6 +526,49 @@ module.exports = function (grunt) {
 				}
 			}
 		},
+
+
+
+		protractor: {
+			options: {
+				configFile: "e2e_tests/e2e-protractor-config.js"
+			},
+			e2e: {
+				options: {
+					keepAlive: true,
+					args: {
+						browser: "chrome",
+						baseUrl: "http://<%= connect.options.host %>:<%= connect.options.port %>/app/"
+						// seleniumServerJar:'./node_modules/grunt-protractor-runner/node_modules/protractor/selenium/selenium-server-standalone-2.40.0.jar'
+						// node_modules/grunt-protractor-runner/node_modules/protractor/bin/webdriver-manager update
+					}
+				}
+			},
+			"build-travis": {
+				options: {
+					keepAlive: false,
+					args: {
+						browser: "phantomjs",
+						baseUrl: "http://<%= cvars.www_server %>:<%= cvars.e2e_port %>"
+					}
+				}
+			}
+		},
+
+
+
+
+		requirejs: {
+			compile: {
+				options: {
+					name: 'bootstrap',
+					baseUrl: 'src/app/',
+					mainConfigFile: 'src/app/require-config.js',
+					out: "dist/app/<%= pkg.name %>-<%= pkg.version %>-require.js"
+				}
+			}
+		},
+
 
 
 		// works with grunt-protractor-runner to install the server before trying to run it
@@ -747,7 +739,7 @@ module.exports = function (grunt) {
 	grunt.registerTask('build', [
 		// if this is the first run, it should copy the third party libs servero your thirdparty dir
 		!grunt.file.exists(grunt.config.get('src.dirs.thirdparty')) ? // does the thirdparty directory exist in src?
-			'sync:thirdparty_to_src' : // nope, create it and populate with fresh bower components
+			'sync:thirdparty_to_src' :  // nope, create it and populate with fresh bower components
 			'shell:clean', // otherwise we're working with an existing install.  Wipe out the build dir for a fresh one.
 		'eslint:src_js', // lint src js
 		'eslint:rootfiles',
@@ -760,8 +752,8 @@ module.exports = function (grunt) {
 		'concat:build_index', // build our index file with all its dependencies
 		'buildWidgetListJSON', // add the widgetList file
 		'buildSpec', // test our build
-		'eslint:test',
-		'docs'
+		'eslint:test'
+		// 'docs'
 	]);
 
 	// The `compile` task preps the app for production by concatenating, minifying, compressing the code.

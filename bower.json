@@ -24,7 +24,8 @@
     "angular-formly": "~0.0.9",
     "angular-growl": "~0.4.0",
     "angular-animate": "~1.2.15",
-    "angular-gridster": "~0.9.7"
+    "angular-gridster": "~0.9.7",
+	"angular-spinner": "~0.4.0"
   },
   "authors": [
     "Adam Laughlin <adam.laughlin@gmail.com>",

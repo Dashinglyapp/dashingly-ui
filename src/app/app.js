@@ -2,6 +2,7 @@ define([
 	'angular',
 	'angularAMD',
 	'jquery',
+	'spin',
 	'ngTouch',
 	'angular-ui-bootstrap',
 	'realize-debugging',
@@ -22,11 +23,12 @@ define([
 	'angular-growl',
 	'error',
 	'angular-gridster',
-	'realize-sync'
-], function (angular, angularAMD, $) {
+	'realize-sync',
+	'angular-spinner'
+], function (angular, angularAMD, $, Spinner) {
 	var DEBUG_MODE = false;
 
-	var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen', 'view', 'context', 'plugin', 'util', 'angular-growl', 'error', 'gridster', 'realize-sync'])
+	var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen', 'view', 'context', 'plugin', 'util', 'angular-growl', 'error', 'gridster', 'realize-sync', 'angularSpinner'])
 		.constant('EVENTS', {
 			// auth
 			loginSuccess: 'event:auth-loginConfirmed',
@@ -93,7 +95,7 @@ define([
 
 
 		// run is where we set initial rootscope properties
-		.run(['$rootScope', 'user', 'EVENTS', function ($root, user, EVENTS) {
+		.run(['$rootScope', 'user', 'EVENTS', '$window', function ($root, user, EVENTS, $window) {
 
 			// check user auth status on initial pageload
 			$root.authed = user.isAuthed();
@@ -108,8 +110,14 @@ define([
 					open = true;
 					$root.showleftmenu = 0;
 				}
+				if ($root.showrightmenu) {
+					open = true;
+					$root.showrightmenu = 0;
+				}
 				return open;
 			};
+
+			$window.Spinner = Spinner;
 		}
 		])
 
