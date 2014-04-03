@@ -1,4 +1,4 @@
-<div class="widget" ng-class="(widgetData.name.substring(0, 8) === 'realize_') ? '' : 'widget-border'">
+<div class="widget" ng-class="{'widget-border':widgetData.name.substring(0, 8) !== 'realize_','top-level-widget':$parent.$id == '002'}">
 	<div class="widget-heading auth" ng-controller="WidgetActionsCtrl">
 		<div class="widget-actions" ng-show="widgetData.settings !== undefined">
 			<div ng-show="widgetData.display !== undefined && widgetData.display.views !== undefined" class="widget-action dropdown">
