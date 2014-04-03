@@ -100,12 +100,17 @@ require.config({
 		},
 		'angular-spinner': {
 			deps: ['angular', 'spin']
+		},
+		'jquery-ui': {
+			deps: ['jquery']
 		}
+
 	},
 	priority: [
 		"angular"
 	],
 	deps: [
 		"bootstrap"
-	]
+	],
+	waitSeconds: 0
 });

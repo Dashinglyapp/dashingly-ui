@@ -1,21 +1,21 @@
 {
-	"title": "Chart",
-	"description": "A basic chart",
-	"controller": "ChartCtrl",
-	"type": "chart",
+	"title": "Daily Count",
+	"description": "Shows a daily timeseries",
+	"controller": "DailyTimeSeriesCtrl",
+	"type": "dailytimeseries",
 	"version": ".1",
 	"authors": ["Realize"],
 	"tags": ["dashboard-item", "chart"],
 	"plugin": "",
-	"javascripts": ["chart.js"],
-	"templates": ["chart.tpl.html"],
+	"javascripts": ["daily-timeseries.js"],
+	"templates": ["daily-timeseries.tpl.html"],
 	"css": [],
 	"settings": {
 		"source": {
 			"type": "endpoint",
 			"description": "Data source",
 			"meta": {
-				"tags": ["chart"]
+				"tags": ["daily-count-timeseries"]
 			},
 			"required": true,
 			"default": "d9ec9527e5fc7c8a61d203ea97164466"

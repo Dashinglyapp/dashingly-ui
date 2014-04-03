@@ -27,7 +27,7 @@ define(['app', 'angular', 'moment', 'angular-charts', 'view', 'context', 'realiz
 				for (i = 0; i < data.data.y[0].data.length; i++) {
 					var y = [];
 					var x = data.data.x.data[i];
-					var m = moment(x).format("M/D");
+					var m = moment(x).format("M/D/YY");
 					for (var j = 0; j < data.data.y.length; j++) {
 						y.push(data.data.y[j].data[i]);
 					}
