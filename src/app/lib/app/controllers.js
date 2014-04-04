@@ -145,6 +145,10 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 			$root.$emit(EVENTS.switchWidgetTree, "register");
 		};
 
+        $scope.about = function(){
+            $root.$emit(EVENTS.switchWidgetTree, "about");
+        };
+
 	}])
 
 

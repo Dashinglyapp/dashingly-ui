@@ -433,7 +433,36 @@ a,a:link,a:visited,a:hover,a:active, {
 
 }
 
+/**
+*
+*Index
+*/
 
+.marketing{
+  .feature{
+    padding-bottom: 30px;
+    .feature-icon{
+      span.fa{
+          text-align: center;
+          display: block;
+          padding-bottom: 10px;
+        color: @primary-color;
+          -webkit-transition: all 0.3s linear;
+          transition: all 0.3s linear;
+          position: relative;
+          overflow: hidden;
+          font-size: 75px;
+          margin: 0px 20px 0px 20px;
+      }
+    }
+    .heading{
+      text-align: center;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid @lightgrey;
+    }
+  }
+}
 
 .transition (@transition) {
 	-webkit-transition: @transition;
