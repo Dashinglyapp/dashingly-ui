@@ -1,4 +1,4 @@
-define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 'notification'], function (app, angular, $) {
+define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 'notification','realizeanalytics'], function (app, angular, $) {
 	app.controller("WidgetCtrl", ["$rootScope", "$scope", "user", 'widget', 'widgetMeta', 'EVENTS', '$location', 'plugin', 'notification', function ($root, $scope, user, widget, widgetMeta, EVENTS, $location, plugin, notification) {
 		$scope.widgetMeta = widgetMeta;
 		$scope.widgetData = undefined;
@@ -16,8 +16,6 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 				widgetObj.hashkey = data.hashkey;
 				widgetMeta.setTopLevelWidget(widgetObj);
 				$scope.widgetData = widgetObj;
-				console.log("Top level widget: ", $scope.widgetMeta.getTopLevelWidget());
-				$location.path(data.type + "/" + data.name);
 				if (!$scope.$$phase) {
 					$scope.apply();
 				}
@@ -92,15 +90,6 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 		});
 
 		$root.initialRenderDone = true;
-	}])
-
-	.controller('WidgetRouteCtrl', ["$rootScope", "$scope", '$routeParams', "user", 'widget', 'widgetMeta', 'EVENTS', function ($root, $scope, $routeParams, user, widget, widgetMeta, EVENTS) {
-
-		var name = $routeParams.name || 'default';
-		var type = $routeParams.type || 'index';
-
-		console.log("WidgetRouteCtrl name", name, "type", type);
-		$root.$emit(EVENTS.switchWidgetTree, type, name);
 	}])
 
 	.controller("DashboardsCtrl", ["$scope", "$window", "user", 'widget', '$rootScope', '$document', 'EVENTS', function ($scope, $window, user, widget, $root, $document, EVENTS) {

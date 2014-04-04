@@ -24,11 +24,32 @@ define([
 	'error',
 	'angular-gridster',
 	'realize-sync',
-	'angular-spinner'
+	'angular-spinner',
+	'realizeanalytics'
 ], function (angular, angularAMD, $, Spinner) {
-	var DEBUG_MODE = false;
 
-	var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen', 'view', 'context', 'plugin', 'util', 'angular-growl', 'error', 'gridster', 'realize-sync', 'angularSpinner'])
+	var module = angular.module('realize', [
+    'ui.bootstrap',
+    'realize-debugging',
+    'http-auth-interceptor',
+    'user',
+    'widget',
+    'realize-lodash',
+    'angularCharts',
+    'ngRoute',
+    'formly',
+    'screen',
+    'view',
+    'context',
+    'plugin',
+    'util',
+    'angular-growl',
+    'error',
+    'gridster',
+    'realize-sync',
+    'angularSpinner',
+    'realizeanalytics'
+  ])
 		.constant('EVENTS', {
 			// auth
 			loginSuccess: 'event:auth-loginConfirmed',
@@ -67,15 +88,43 @@ define([
 				}]);
 				// enable pushstate so urls are / instead of /#/ as root
 				$locationProvider.html5Mode(true);
-
-
-				$routeProvider
-					.when('/', { template: '', controller: 'WidgetRouteCtrl'})
-					.when('/:type', { template: '', controller: 'WidgetRouteCtrl'})
-					.when('/:type/:name', { template: '', controller: 'WidgetRouteCtrl'})
-					.otherwise({
-						redirectTo: '/'
-					});
+				$routeProvider.otherwise({
+					template: '',
+					controller:['reanalytics','$scope','$rootScope','EVENTS','$location','widget','cachedWidget',
+					function(reanalytics,$scope,$rootScope,EVENTS,$location,widget,cachedWidget){
+						$rootScope.$emit(EVENTS.switchWidgetTree, cachedWidget.type, cachedWidget.name);
+						$scope.$on('$viewContentLoaded',function () {
+							reanalytics.pv($location.$$url);
+							console.log('$viewContentLoaded in routeprovider: good url = ',$location.$$url);
+						});
+					}],
+					resolve:{
+						cachedWidget:['$location','widget','$q','reanalytics','$route',function ($location,widget,$q,reanalytics,$route) {
+							console.log('$location',$location);
+							var d = $q.defer();
+							var pathArray = $location.path().split('/');
+							var type = pathArray[1] || 'index';
+							var name = pathArray[2] || 'default';
+							// loading the widget to cache it before loading it
+							// This is a workaround for the current widget
+							// controller not providing a way to stop the page from
+							// rendering when widgets aren't found.
+							widget.loadWidget(type)
+							.then(function (data) {
+								if (!data || data.type !== type){
+									reanalytics.pv('/no-widget-named/' + type + '/' + name);
+									console.log('$rejected in routeprovider: badurl url = ',$location.$$url);
+									// d.reject();
+									// replace the history state with the new state
+									$location.path('/' + data.type + "/" + data.name).replace();
+								} else {
+									d.resolve(data);
+								}
+							});
+							return d.promise;
+						}]
+					}
+				});
 
 				$provide.decorator('$rootScope', ['$delegate', function ($delegate) {
 
@@ -95,24 +144,24 @@ define([
 
 
 		// run is where we set initial rootscope properties
-		.run(['$rootScope', 'user', 'EVENTS', '$window', function ($root, user, EVENTS, $window) {
+		.run(['$rootScope', 'user', 'EVENTS', '$window','reanalytics','$location',
+		function ($rootScope, user, EVENTS, $window,reanalytics,$location) {
 
 			// check user auth status on initial pageload
-			$root.authed = user.isAuthed();
+			$rootScope.authed = user.isAuthed();
 
-			$root.$watch(user.isAuthed, function (newVal, oldVal) {
-				$root.authed = newVal;
+			$rootScope.$watch(user.isAuthed, function (newVal, oldVal) {
+				$rootScope.authed = newVal;
 			});
-
-			$root.closeMenus = function () {
+			$rootScope.closeMenus = function () {
 				var open = false;
-				if ($root.showleftmenu) {
+				if ($rootScope.showleftmenu) {
 					open = true;
-					$root.showleftmenu = 0;
+					$rootScope.showleftmenu = 0;
 				}
-				if ($root.showrightmenu) {
+				if ($rootScope.showrightmenu) {
 					open = true;
-					$root.showrightmenu = 0;
+					$rootScope.showrightmenu = 0;
 				}
 				return open;
 			};

@@ -9,6 +9,11 @@
 	<!-- compiled CSS -->
 	<!-- token_replace_css_here -->
 
+	<script>
+		(function(i,r){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();
+		})(window,'ga');
+	</script>
 	<base href="/app/">
 </head>
 <body ng-cloak ng-class="{authed:authed}">
@@ -25,9 +30,9 @@
 	</div>
 
 	<div ng-controller="WidgetCtrl" class="widgets-frame">
-        <div class="container">
-            <widget-container widgetData="widgetData"></widget-container>
-        </div>
+		<div class="container">
+			<widget-container widgetData="widgetData"></widget-container>
+		</div>
 	</div>
 
 	<ng-view></ng-view>

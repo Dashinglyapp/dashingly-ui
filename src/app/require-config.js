@@ -26,7 +26,11 @@ require.config({
 		'es5-shim': 'thirdparty/es5-shim/es5-shim',
 		'angular-spinner': 'thirdparty/angular-spinner/angular-spinner',
 		'spin': 'thirdparty/spin.js/spin',
-
+		'google-analytics':[
+			"//www.google-analytics.com/analytics",
+			"thirdparty/google-analytics/analytics" // local copy as fallback
+		],
+		'realizeanalytics':"lib/app/realizeanalytics",
 		// Templates
 		'html_templates_jsfied': 'html_templates_jsfied',
 
@@ -103,6 +107,9 @@ require.config({
 		},
 		'jquery-ui': {
 			deps: ['jquery']
+		},
+		"google-analytics":  {
+			exports: "ga"
 		}
 
 	},
