@@ -26,6 +26,8 @@ require.config({
 		'es5-shim': 'thirdparty/es5-shim/es5-shim',
 		'angular-spinner': 'thirdparty/angular-spinner/angular-spinner',
 		'spin': 'thirdparty/spin.js/spin',
+        'leaflet': 'thirdparty/leaflet-dist/leaflet',
+        'angular-leaflet': 'thirdparty/angular-leaflet-directive/dist/angular-leaflet-directive',
 
 		// Templates
 		'html_templates_jsfied': 'html_templates_jsfied',
@@ -103,7 +105,10 @@ require.config({
 		},
 		'jquery-ui': {
 			deps: ['jquery']
-		}
+		},
+        'angular-leaflet': {
+            deps: ['angular', 'leaflet']
+        }
 
 	},
 	priority: [

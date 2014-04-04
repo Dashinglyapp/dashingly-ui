@@ -24,11 +24,12 @@ define([
 	'error',
 	'angular-gridster',
 	'realize-sync',
-	'angular-spinner'
+	'angular-spinner',
+    'angular-leaflet'
 ], function (angular, angularAMD, $, Spinner) {
 	var DEBUG_MODE = false;
 
-	var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen', 'view', 'context', 'plugin', 'util', 'angular-growl', 'error', 'gridster', 'realize-sync', 'angularSpinner'])
+	var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen', 'view', 'context', 'plugin', 'util', 'angular-growl', 'error', 'gridster', 'realize-sync', 'angularSpinner', 'leaflet-directive'])
 		.constant('EVENTS', {
 			// auth
 			loginSuccess: 'event:auth-loginConfirmed',

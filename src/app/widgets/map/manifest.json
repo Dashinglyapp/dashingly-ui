@@ -1,0 +1,36 @@
+{
+	"title": "Map",
+	"description": "A basic map",
+	"controller": "MapCtrl",
+	"type": "form",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["dashboard-item"],
+	"plugin": "",
+	"javascripts": ["map.js"],
+	"templates": ["map.tpl.html"],
+	"css": [],
+	"settings": {
+		"source": {
+			"type": "endpoint",
+			"description": "Map to pull from",
+			"meta": {
+				"tags": ["map"]
+			},
+			"required": true,
+			"default": ""
+		}
+	},
+	"display": {
+		"views": {
+			"map": {
+				"type": "map",
+				"formats": ["mobile", "desktop"]
+			}
+		},
+		"defaults": {
+			"desktop": "map",
+			"mobile": "map"
+		}
+	}
+}
