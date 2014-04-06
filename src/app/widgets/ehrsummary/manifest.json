@@ -25,6 +25,12 @@
             "description": "Type to show",
             "require": true,
             "default": "profile"
+        },
+        "name": {
+            "type": "text",
+            "description": "Patient name to pull from",
+            "require": false,
+            "default": "bob"
         }
 	},
 	"display": {

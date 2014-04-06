@@ -1,45 +1,94 @@
-<div id="profile" ng-if="data.corr !== undefined">
-    <div class=" title">
-        <h1>{{data.title}}</h1>
-    </div>
-    <div>
-        <h4 ng-repeat="corr in data.corr">
-            {{corr.message}}
-        </h4>
-    </div>
+<div class="ehr-modules">
+    <section class="directionality" ng-if="data.corr !== undefined">
+        <h3>{{data.title}}</h3>
+        <div class="card" ng-repeat="corr in data.corr">
+            <div ng-class="(corr.message.indexOf('decreased')===-1) ? 'fa fa-level-up' : 'fa fa-level-down'"></div>
+            <h4>{{corr.message}}</h4>
+        </div>
+    </section>
 </div>
 
 <style>
+    .ehr-modules section{
+        margin-bottom: 50px;
+        clear:both;
+        padding-top: 10px;
+        padding-bottom: 10px;
+        clear:both;
+    }
+    .ehr-modules  h3{
+        text-align: center;
+        margin-bottom: 20px;
+    }
 
-.allergy-card{
-    display: inline;
-}
+    .card{
+        margin-left: 0.5%;
+        margin-right:0.5%;
+        border: 1px solid rgb(99,185,255);
+        padding: 20px;
+        padding-top: 15px;
+        padding-bottom: 20px;
+        background-color: rgb(237,247,255);
+        color: black;
+        margin-bottom: 10px;
+        margin-top: 0px;
+        float:left;
+        width: 24%;
+    }
 
-.medication-card p {
-    font-size: 15px;
-}
-.card{
-    margin: 20px;
-    padding: 20px;
-}
+    .card .row{
+        font-family: "HelveticaNeue", sans-serif;
+        margin-bottom: 10px;
+        margin-left: 0px;
+        margin-right: 0px;
+    }
 
-.card img{
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
+    .card p{
+        font-size: 16px;
+        font-family: "HelveticaNeue-Light";
+        margin-top: 10px;
+    }
 
-.value{
-    font-size: 180%;
-}
+    .ehr-modules  h4, .ehr-modules  p{
+        text-align: left;
+    }
 
-.value .unit{
-    font-size: 70%;
-}
+    .profile h4{
+        margin-bottom: 0px;
+        font-size: 14px;
+    }
 
-p{
-    font-size: 20px;
-}
-
-	</style>
+    .profile p{
+        font-size: 24px;
+        margin-top: 5px;
+    }
+    .allergies h4{
+        font-size: 16px;
+    }
+    .medications h4{
+        margin-bottom: 20px;
+    }
+    .medications p{
+        font-size: 14px;
+    }
+    .directionality .fa{
+        font-size: 40px;
+    }
+    @media(max-width:1024px){
+        .card{
+            width: 32.3333%;
+        }
+    }
+    @media(max-width:768px){
+        .card{
+            width: 49%;
+        }
+    }
+    @media(max-width:640px){
+        .card{
+            width: 98%;
+            margin-left: 1%;
+            margin-right:1%;
+        }
+    }
+</style>

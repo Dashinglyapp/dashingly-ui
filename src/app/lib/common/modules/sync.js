@@ -205,7 +205,8 @@ define(['angularAMD', 'http-auth-interceptor', 'angular-growl'], function (angul
 			var route = routeBase + options.scope + '/' + options.scopeHash + '/views';
 			switch (operation) {
 				case 'readOne':
-					promise = normalizeResponseData($http.get(route + "/" + options.resourceHash));
+                    console.log(options.data);
+					promise = normalizeResponseData($http.get(route + "/" + options.resourceHash, {data: options.data}));
 					break;
 				case 'readList':
 					promise = normalizeResponseData($http.get(route));

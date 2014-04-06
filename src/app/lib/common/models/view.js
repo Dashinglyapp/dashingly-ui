@@ -27,9 +27,9 @@ define(['angularAMD', 'realize-sync'],
 					});
 					return d.promise;
 				},
-				getDetail: function (scope, scopeHash, viewHash) {
+				getDetail: function (scope, scopeHash, viewHash, data) {
 					var d = $q.defer();
-					sync.views('readOne', {scope: scope, scopeHash: scopeHash, resourceHash: viewHash}).then(function (viewData) {
+					sync.views('readOne', {scope: scope, scopeHash: scopeHash, resourceHash: viewHash, data:data}).then(function (viewData) {
 						d.resolve(viewData);
 					});
 					return d.promise;
