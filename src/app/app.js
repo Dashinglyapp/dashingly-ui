@@ -3,6 +3,7 @@ define([
 	'angularAMD',
 	'jquery',
 	'spin',
+    'moment',
 	'ngTouch',
 	'angular-ui-bootstrap',
 	'realize-debugging',
@@ -11,7 +12,6 @@ define([
 	'lodash',
 	'realize-lodash',
 	'angular-charts',
-	'moment',
 	'ngRoute',
 	'angular-formly',
 	'screen',
@@ -27,7 +27,7 @@ define([
 	'angular-spinner',
     'angular-leaflet',
     'bluebutton'
-], function (angular, angularAMD, $, Spinner) {
+], function (angular, angularAMD, $, Spinner, moment) {
 	var DEBUG_MODE = false;
 
 	var module = angular.module('realize', ['ui.bootstrap', 'realize-debugging', 'http-auth-interceptor', 'user', 'widget', 'realize-lodash', 'angularCharts', 'ngRoute', 'formly', 'screen', 'view', 'context', 'plugin', 'util', 'angular-growl', 'error', 'gridster', 'realize-sync', 'angularSpinner', 'leaflet-directive'])
@@ -133,6 +133,16 @@ define([
 				return input.substring(0, 1).toUpperCase() + input.substring(1);
 			};
 		}])
+
+        .filter('formatdate', [function(){
+            return function (input, scope) {
+				if (input !== null) {
+					input = moment(input);
+				}
+
+				return input.format("YYYY-MM-DD");
+			};
+        }])
 
 		.factory('$exceptionHandler', ['error', function (error) {
 			return function (exception, cause) {

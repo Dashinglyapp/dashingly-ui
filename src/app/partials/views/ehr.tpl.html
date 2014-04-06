@@ -9,10 +9,11 @@
 </div>
 
 <div class="card row" ng-if="data.typeToShow === 'allergies'">
+    <h3>Allergies</h3>
     <div class="allergy-card col-md-3" ng-repeat="allergen in data.summary.allergies">
         <div ng-if="allergen.status == 'Active'">
             <div class="title">
-                <h1>{{allergen.allergen.name}}</h1>
+                <h4>{{allergen.allergen.name}}</h4>
             </div>
             <div>
                 <p>{{allergen.severity}}</p>
@@ -21,15 +22,47 @@
     </div>
 </div>
 
+<div class="card row" ng-if="data.typeToShow === 'medications'">
+    <h3>Medications</h3>
+    <div class="medication-card col-md-3" ng-repeat="medication in data.summary.medications">
+        <div>
+            <div class="title">
+                <h4>{{medication.product.name}}</h4>
+            </div>
+            <div>
+                <p>{{medication.dose_quantity.value}} {{medication.dose_quantity.unit || ''}}</p>
+                <p>{{medication.rate_quantity.value}} {{medication.rate_quantity.unit || ''}}</p>
+                <p>{{medication.date_range.start | formatdate}} - {{medication.date_range.end | formatdate}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card row" ng-if="data.typeToShow === 'problems'">
+    <h3>Conditions</h3>
+    <div class="problem-card col-md-3" ng-repeat="problem in data.summary.problems">
+        <div>
+            <div class="title">
+                <h4>{{problem.name}}</h4>
+            </div>
+            <div>
+                <p>{{problem.date_range.start | formatdate}} - {{problem.date_range.end | formatdate}}</p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <style>
 
 .allergy-card{
     display: inline;
 }
+
+.medication-card p {
+    font-size: 15px;
+}
 .card{
     margin: 20px;
-    border: 1px solid black;
     padding: 20px;
 }
 

@@ -1,0 +1,45 @@
+<div id="profile" class="card row" ng-if="data.corr !== undefined">
+    <div class=" title">
+        <h1 class="col-xs-12">{{data.title}}</h1>
+    </div>
+    <div>
+        <h4 ng-repeat="corr in data.corr">
+            {{corr.message}}
+        </h4>
+    </div>
+</div>
+
+<style>
+
+.allergy-card{
+    display: inline;
+}
+
+.medication-card p {
+    font-size: 15px;
+}
+.card{
+    margin: 20px;
+    padding: 20px;
+}
+
+.card img{
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.value{
+    font-size: 180%;
+}
+
+.value .unit{
+    font-size: 70%;
+}
+
+p{
+    font-size: 20px;
+}
+
+	</style>

@@ -1,0 +1,36 @@
+{
+	"title": "Correlations",
+	"description": "Correlations",
+	"controller": "CorrelationsCtrl",
+	"type": "correlations",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["dashboard-item"],
+	"plugin": "",
+	"javascripts": ["correlations.js"],
+	"templates": ["correlations.tpl.html"],
+	"css": [],
+    "settings": {
+		"source": {
+			"type": "endpoint",
+			"description": "Data to enter",
+			"meta": {
+				"tags": ["correlations"]
+			},
+			"required": true,
+			"default": "62471abd5046eb9d39b5df73764c5be1"
+		}
+	},
+	"display": {
+		"views": {
+			"summary": {
+				"type": "directions",
+				"formats": ["desktop"]
+			}
+		},
+		"defaults": {
+			"desktop": "summary",
+			"mobile": "summary"
+		}
+	}
+}
