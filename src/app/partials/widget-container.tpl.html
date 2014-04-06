@@ -1,6 +1,6 @@
-<div class="widget" ng-class="(widgetData.name.substring(0, 8) === 'realize_') ? '' : 'widget-border'">
+<div class="widget" ng-class="(widgetData.name.substring(0, 8) === 'realize_') ? '' : 'widget-border'" ng-mouseenter="$root.$emit(EVENTS.widgetSettingsShow, widgetData.hashkey)" ng-mouseleave="$root.$emit(EVENTS.widgetSettingsShow, widgetData.hashkey)">
 	<div class="widget-heading auth" ng-controller="WidgetActionsCtrl">
-		<div class="widget-actions" ng-show="widgetData.settings !== undefined">
+		<div class="widget-actions" ng-show="widgetData.settings !== undefined && show === true">
 			<div ng-show="widgetData.display !== undefined && widgetData.display.views !== undefined" class="widget-action dropdown">
 				<a class="btn btn-default dropdown-toggle">
 					<span class="fa fa-caret-down"></span>

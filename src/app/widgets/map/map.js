@@ -29,7 +29,8 @@ define(['app', 'angular', 'moment', 'view', 'context', 'user', 'realize-sync'], 
                             zoom: 12,
                             lat: lat / lc,
                             lng: lon / lc
-                        }
+                        },
+                        "name": data.description
                     }
 				};
 			});

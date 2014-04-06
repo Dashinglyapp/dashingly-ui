@@ -1,0 +1,36 @@
+{
+	"title": "Patient",
+	"description": "Main patient information",
+	"controller": "PatientCtrl",
+	"type": "form",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["dashboard-item"],
+	"plugin": "",
+	"javascripts": ["patient.js"],
+	"templates": ["patient.tpl.html"],
+	"css": [],
+	"settings": {
+		"source": {
+			"type": "endpoint",
+			"description": "Data to enter",
+			"meta": {
+				"tags": ["patient-form"]
+			},
+			"required": true,
+			"default": ""
+		}
+	},
+	"display": {
+		"views": {
+            "main": {
+				"type": "custom",
+				"formats": ["mobile", "desktop"]
+			}
+		},
+		"defaults": {
+			"desktop": "custom",
+			"mobile": "custom"
+		}
+	}
+}

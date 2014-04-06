@@ -28,6 +28,7 @@ require.config({
 		'spin': 'thirdparty/spin.js/spin',
         'leaflet': 'thirdparty/leaflet-dist/leaflet',
         'angular-leaflet': 'thirdparty/angular-leaflet-directive/dist/angular-leaflet-directive',
+        'bluebutton': 'thirdparty/bluebutton.js/build/bluebutton',
 
 		// Templates
 		'html_templates_jsfied': 'html_templates_jsfied',

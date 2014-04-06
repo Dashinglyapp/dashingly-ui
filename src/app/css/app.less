@@ -342,6 +342,7 @@ a,a:link,a:visited,a:hover,a:active, {
 
 // 	}
 // }
+
 .widget-actions{
 	display: inline;
 	float: right;
@@ -354,10 +355,9 @@ a,a:link,a:visited,a:hover,a:active, {
 
 .widget{
 	padding: 5px;
-	height: 250px;
+  min-height: 100px;
 
 	&.widget-border{
-		border-top: 1px solid #ccc;
 		margin-top: 15px;
 		padding-top: 15px;
 	}
@@ -462,6 +462,15 @@ a,a:link,a:visited,a:hover,a:active, {
       border-bottom: 1px solid @lightgrey;
     }
   }
+}
+
+/**
+*
+*Widgets
+*/
+
+.info-panel{
+  display: inline;
 }
 
 .transition (@transition) {

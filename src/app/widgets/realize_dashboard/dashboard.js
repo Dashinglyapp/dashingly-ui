@@ -1,6 +1,7 @@
 define(['app', 'angularAMD', 'angular', 'jquery', 'angular-ui-bootstrap', 'realize-sync', 'widget', 'user', 'screen'], function (app, angularAMD, angular, $) {
 	app.register.controller('WidgetDashboardCtrl', ['$scope', 'widget', 'widgetMeta', '$element', '$rootScope', 'sync', 'user', 'EVENTS', 'screen', '$modal', function ($scope, widget, widgetMeta, $element, $root, sync, user, EVENTS, screen, $modal) {
 		$scope.hashkey = $scope.widgetData.hashkey;
+        $scope.EVENTS = EVENTS;
 		$scope.itemMap = {
 			sizeX: 'widgetData.layout.sizeX',
 			sizeY: 'widgetData.layout.sizeY',

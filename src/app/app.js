@@ -25,7 +25,8 @@ define([
 	'angular-gridster',
 	'realize-sync',
 	'angular-spinner',
-    'angular-leaflet'
+    'angular-leaflet',
+    'bluebutton'
 ], function (angular, angularAMD, $, Spinner) {
 	var DEBUG_MODE = false;
 
@@ -44,7 +45,8 @@ define([
 			widgetRefreshPressed: 'event:widget-refresh',
 			widgetRenderData: 'event:widget-render',
 			widgetViewChange: 'event:widget-view-change',
-			widgetAddToDash: 'event:widget-add-to-dash'
+			widgetAddToDash: 'event:widget-add-to-dash',
+            widgetSettingsShow: 'event:widget-settings-show'
 		})
 
 		.constant('USER_ROLES', {

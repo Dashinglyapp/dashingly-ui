@@ -1,0 +1,55 @@
+<div id="profile" class="card row" ng-if="data.typeToShow === 'profile'">
+    <div class=" title">
+        <h1 class="col-xs-12">{{data.summary.demographics.name.given[0]}} {{data.summary.demographics.name.given[1]}}</h1>
+    </div>
+    <div>
+        <div class="col-xs-4">Height<br><span class="value">{{data.summary.vitals[0].results[0].value}} {{data.summary.vitals[0].results[0].unit}}</span></div>
+        <div class="col-xs-4">Weight<br><span class="value">{{data.summary.vitals[0].results[1].value}} {{data.summary.vitals[0].results[1].unit}}</span></div>
+    </div>
+</div>
+
+<div class="card row" ng-if="data.typeToShow === 'allergies'">
+    <div class="allergy-card col-md-3" ng-repeat="allergen in data.summary.allergies">
+        <div ng-if="allergen.status == 'Active'">
+            <div class="title">
+                <h1>{{allergen.allergen.name}}</h1>
+            </div>
+            <div>
+                <p>{{allergen.severity}}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+
+.allergy-card{
+    display: inline;
+}
+.card{
+    margin: 20px;
+    border: 1px solid black;
+    padding: 20px;
+}
+
+.card img{
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.value{
+    font-size: 180%;
+}
+
+.value .unit{
+    font-size: 70%;
+}
+
+p{
+    font-size: 20px;
+}
+
+	</style>

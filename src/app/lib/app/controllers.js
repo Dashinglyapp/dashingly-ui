@@ -205,6 +205,8 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 	.controller('WidgetActionsCtrl', ['$scope', 'user', 'EVENTS', 'widget', '$rootScope', 'view', 'context', 'widgetSettings', 'notification',function ($scope, user, EVENTS, widget, $root, view, context, widgetSettings, notification) {
 		$scope.collapseSettings = true;
 		$scope.formData = {};
+        $scope.show = false;
+
 		console.log('$scope.widgetData',$scope.widgetData);
 		$scope.changeView = function (viewName) {
 			widget.saveView($scope.hashkey, viewName).then(function () {
@@ -243,6 +245,13 @@ define(['app', 'angular', 'jquery', 'user', 'realize-sync', 'widget', 'plugin', 
 				}
 			});
 		};
+
+        $scope.$onRootScope(EVENTS.widgetSettingsShow, function(event, hashkey){
+            if(hashkey === $scope.hashkey){
+                console.log("Got a widgetData show event.", $scope.show);
+                $scope.show = !$scope.show;
+            }
+        });
 
 		if ($scope.widgetData !== undefined) {
 			$scope.hashkey = $scope.widgetData.hashkey;

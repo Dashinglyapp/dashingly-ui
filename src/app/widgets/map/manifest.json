@@ -2,7 +2,7 @@
 	"title": "Map",
 	"description": "A basic map",
 	"controller": "MapCtrl",
-	"type": "form",
+	"type": "map",
 	"version": ".1",
 	"authors": ["Realize"],
 	"tags": ["dashboard-item"],

@@ -56,6 +56,9 @@ define(['app', 'realize-debugging', 'screen'], function (app) {
                         case "map":
                             template = "partials/views/map.tpl.html";
                             break;
+                        case "ehr":
+                            template = "partials/views/ehr.tpl.html";
+                            break;
 						default:
 							template = viewData[currentView].templateUrl;
 					}

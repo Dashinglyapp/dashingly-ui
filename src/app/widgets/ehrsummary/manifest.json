@@ -1,0 +1,42 @@
+{
+	"title": "EHR Summary",
+	"description": "EHR Summary statistics",
+	"controller": "EHRCtrl",
+	"type": "ehr",
+	"version": ".1",
+	"authors": ["Realize"],
+	"tags": ["dashboard-item"],
+	"plugin": "",
+	"javascripts": ["ehrsummary.js"],
+	"templates": ["ehrsummary.tpl.html"],
+	"css": [],
+    "settings": {
+		"source": {
+			"type": "endpoint",
+			"description": "Data to enter",
+			"meta": {
+				"tags": ["ehr"]
+			},
+			"required": true,
+			"default": "64c3a5f13646bed6d1fc18d86c7c20f2"
+		},
+        "typeToShow": {
+            "type": "text",
+            "description": "Type to show",
+            "require": true,
+            "default": "profile"
+        }
+	},
+	"display": {
+		"views": {
+			"summary": {
+				"type": "ehr",
+				"formats": ["desktop"]
+			}
+		},
+		"defaults": {
+			"desktop": "summary",
+			"mobile": "summary"
+		}
+	}
+}

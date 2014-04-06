@@ -8,7 +8,7 @@ define(['app', 'angular', 'moment', 'angular-charts', 'view', 'context', 'realiz
 			.then(function (data) {
 				$scope.allChartData = data;
 				$scope.chartConfig = {
-					title: data.name,
+					title: "",
 					legend: {
 						display: false,
 						position: 'left'
@@ -54,7 +54,8 @@ define(['app', 'angular', 'moment', 'angular-charts', 'view', 'context', 'realiz
 					"chart": {
 						"chartData": $scope.chartData,
 						"chartType": $scope.chartType,
-						"chartConfig": $scope.chartConfig
+						"chartConfig": $scope.chartConfig,
+                        "name": data.description
 					},
 					"number": {
 						"number": $scope.number
